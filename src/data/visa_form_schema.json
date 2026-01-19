@@ -1,0 +1,384 @@
+{
+  "O-1A": {
+    "title": "O-1A Visa",
+    "description": "For individuals with extraordinary ability in the sciences, education, business, or athletics.",
+    "caseBackground": {
+      "sections": [
+        {
+          "title": "Beneficiary Details",
+          "fields": [
+            { "name": "first_name", "label": "First Name", "type": "text", "required": true },
+            { "name": "last_name", "label": "Last Name", "type": "text", "required": true },
+            { "name": "field_of_endeavor", "label": "Field of Endeavor", "type": "text", "required": true },
+            {
+              "name": "o1a_category",
+              "label": "O-1A Category",
+              "type": "select",
+              "required": true,
+              "options": ["Business", "Sciences", "Education", "Athletics"]
+            }
+          ]
+        },
+        {
+          "title": "Petitioner Details",
+          "fields": [
+            { "name": "petitioner_name", "label": "Petitioner Name", "type": "text", "required": true }
+          ]
+        },
+        {
+          "title": "Background of the Beneficiary",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Upload documents supporting the beneficiary's background and qualifications"
+        },
+        {
+          "title": "The Field",
+          "type": "file_upload", 
+          "multiple": true,
+          "description": "Documentation about the field of endeavor"
+        },
+        {
+          "title": "Proposed Employment",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Upload documentation of proposed employment"
+        },
+        {
+          "title": "Advisory Opinion",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Advisory opinion from appropriate consulting entity"
+        },
+        {
+          "title": "Expert Letters",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Letters from experts attesting to the beneficiary's achievements"
+        }
+      ]
+    },
+    "criteria": {
+      "national_international_awards": {
+        "title": "National or International Prizes or Awards",
+        "description": "Evidence of nationally or internationally recognized prizes or awards for excellence",
+        "supportsFolders": true
+      },
+      "membership_associations": {
+        "title": "Membership in Associations",
+        "description": "Documentation showing membership in associations which require outstanding achievements",
+        "supportsFolders": true
+      },
+      "published_material": {
+        "title": "Published Material About the Beneficiary",
+        "description": "Published material about the beneficiary in professional or major trade publications",
+        "supportsFolders": true
+      },
+      "judging_work": {
+        "title": "Judging the Work of Others",
+        "description": "Evidence of participation as a judge of the work of others in the same field",
+        "supportsFolders": true
+      },
+      "original_contributions": {
+        "title": "Original Contributions in the Field",
+        "description": "Evidence of original contributions of major significance to the field",
+        "supportsFolders": true
+      },
+      "scholarly_articles": {
+        "title": "Authorship of Scholarly Articles",
+        "description": "Evidence of authorship of scholarly articles in professional journals",
+        "supportsFolders": true
+      },
+      "critical_employment": {
+        "title": "Employment in a Critical or Essential Capacity",
+        "description": "Evidence of employment in a critical or essential capacity for organizations with distinguished reputations",
+        "supportsFolders": true
+      },
+      "high_salary": {
+        "title": "Commanding a High Salary",
+        "description": "Evidence of commanding a high salary in relation to others in the field",
+        "supportsFolders": true
+      }
+    }
+  },
+
+  "O-1B": {
+    "title": "O-1B Visa",
+    "description": "For individuals with extraordinary ability in the arts or entertainment.",
+    "caseBackground": {
+      "sections": [
+        {
+          "title": "Beneficiary Details",
+          "fields": [
+            { "name": "first_name", "label": "First Name", "type": "text", "required": true },
+            { "name": "last_name", "label": "Last Name", "type": "text", "required": true },
+            { "name": "field_of_endeavor", "label": "Field of Endeavor", "type": "text", "required": true },
+            {
+              "name": "o1b_category",
+              "label": "O-1B Category",
+              "type": "select",
+              "required": true,
+              "options": ["Arts", "Motion Picture or Television Industry"]
+            }
+          ]
+        },
+        {
+          "title": "Biographical Documents",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Upload biographical documents and supporting materials"
+        },
+        {
+          "title": "Background of the Beneficiary",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Background information and supporting documents"
+        },
+        {
+          "title": "The Field",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Documentation about the artistic field"
+        },
+        {
+          "title": "Proposed Employment",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Employment contracts or offer letters"
+        },
+        {
+          "title": "Advisory Opinion",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Advisory opinion from appropriate consulting entity"
+        }
+      ]
+    },
+    "criteria": {
+      "high_salary": {
+        "title": "Commanding a High Salary",
+        "description": "Evidence of commanding a high salary in relation to others in the field",
+        "supportsFolders": true
+      },
+      "expert_recognition": {
+        "title": "Recognition for Achievements from Experts",
+        "description": "Recognition for achievements from organizations, critics, government agencies",
+        "supportsFolders": true
+      },
+      "critically_acclaimed": {
+        "title": "Record of Critically Acclaimed Success",
+        "description": "Record of critically acclaimed performances or achievements",
+        "supportsFolders": true
+      },
+      "leading_role_organizations": {
+        "title": "Leading Role of Distinguished Organizations",
+        "description": "Evidence of performing in a leading role for distinguished organizations",
+        "supportsFolders": true
+      },
+      "leading_role_productions": {
+        "title": "Leading Role in Distinguished Productions",
+        "description": "Evidence of performing in a leading role in distinguished productions",
+        "supportsFolders": true
+      },
+      "national_international_recognition": {
+        "title": "National or International Recognition for Achievements",
+        "description": "Evidence of national or international recognition for achievements",
+        "supportsFolders": true
+      }
+    }
+  },
+
+  "EB-1A": {
+    "title": "EB-1A Visa",
+    "description": "For individuals with extraordinary ability in business, sciences, education, arts, or athletics.",
+    "caseBackground": {
+      "sections": [
+        {
+          "title": "Beneficiary Details",
+          "fields": [
+            { "name": "first_name", "label": "First Name", "type": "text", "required": true },
+            { "name": "last_name", "label": "Last Name", "type": "text", "required": true },
+            { "name": "field_of_endeavor", "label": "Field of Endeavor", "type": "text", "required": true },
+            {
+              "name": "eb1a_category",
+              "label": "EB-1A Category",
+              "type": "select",
+              "required": true,
+              "options": ["Business", "Sciences", "Education", "Arts", "Athletics"]
+            }
+          ]
+        },
+        {
+          "title": "Background of the Beneficiary",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Background information and supporting documents"
+        },
+        {
+          "title": "The Field",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Documentation about the field of endeavor"
+        },
+        {
+          "title": "Final Merits",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Final merits determination documentation"
+        },
+        {
+          "title": "Expert Letters",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Letters from recognized experts in the field"
+        }
+      ]
+    },
+    "criteria": {
+      "national_international_awards": {
+        "title": "National or International Prizes or Awards",
+        "description": "Evidence of nationally or internationally recognized prizes or awards",
+        "supportsFolders": true
+      },
+      "membership_associations": {
+        "title": "Membership in Associations",
+        "description": "Membership in associations requiring outstanding achievements",
+        "supportsFolders": true
+      },
+      "published_material": {
+        "title": "Published Material About the Beneficiary",
+        "description": "Published material about the beneficiary in professional publications",
+        "supportsFolders": true
+      },
+      "judging_work": {
+        "title": "Judging the Work of Others",
+        "description": "Participation as a judge of the work of others",
+        "supportsFolders": true
+      },
+      "original_contributions": {
+        "title": "Original Contributions in the Field",
+        "description": "Original contributions of major significance to the field",
+        "supportsFolders": true
+      },
+      "scholarly_articles": {
+        "title": "Authorship of Scholarly Articles",
+        "description": "Authorship of scholarly articles in professional journals",
+        "supportsFolders": true
+      },
+      "artistic_exhibitions": {
+        "title": "Display of Work in Artistic Exhibitions or Showcases",
+        "description": "Display of work at artistic exhibitions or showcases",
+        "supportsFolders": true
+      },
+      "critical_employment": {
+        "title": "Employment in a Critical or Leading Capacity",
+        "description": "Employment in a critical or leading capacity for distinguished organizations",
+        "supportsFolders": true
+      },
+      "high_salary": {
+        "title": "Commanding a High Salary",
+        "description": "Commanding a high salary in relation to others in the field",
+        "supportsFolders": true
+      },
+      "commercial_success": {
+        "title": "Commercial Success in the Performing Arts",
+        "description": "Commercial success in the performing arts",
+        "supportsFolders": true
+      }
+    }
+  },
+
+  "EB-1C": {
+    "title": "EB-1C Visa",
+    "description": "For multinational executives and managers.",
+    "caseBackground": {
+      "sections": [
+        {
+          "title": "Beneficiary Details",
+          "fields": [
+            { "name": "first_name", "label": "First Name", "type": "text", "required": true },
+            { "name": "last_name", "label": "Last Name", "type": "text", "required": true }
+          ]
+        },
+        {
+          "title": "Foreign Company",
+          "fields": [
+            { "name": "foreign_entity", "label": "Foreign Entity", "type": "text", "required": true },
+            { "name": "position_abroad", "label": "Position Abroad", "type": "text", "required": true },
+            {
+              "name": "position_type_abroad",
+              "label": "Position Type",
+              "type": "select",
+              "required": true,
+              "options": ["Executive Capacity", "Managerial Capacity", "Both Executive and Managerial"]
+            },
+            {
+              "name": "manager_type_abroad",
+              "label": "Manager Type",
+              "type": "select",
+              "required": false,
+              "conditional": "position_type_abroad",
+              "conditionalValues": ["Managerial Capacity", "Both Executive and Managerial"],
+              "options": ["Personnel Manager", "Function Manager", "Both Personnel and Function"]
+            }
+          ]
+        },
+        {
+          "title": "US Petitioner",
+          "fields": [
+            { "name": "petitioner_name", "label": "Petitioner Name", "type": "text", "required": true },
+            { "name": "position_us", "label": "Position in the US", "type": "text", "required": true },
+            {
+              "name": "position_type_us",
+              "label": "Position Type",
+              "type": "select",
+              "required": true,
+              "options": ["Executive Capacity", "Managerial Capacity", "Both Executive and Managerial"]
+            },
+            {
+              "name": "manager_type_us",
+              "label": "Manager Type",
+              "type": "select",
+              "required": false,
+              "conditional": "position_type_us",
+              "conditionalValues": ["Managerial Capacity", "Both Executive and Managerial"],
+              "options": ["Personnel Manager", "Function Manager", "Both Personnel and Function"]
+            }
+          ]
+        },
+        {
+          "title": "Background on the Petitioner and Foreign Entity",
+          "type": "file_upload",
+          "multiple": true,
+          "description": "Background information on the petitioner and foreign entity relationship"
+        }
+      ]
+    },
+    "criteria": {
+      "doing_business": {
+        "title": "Doing Business",
+        "description": "Evidence that the petitioner is doing business",
+        "supportsFolders": true
+      },
+      "qualifying_relationship": {
+        "title": "Qualifying Relationship",
+        "description": "Evidence of qualifying relationship between foreign and US entities",
+        "supportsFolders": true
+      },
+      "position_abroad": {
+        "title": "Position Abroad",
+        "description": "Evidence of position abroad for at least one year in the three years preceding the petition",
+        "supportsFolders": true
+      },
+      "position_united_states": {
+        "title": "Position in the United States",
+        "description": "Evidence of position in the United States in an executive or managerial capacity",
+        "supportsFolders": true
+      },
+      "other_qualifications": {
+        "title": "Other Qualifications of the Beneficiary",
+        "description": "Other qualifications and supporting evidence",
+        "supportsFolders": true
+      }
+    }
+  }
+}
