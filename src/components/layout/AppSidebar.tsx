@@ -30,24 +30,24 @@ const getNavigationItems = (role: string) => {
   ];
 
   const adminItems = [
-    { title: "Cases", url: "/cases", icon: Briefcase },
-    { title: "Clients", url: "/clients", icon: Users },
-    { title: "Documents", url: "/documents", icon: FileText },
-    { title: "Messages", url: "/messages", icon: MessageSquareMore },
+    { title: "Task Manager", url: "/task-manager", icon: Briefcase },
+    { title: "Patients", url: "/patients", icon: Users },
+    { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
+    { title: "Help Desk", url: "/help-desk", icon: MessageSquareMore },
     { title: "Payments", url: "/payments", icon: DollarSign },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
   const attorneyParalegalItems = [
-    { title: "Cases", url: "/cases", icon: Briefcase },
-    { title: "Documents", url: "/documents", icon: FileText },
-    { title: "Messages", url: "/messages", icon: MessageSquareMore },
+    { title: "Task Manager", url: "/task-manager", icon: Briefcase },
+    { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
+    { title: "Help Desk", url: "/help-desk", icon: MessageSquareMore },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
   const clientItems = [
-    { title: "Applications", url: "/applications", icon: TicketsPlane },
-    { title: "Documents", url: "/documents", icon: FileText },
+    { title: "Appointments", url: "/appointments", icon: TicketsPlane },
+    { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
     { title: "Payments", url: "/payments", icon: DollarSign },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
@@ -76,9 +76,9 @@ export function AppSidebar() {
     <Sidebar className="border-r border-border">
       <SidebarHeader className="border-b border-border px-6 py-4">
         <div className="flex items-center gap-3">
-          <img 
-            src="/images/logos/agora-logo-dark.png" 
-            alt="Agora Visa Platform" 
+          <img
+            src="/images/logos/agora-logo-dark.png"
+            alt="Agora Visa Platform"
             className="h-8 w-auto"
           />
         </div>
@@ -96,11 +96,10 @@ export function AppSidebar() {
                   >
                     {({ isActive }) => (
                       <SidebarMenuButton asChild isActive={isActive}>
-                        <div className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-200 ${
-                          isActive
+                        <div className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-200 ${isActive
                             ? "!bg-gray-100 text-foreground font-medium [&_svg]:!text-[#fe5e41] hover:!bg-gray-100 focus:!bg-gray-100 active:!bg-gray-100"
                             : "text-muted-foreground hover:bg-muted/50 hover:text-foreground [&_svg]:text-muted-foreground focus:bg-transparent active:bg-transparent"
-                        }`}>
+                          }`}>
                           <item.icon className="h-4 w-4" />
                           {!collapsed && <span>{item.title}</span>}
                         </div>
@@ -118,8 +117,8 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-border p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="flex items-center gap-3 w-full justify-start hover:bg-muted transition-colors px-2"
             >
               <Avatar className="h-8 w-8">
@@ -128,7 +127,7 @@ export function AppSidebar() {
                   {user ? getAvatarInitials(user.name) : "U"}
                 </AvatarFallback>
               </Avatar>
-              
+
               {!collapsed && (
                 <div className="flex flex-1 items-center justify-between min-w-0">
                   <div className="text-left flex-1 min-w-0">
@@ -144,7 +143,7 @@ export function AppSidebar() {
               )}
             </Button>
           </DropdownMenuTrigger>
-          
+
           <DropdownMenuContent align="end" className="w-64" side="top">
             <DropdownMenuLabel>
               <div className="flex gap-2">
@@ -163,13 +162,13 @@ export function AppSidebar() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            
+
             {/* Development Role Switcher */}
             <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
               Development - Switch Role
             </DropdownMenuLabel>
             <div className="grid grid-cols-2 gap-1 px-2 py-1">
-              <Button 
+              <Button
                 variant={user?.role === 'admin' ? "default" : "outline"}
                 size="sm"
                 onClick={() => switchUser('admin')}
@@ -177,7 +176,7 @@ export function AppSidebar() {
               >
                 Ope (Admin)
               </Button>
-              <Button 
+              <Button
                 variant={user?.role === 'paralegal' ? "default" : "outline"}
                 size="sm"
                 onClick={() => switchUser('paralegal')}
@@ -185,7 +184,7 @@ export function AppSidebar() {
               >
                 Sarah (Para)
               </Button>
-              <Button 
+              <Button
                 variant={user?.role === 'attorney' ? "default" : "outline"}
                 size="sm"
                 onClick={() => switchUser('attorney')}
@@ -193,7 +192,7 @@ export function AppSidebar() {
               >
                 Michael (Atty)
               </Button>
-              <Button 
+              <Button
                 variant={user?.role === 'client' ? "default" : "outline"}
                 size="sm"
                 onClick={() => switchUser('client')}
@@ -202,7 +201,7 @@ export function AppSidebar() {
                 Alex (Client)
               </Button>
             </div>
-            
+
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <UserIcon className="h-4 w-4" />
@@ -213,7 +212,7 @@ export function AppSidebar() {
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               className="text-destructive focus:text-destructive"
               onClick={logout}
             >

@@ -40,7 +40,7 @@ export default function CreateCase() {
 
   const caseManagers = [
     "Sarah Johnson",
-    "Michael Chen", 
+    "Michael Chen",
     "David Rodriguez",
     "Emily Watson"
   ];
@@ -50,7 +50,7 @@ export default function CreateCase() {
     // TODO: Implement case creation logic
     console.log("Creating case:", formData);
     // Navigate to the new case detail page
-    navigate("/cases/ACV-2024-NEW");
+    navigate("/task-manager/ACV-2024-NEW");
   };
 
   const handleChange = (field: string, value: string) => {
@@ -70,7 +70,7 @@ export default function CreateCase() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="w-full">
-            <Link to="/cases">Cancel</Link>
+            <Link to="/task-manager">Cancel</Link>
           </Button>
           <Button type="submit" className="w-full" disabled={!formData.visaType || !formData.clientName}>
             Create Case

@@ -165,29 +165,29 @@ export default function Dashboard() {
         { label: "Urgent", value: "3", change: "-1", icon: AlertCircle, color: "text-red-600 bg-red-100" }
       ],
       assignedCases: [
-        { 
-          id: "ACV-2024-001", 
-          client: "Alex Turner", 
-          type: "O-1A", 
-          priority: "High", 
-          lastActivity: "2 hours ago", 
-          status: "Review" 
+        {
+          id: "ACV-2024-001",
+          client: "Alex Turner",
+          type: "O-1A",
+          priority: "High",
+          lastActivity: "2 hours ago",
+          status: "Review"
         },
-        { 
-          id: "ACV-2024-005", 
-          client: "Sarah Chen", 
-          type: "EB-1A", 
-          priority: "Medium", 
-          lastActivity: "1 day ago", 
-          status: "Draft" 
+        {
+          id: "ACV-2024-005",
+          client: "Sarah Chen",
+          type: "EB-1A",
+          priority: "Medium",
+          lastActivity: "1 day ago",
+          status: "Draft"
         },
-        { 
-          id: "ACV-2024-008", 
-          client: "David Kim", 
-          type: "O-1B", 
-          priority: "High", 
-          lastActivity: "3 hours ago", 
-          status: "Active" 
+        {
+          id: "ACV-2024-008",
+          client: "David Kim",
+          type: "O-1B",
+          priority: "High",
+          lastActivity: "3 hours ago",
+          status: "Active"
         }
       ]
     },
@@ -220,21 +220,21 @@ export default function Dashboard() {
           desc: "Add evidence for pending criteria",
           icon: Upload,
           iconColor: "text-primary bg-primary/10",
-          link: "/documents/upload"
+          link: "/diagnostic-reports/upload"
         },
         {
           title: "Messages",
           desc: "2 new messages from your team",
           icon: MessageSquare,
           iconColor: "text-blue-600 bg-blue-100",
-          link: "/messages"
+          link: "/help-desk"
         },
         {
           title: "Case Details",
           desc: "View complete petition status",
           icon: FileText,
           iconColor: "text-green-600 bg-green-100",
-          link: "/cases/ACV-2024-001"
+          link: "/task-manager/ACV-2024-001"
         }
       ],
       recentActivity: [
@@ -307,7 +307,7 @@ export default function Dashboard() {
             {userRole === "client" && "Your immigration case progress"}
           </p>
         </div>
-        
+
         {userRole !== "client" && (
           <div className="flex items-center gap-2">
             {/* <Button variant="outline" size="sm" className="gap-2">
@@ -476,7 +476,7 @@ export default function Dashboard() {
                       <TableCell>{caseItem.lastActivity}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="outline" size="sm">
-                          <Link to={`/cases/${caseItem.id}`} className="flex items-center">
+                          <Link to={`/task-manager/${caseItem.id}`} className="flex items-center">
                             <Eye className="h-4 w-4 mr-2" />
                             Review
                           </Link>
@@ -644,7 +644,7 @@ export default function Dashboard() {
                   <div>
                     <p className="font-medium text-amber-800">Filing Deadline</p>
                     <p className="text-muted-foreground">
-                      {new Date(data.activeCase.deadline).toLocaleDateString()} 
+                      {new Date(data.activeCase.deadline).toLocaleDateString()}
                       ({data.activeCase.daysRemaining} days remaining)
                     </p>
                   </div>

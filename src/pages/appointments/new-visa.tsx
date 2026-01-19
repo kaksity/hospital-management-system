@@ -4,13 +4,13 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   CardContent,
-  CardFooter 
+  CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,9 +21,9 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  FolderPlus, 
-  Upload, 
-  FileText, 
+  FolderPlus,
+  Upload,
+  FileText,
   ChevronRight,
   ChevronLeft,
   CheckCircle2,
@@ -39,12 +39,12 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
-import { 
-  getVisaSchema, 
-  type VisaSchema, 
+import {
+  getVisaSchema,
+  type VisaSchema,
   type VisaSection,
   type VisaField,
-  type VisaCriterion 
+  type VisaCriterion
 } from "@/services/visaSchemaService";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -113,7 +113,7 @@ export default function NewApplication() {
     // Check background sections
     selectedSchema.caseBackground.sections.forEach(section => {
       if (section.type === 'fields') {
-        const allRequiredFilled = section.fields?.every(field => 
+        const allRequiredFilled = section.fields?.every(field =>
           !field.required || formData[field.name]
         );
         if (allRequiredFilled) completedSections++;
@@ -133,12 +133,12 @@ export default function NewApplication() {
 
   const handleFieldChange = (fieldName: string, value: any, sectionTitle: string) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
-    
+
     // Check if section is complete
     if (selectedSchema) {
       const section = selectedSchema.caseBackground.sections.find(s => s.title === sectionTitle);
       if (section?.type === 'fields') {
-        const allRequiredFilled = section.fields?.every(field => 
+        const allRequiredFilled = section.fields?.every(field =>
           !field.required || (field.name === fieldName ? value : formData[field.name])
         );
         if (allRequiredFilled) {
@@ -172,7 +172,7 @@ export default function NewApplication() {
   const handleRenameFolder = (criterionKey: string, folderId: string, newName: string) => {
     setFolders(prev => ({
       ...prev,
-      [criterionKey]: prev[criterionKey].map(folder => 
+      [criterionKey]: prev[criterionKey].map(folder =>
         folder.id === folderId ? { ...folder, name: newName } : folder
       )
     }));
@@ -195,8 +195,8 @@ export default function NewApplication() {
 
     setFolders(prev => ({
       ...prev,
-      [criterionKey]: prev[criterionKey].map(folder => 
-        folder.id === folderId 
+      [criterionKey]: prev[criterionKey].map(folder =>
+        folder.id === folderId
           ? { ...folder, files: [...folder.files, ...newFiles] }
           : folder
       )
@@ -206,8 +206,8 @@ export default function NewApplication() {
   const handleRemoveFile = (criterionKey: string, folderId: string, fileId: string) => {
     setFolders(prev => ({
       ...prev,
-      [criterionKey]: prev[criterionKey].map(folder => 
-        folder.id === folderId 
+      [criterionKey]: prev[criterionKey].map(folder =>
+        folder.id === folderId
           ? { ...folder, files: folder.files.filter(f => f.id !== fileId) }
           : folder
       )
@@ -237,7 +237,7 @@ export default function NewApplication() {
     setUploadedFiles(prev => {
       const newFiles = (prev[sectionTitle] || []).filter(f => f.id !== fileId);
       const updated = { ...prev, [sectionTitle]: newFiles };
-      
+
       // Unmark section as complete if no files left
       if (newFiles.length === 0) {
         setSectionCompletion(prev => {
@@ -246,7 +246,7 @@ export default function NewApplication() {
           return newSet;
         });
       }
-      
+
       return updated;
     });
   };
@@ -256,7 +256,7 @@ export default function NewApplication() {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const applicationData = {
         visaType: selectedVisaType,
         background: formData,
@@ -267,11 +267,11 @@ export default function NewApplication() {
       };
 
       console.log('Application created:', applicationData);
-      
+
       toast.success("Application submitted successfully!");
-      
+
       // Navigate to APPLICATIONS page (not cases)
-      navigate('/applications');
+      navigate('/appointments');
     } catch (error) {
       toast.error("Failed to submit application. Please try again.");
     } finally {
@@ -294,8 +294,8 @@ export default function NewApplication() {
     const stepOrder: Step[] = ["background", "criteria", "review"];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(stepName);
-    
-    return stepIndex < currentIndex 
+
+    return stepIndex < currentIndex
       ? <CheckCircle2 className="h-4 w-4 text-green-500" />
       : <Circle className="h-4 w-4 text-muted-foreground" />;
   };
@@ -306,9 +306,9 @@ export default function NewApplication() {
         <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
         <h2 className="text-lg font-semibold mb-2">No Visa Type Selected</h2>
         <p>Please select a visa category to continue.</p>
-        <Button onClick={() => navigate('/applications')} className="mt-4">
+        <Button onClick={() => navigate('/appointments')} className="mt-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Applications
+          Back to Appointments
         </Button>
       </div>
     );
@@ -336,7 +336,7 @@ export default function NewApplication() {
         {/* Action Buttons */}
         {step === "background" && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigate('/applications')}>
+            <Button variant="outline" onClick={() => navigate('/appointments')}>
               Save as Draft
             </Button>
             <Button onClick={() => setStep("criteria")} disabled={progress < 30}>
@@ -345,7 +345,7 @@ export default function NewApplication() {
             </Button>
           </div>
         )}
-        
+
         {step === "criteria" && (
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => setStep("background")}>
@@ -358,15 +358,15 @@ export default function NewApplication() {
             </Button>
           </div>
         )}
-        
+
         {step === "review" && (
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => setStep("criteria")}>
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back to Evidence
             </Button>
-            <Button 
-              onClick={handleSubmit} 
+            <Button
+              onClick={handleSubmit}
               disabled={loading}
               className="min-w-32"
             >
@@ -392,11 +392,10 @@ export default function NewApplication() {
           {(["background", "criteria", "review"] as Step[]).map((stepName) => (
             <div key={stepName} className="flex items-center gap-2">
               {getStepIcon(stepName, step)}
-              <span className={`text-sm font-medium ${
-                stepName === step ? 'text-foreground' : 'text-muted-foreground'
-              }`}>
+              <span className={`text-sm font-medium ${stepName === step ? 'text-foreground' : 'text-muted-foreground'
+                }`}>
                 {stepName === 'background' ? 'Background Info' :
-                stepName === 'criteria' ? 'Evidence' : 'Review & Submit'}
+                  stepName === 'criteria' ? 'Evidence' : 'Review & Submit'}
               </span>
               {stepName !== "review" && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
             </div>
@@ -406,14 +405,14 @@ export default function NewApplication() {
           <div className="flex items-center gap-2 justify-end">
             <Badge variant={
               progress === 0 ? "default" :
-              progress <= 35 ? "destructive" :
-              progress <= 65 ? "secondary" :
-              "default"
+                progress <= 35 ? "destructive" :
+                  progress <= 65 ? "secondary" :
+                    "default"
             } className={
               progress === 0 ? "" :
-              progress <= 35 ? "bg-red-100 text-red-800 hover:bg-red-100" :
-              progress <= 65 ? "bg-amber-100 text-amber-800 hover:bg-amber-100" :
-              "bg-green-100 text-green-800 hover:bg-green-100"
+                progress <= 35 ? "bg-red-100 text-red-800 hover:bg-red-100" :
+                  progress <= 65 ? "bg-amber-100 text-amber-800 hover:bg-amber-100" :
+                    "bg-green-100 text-green-800 hover:bg-green-100"
             }>
               {progress}% Complete
             </Badge>
@@ -495,15 +494,15 @@ export default function NewApplication() {
   );
 }
 
-function SectionCard({ 
-  section, 
-  formData, 
-  onFieldChange, 
+function SectionCard({
+  section,
+  formData,
+  onFieldChange,
   isComplete,
   uploadedFiles = [],
   onFileUpload,
   onRemoveFile
-}: { 
+}: {
   section: VisaSection;
   formData: FormData;
   onFieldChange: (fieldName: string, value: any, sectionTitle: string) => void;
@@ -524,11 +523,11 @@ function SectionCard({
     switch (field.type) {
       case 'textarea':
         return <Textarea {...commonProps} />;
-      
+
       case 'select':
         return (
-          <Select 
-            value={formData[field.name] || ''} 
+          <Select
+            value={formData[field.name] || ''}
             onValueChange={(value) => onFieldChange(field.name, value, section.title)}
           >
             <SelectTrigger>
@@ -541,7 +540,7 @@ function SectionCard({
             </SelectContent>
           </Select>
         );
-      
+
       default:
         return <Input type={field.type} {...commonProps} />;
     }
@@ -777,7 +776,7 @@ function CriterionSection({
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="px-4 pb-3">
                 {folder.files.length > 0 ? (
                   <div className="space-y-2">
@@ -850,8 +849,8 @@ function UploadZone({ onUpload }: { onUpload: (files: File[]) => void }) {
       {...getRootProps()}
       className={`
         border px-3 py-1.5 rounded-md text-sm cursor-pointer transition-all
-        ${isDragActive 
-          ? 'border-primary bg-primary/10' 
+        ${isDragActive
+          ? 'border-primary bg-primary/10'
           : 'border-gray-300 hover:bg-muted/40'
         }
       `}
@@ -866,11 +865,11 @@ function UploadZone({ onUpload }: { onUpload: (files: File[]) => void }) {
 }
 
 // FileUploadZone component
-function FileUploadZone({ 
-  onFileUpload, 
+function FileUploadZone({
+  onFileUpload,
   multiple = true,
-  sectionTitle 
-}: { 
+  sectionTitle
+}: {
   onFileUpload: (files: File[]) => void;
   multiple?: boolean;
   sectionTitle: string;
@@ -900,8 +899,8 @@ function FileUploadZone({
       {...getRootProps()}
       className={`
         border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer
-        ${isDragActive 
-          ? 'border-primary bg-primary/10' 
+        ${isDragActive
+          ? 'border-primary bg-primary/10'
           : 'border-muted-foreground/25 bg-background/50 hover:bg-muted/40'
         }
       `}
@@ -916,7 +915,7 @@ function FileUploadZone({
         {isDragActive ? 'Drop files here...' : 'Drag & drop files here or click to browse'}
       </p>
       <p className="text-xs text-muted-foreground mb-4">
-        {multiple ? 'Multiple files allowed' : 'Single file upload'} • 
+        {multiple ? 'Multiple files allowed' : 'Single file upload'} •
         Supports PDF, Images, Word, Excel
       </p>
       <Button variant="outline" size="sm" type="button">
@@ -928,11 +927,11 @@ function FileUploadZone({
 }
 
 // Review Section Component
-function ReviewSection({ 
-  schema, 
-  formData, 
-  folders 
-}: { 
+function ReviewSection({
+  schema,
+  formData,
+  folders
+}: {
   schema: VisaSchema;
   formData: FormData;
   folders: CriterionState;
@@ -959,9 +958,9 @@ function ReviewSection({
               <p className="font-medium">{totalFiles} files in {totalFolders} groups</p>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <div>
             <h4 className="font-medium mb-2">Background Information</h4>
             <div className="space-y-2 text-sm">
@@ -989,7 +988,7 @@ function ReviewSection({
             {Object.entries(schema.criteria).map(([key, criterion]) => {
               const criterionFolders = folders[key] || [];
               const criterionFiles = criterionFolders.reduce((sum, folder) => sum + folder.files.length, 0);
-              
+
               return (
                 <div key={key} className="flex items-center justify-between p-3 border rounded-lg">
                   <div>

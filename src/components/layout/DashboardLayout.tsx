@@ -14,32 +14,32 @@ interface DashboardLayoutProps {
 const getBreadcrumbs = (pathname: string) => {
   const pathMap: Record<string, { label: string; href?: string }> = {
     "/": { label: "Dashboard", href: "/" },
-    "/cases": { label: "Cases", href: "/cases" },
-    "/cases/create": { label: "Create Case", href: "/cases/create" },
-    "/documents": { label: "Documents", href: "/documents" },
-    "/messages": { label: "Messages", href: "/messages" },
+    "/task-manager": { label: "Task Manager", href: "/task-manager" },
+    "/task-manager/create": { label: "Create Task", href: "/task-manager/create" },
+    "/diagnostic-reports": { label: "Diagnostic Reports", href: "/diagnostic-reports" },
+    "/help-desk": { label: "Help Desk", href: "/help-desk" },
     "/payments": { label: "Payments", href: "/payments" },
     "/admin/products": { label: "Visa Products", href: "/admin/products" },
     "/admin/users": { label: "User Management", href: "/admin/users" },
   };
 
-  // Handle dynamic case pages (e.g., /cases/123)
-  if (pathname.startsWith('/cases/') && pathname !== '/cases/create') {
-    const caseId = pathname.split('/')[2];
+  // Handle dynamic task-manager pages (e.g., /task-manager/123)
+  if (pathname.startsWith('/task-manager/') && pathname !== '/task-manager/create') {
+    const taskId = pathname.split('/')[2];
     return [
       { label: "Dashboard", href: "/" },
-      { label: "Cases", href: "/cases" },
-      { label: `Case ${caseId}`, href: pathname }
+      { label: "Task Manager", href: "/task-manager" },
+      { label: `Task ${taskId}`, href: pathname }
     ];
   }
 
-  // Handle dynamic document pages
-  if (pathname.startsWith('/documents/')) {
+  // Handle dynamic diagnostic-reports pages
+  if (pathname.startsWith('/diagnostic-reports/')) {
     const docId = pathname.split('/')[2];
     return [
       { label: "Dashboard", href: "/" },
-      { label: "Documents", href: "/documents" },
-      { label: `Document ${docId}`, href: pathname }
+      { label: "Diagnostic Reports", href: "/diagnostic-reports" },
+      { label: `Report ${docId}`, href: pathname }
     ];
   }
 
@@ -51,7 +51,7 @@ const getBreadcrumbs = (pathname: string) => {
   paths.forEach((path, index) => {
     currentPath += `/${path}`;
     const mappedItem = pathMap[currentPath];
-    
+
     if (mappedItem) {
       breadcrumbs.push({
         label: mappedItem.label,
@@ -79,15 +79,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        
+
         <div className="flex flex-1 flex-col">
           <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-card px-6">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
-              
+
               {/* Horizontal Separator */}
               <div className="h-6 w-px bg-border" />
-              
+
               {/* Smart Breadcrumbs */}
               <div className="flex items-center gap-2 text-sm">
                 {breadcrumbs.map((crumb, index) => (
@@ -95,10 +95,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     {index > 0 && (
                       <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     )}
-                    
+
                     {index === 0 ? (
                       // Home icon - conditionally show text only on dashboard
-                      <Link 
+                      <Link
                         to={crumb.href!}
                         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                       >
@@ -112,7 +112,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       </span>
                     ) : (
                       // Clickable breadcrumb
-                      <Link 
+                      <Link
                         to={crumb.href!}
                         className="text-muted-foreground hover:text-foreground transition-colors hover:underline"
                       >

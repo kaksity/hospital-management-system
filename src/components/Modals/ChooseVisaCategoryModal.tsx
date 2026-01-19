@@ -32,7 +32,7 @@ export default function ChooseVisaCategoryModal({
   const handleContinue = () => {
     if (selectedVisa) {
       onOpenChange(false);
-      navigate(`/cases/new-visa?type=${selectedVisa}`);
+      navigate(`/task-manager/new-visa?type=${selectedVisa}`);
     }
   };
 

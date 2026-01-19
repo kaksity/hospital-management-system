@@ -10,13 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Plus, 
-  MoreHorizontal, 
-  Eye, 
-  Edit, 
-  Mail, 
-  Phone, 
+import {
+  Plus,
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Mail,
+  Phone,
   MapPin,
   ChevronLeft,
   ChevronRight,
@@ -140,14 +140,14 @@ export default function Clients() {
 
   // Filter clients based on search and status
   const filteredClients = clients.filter(client => {
-    const matchesSearch = 
+    const matchesSearch =
       client.name.toLowerCase().includes(globalFilter.toLowerCase()) ||
       client.email.toLowerCase().includes(globalFilter.toLowerCase()) ||
       client.id.toLowerCase().includes(globalFilter.toLowerCase());
-    
-    const matchesStatus = 
+
+    const matchesStatus =
       statusFilter === "all" || client.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -178,7 +178,7 @@ export default function Clients() {
   };
 
   const handleRowClick = (clientId: string) => {
-    navigate(`/clients/${clientId}`);
+    navigate(`/patients/${clientId}`);
   };
 
   return (
@@ -271,8 +271,8 @@ export default function Clients() {
           </TableHeader>
           <TableBody>
             {paginatedClients.map((client) => (
-              <TableRow 
-                key={client.id} 
+              <TableRow
+                key={client.id}
                 className="hover:bg-muted/50 cursor-pointer transition-colors"
                 onClick={() => handleRowClick(client.id)}
               >
@@ -316,7 +316,7 @@ export default function Clients() {
                 <TableCell>
                   <div className="text-sm">{formatDate(client.lastActivity)}</div>
                 </TableCell>
-                <TableCell 
+                <TableCell
                   className="text-right"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -328,7 +328,7 @@ export default function Clients() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link to={`/clients/${client.id}`} className="flex items-center gap-2">
+                        <Link to={`/patients/${client.id}`} className="flex items-center gap-2">
                           <Eye className="h-4 w-4" />
                           View Profile
                         </Link>

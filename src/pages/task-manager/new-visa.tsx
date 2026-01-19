@@ -3,13 +3,13 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   CardContent,
-  CardFooter 
+  CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,9 +20,9 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  FolderPlus, 
-  Upload, 
-  FileText, 
+  FolderPlus,
+  Upload,
+  FileText,
   ChevronRight,
   ChevronLeft,
   CheckCircle2,
@@ -37,12 +37,12 @@ import {
   FileCheck
 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
-import { 
-  getVisaSchema, 
-  type VisaSchema, 
+import {
+  getVisaSchema,
+  type VisaSchema,
   type VisaSection,
   type VisaField,
-  type VisaCriterion 
+  type VisaCriterion
 } from "@/services/visaSchemaService";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -110,7 +110,7 @@ export default function NewVisa() {
     // Check background sections
     selectedSchema.caseBackground.sections.forEach(section => {
       if (section.type === 'fields') {
-        const allRequiredFilled = section.fields?.every(field => 
+        const allRequiredFilled = section.fields?.every(field =>
           !field.required || formData[field.name]
         );
         if (allRequiredFilled) completedSections++;
@@ -130,12 +130,12 @@ export default function NewVisa() {
 
   const handleFieldChange = (fieldName: string, value: any, sectionTitle: string) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
-    
+
     // Check if section is complete
     if (selectedSchema) {
       const section = selectedSchema.caseBackground.sections.find(s => s.title === sectionTitle);
       if (section?.type === 'fields') {
-        const allRequiredFilled = section.fields?.every(field => 
+        const allRequiredFilled = section.fields?.every(field =>
           !field.required || (field.name === fieldName ? value : formData[field.name])
         );
         if (allRequiredFilled) {
@@ -169,7 +169,7 @@ export default function NewVisa() {
   const handleRenameFolder = (criterionKey: string, folderId: string, newName: string) => {
     setFolders(prev => ({
       ...prev,
-      [criterionKey]: prev[criterionKey].map(folder => 
+      [criterionKey]: prev[criterionKey].map(folder =>
         folder.id === folderId ? { ...folder, name: newName } : folder
       )
     }));
@@ -192,8 +192,8 @@ export default function NewVisa() {
 
     setFolders(prev => ({
       ...prev,
-      [criterionKey]: prev[criterionKey].map(folder => 
-        folder.id === folderId 
+      [criterionKey]: prev[criterionKey].map(folder =>
+        folder.id === folderId
           ? { ...folder, files: [...folder.files, ...newFiles] }
           : folder
       )
@@ -203,8 +203,8 @@ export default function NewVisa() {
   const handleRemoveFile = (criterionKey: string, folderId: string, fileId: string) => {
     setFolders(prev => ({
       ...prev,
-      [criterionKey]: prev[criterionKey].map(folder => 
-        folder.id === folderId 
+      [criterionKey]: prev[criterionKey].map(folder =>
+        folder.id === folderId
           ? { ...folder, files: folder.files.filter(f => f.id !== fileId) }
           : folder
       )
@@ -234,7 +234,7 @@ export default function NewVisa() {
     setUploadedFiles(prev => {
       const newFiles = (prev[sectionTitle] || []).filter(f => f.id !== fileId);
       const updated = { ...prev, [sectionTitle]: newFiles };
-      
+
       // Unmark section as complete if no files left
       if (newFiles.length === 0) {
         setSectionCompletion(prev => {
@@ -243,7 +243,7 @@ export default function NewVisa() {
           return newSet;
         });
       }
-      
+
       return updated;
     });
   };
@@ -253,7 +253,7 @@ export default function NewVisa() {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const caseData = {
         visaType: selectedVisaType,
         background: formData,
@@ -264,11 +264,11 @@ export default function NewVisa() {
       };
 
       console.log('Case created:', caseData);
-      
+
       toast.success("Visa case created successfully!");
-      
+
       // Navigate to cases page or the new case detail
-      navigate('/cases');
+      navigate('/task-manager');
     } catch (error) {
       toast.error("Failed to create case. Please try again.");
     } finally {
@@ -291,8 +291,8 @@ export default function NewVisa() {
     const stepOrder: Step[] = ["background", "criteria", "review"];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(stepName);
-    
-    return stepIndex < currentIndex 
+
+    return stepIndex < currentIndex
       ? <CheckCircle2 className="h-4 w-4 text-green-500" />
       : <Circle className="h-4 w-4 text-muted-foreground" />;
   };
@@ -332,7 +332,7 @@ export default function NewVisa() {
         {/* Action Buttons */}
         {step === "background" && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigate('/cases')}>
+            <Button variant="outline" onClick={() => navigate('/task-manager')}>
               Cancel
             </Button>
             <Button onClick={() => setStep("criteria")}>
@@ -341,7 +341,7 @@ export default function NewVisa() {
             </Button>
           </div>
         )}
-        
+
         {step === "criteria" && (
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => setStep("background")}>
@@ -354,15 +354,15 @@ export default function NewVisa() {
             </Button>
           </div>
         )}
-        
+
         {step === "review" && (
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => setStep("criteria")}>
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back
             </Button>
-            <Button 
-              onClick={handleSubmit} 
+            <Button
+              onClick={handleSubmit}
               disabled={loading}
               className="min-w-32"
             >
@@ -388,9 +388,8 @@ export default function NewVisa() {
           {(["background", "criteria", "review"] as Step[]).map((stepName) => (
             <div key={stepName} className="flex items-center gap-2">
               {getStepIcon(stepName, step)}
-              <span className={`text-sm font-medium ${
-                stepName === step ? 'text-foreground' : 'text-muted-foreground'
-              }`}>
+              <span className={`text-sm font-medium ${stepName === step ? 'text-foreground' : 'text-muted-foreground'
+                }`}>
                 {stepName.charAt(0).toUpperCase() + stepName.slice(1)}
               </span>
               {stepName !== "review" && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
@@ -401,14 +400,14 @@ export default function NewVisa() {
           <div className="flex items-center gap-2 justify-end">
             <Badge variant={
               progress === 0 ? "default" :
-              progress <= 35 ? "destructive" :
-              progress <= 65 ? "secondary" :
-              "default"
+                progress <= 35 ? "destructive" :
+                  progress <= 65 ? "secondary" :
+                    "default"
             } className={
               progress === 0 ? "" :
-              progress <= 35 ? "bg-red-100 text-red-800 hover:bg-red-100" :
-              progress <= 65 ? "bg-amber-100 text-amber-800 hover:bg-amber-100" :
-              "bg-green-100 text-green-800 hover:bg-green-100"
+                progress <= 35 ? "bg-red-100 text-red-800 hover:bg-red-100" :
+                  progress <= 65 ? "bg-amber-100 text-amber-800 hover:bg-amber-100" :
+                    "bg-green-100 text-green-800 hover:bg-green-100"
             }>
               {progress}% Complete
             </Badge>
@@ -485,15 +484,15 @@ export default function NewVisa() {
 }
 
 // Component for rendering background sections
-function SectionCard({ 
-  section, 
-  formData, 
-  onFieldChange, 
+function SectionCard({
+  section,
+  formData,
+  onFieldChange,
   isComplete,
   uploadedFiles = [],
   onFileUpload,
   onRemoveFile
-}: { 
+}: {
   section: VisaSection;
   formData: FormData;
   onFieldChange: (fieldName: string, value: any, sectionTitle: string) => void;
@@ -514,11 +513,11 @@ function SectionCard({
     switch (field.type) {
       case 'textarea':
         return <Textarea {...commonProps} />;
-      
+
       case 'select':
         return (
-          <Select 
-            value={formData[field.name] || ''} 
+          <Select
+            value={formData[field.name] || ''}
             onValueChange={(value) => onFieldChange(field.name, value, section.title)}
           >
             <SelectTrigger>
@@ -531,7 +530,7 @@ function SectionCard({
             </SelectContent>
           </Select>
         );
-      
+
       default:
         return <Input type={field.type} {...commonProps} />;
     }
@@ -767,7 +766,7 @@ function CriterionSection({
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="px-4 pb-3">
                 {folder.files.length > 0 ? (
                   <div className="space-y-2">
@@ -840,8 +839,8 @@ function UploadZone({ onUpload }: { onUpload: (files: File[]) => void }) {
       {...getRootProps()}
       className={`
         border px-3 py-1.5 rounded-md text-sm cursor-pointer transition-all
-        ${isDragActive 
-          ? 'border-primary bg-primary/10' 
+        ${isDragActive
+          ? 'border-primary bg-primary/10'
           : 'border-gray-300 hover:bg-muted/40'
         }
       `}
@@ -856,11 +855,11 @@ function UploadZone({ onUpload }: { onUpload: (files: File[]) => void }) {
 }
 
 // FileUploadZone component
-function FileUploadZone({ 
-  onFileUpload, 
+function FileUploadZone({
+  onFileUpload,
   multiple = true,
-  sectionTitle 
-}: { 
+  sectionTitle
+}: {
   onFileUpload: (files: File[]) => void;
   multiple?: boolean;
   sectionTitle: string;
@@ -890,8 +889,8 @@ function FileUploadZone({
       {...getRootProps()}
       className={`
         border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer
-        ${isDragActive 
-          ? 'border-primary bg-primary/10' 
+        ${isDragActive
+          ? 'border-primary bg-primary/10'
           : 'border-muted-foreground/25 bg-background/50 hover:bg-muted/40'
         }
       `}
@@ -906,7 +905,7 @@ function FileUploadZone({
         {isDragActive ? 'Drop files here...' : 'Drag & drop files here or click to browse'}
       </p>
       <p className="text-xs text-muted-foreground mb-4">
-        {multiple ? 'Multiple files allowed' : 'Single file upload'} • 
+        {multiple ? 'Multiple files allowed' : 'Single file upload'} •
         Supports PDF, Images, Word, Excel
       </p>
       <Button variant="outline" size="sm" type="button">
@@ -918,11 +917,11 @@ function FileUploadZone({
 }
 
 // Review Section Component
-function ReviewSection({ 
-  schema, 
-  formData, 
-  folders 
-}: { 
+function ReviewSection({
+  schema,
+  formData,
+  folders
+}: {
   schema: VisaSchema;
   formData: FormData;
   folders: CriterionState;
@@ -949,9 +948,9 @@ function ReviewSection({
               <p className="font-medium">{totalFiles} files in {totalFolders} groups</p>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <div>
             <h4 className="font-medium mb-2">Background Information</h4>
             <div className="space-y-2 text-sm">
@@ -979,7 +978,7 @@ function ReviewSection({
             {Object.entries(schema.criteria).map(([key, criterion]) => {
               const criterionFolders = folders[key] || [];
               const criterionFiles = criterionFolders.reduce((sum, folder) => sum + folder.files.length, 0);
-              
+
               return (
                 <div key={key} className="flex items-center justify-between p-3 border rounded-lg">
                   <div>

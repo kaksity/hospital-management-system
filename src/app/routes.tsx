@@ -4,24 +4,24 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Pages
 import Dashboard from "@/pages/dashboard";
-import Cases from "@/pages/cases";
-import CreateCase from "@/pages/cases/create";
-import CaseDetail from "@/pages/cases/[id]";
-import NewVisa from "@/pages/cases/new-visa";
-import Documents from "@/pages/documents";
-import Messages from "@/pages/messages";
+import TaskManager from "@/pages/task-manager";
+import CreateTask from "@/pages/task-manager/create";
+import TaskDetail from "@/pages/task-manager/[id]";
+import NewVisa from "@/pages/task-manager/new-visa";
+import DiagnosticReports from "@/pages/diagnostic-reports";
+import HelpDesk from "@/pages/help-desk";
 import Payments from "@/pages/payments";
 import { Login } from "@/pages/auth/Login";
 import { Signup } from "@/pages/auth/Signup";
 import NotFound from "@/pages/not-found";
-import Clients from "@/pages/clients";
-import ClientDetail from "@/pages/clients/[id]";
+import Patients from "@/pages/patients";
+import PatientDetail from "@/pages/patients/[id]";
 import Settings from "@/pages/settings";
 import { GeneralSettings } from "@/pages/settings/general";
 import { SecuritySettings } from "@/pages/settings/security";
 import { MembersSettings } from "@/pages/settings/members";
-import Applications from "@/pages/applications";
-import NewApplication from "@/pages/applications/new-visa";
+import Appointments from "@/pages/appointments";
+import NewAppointment from "@/pages/appointments/new-visa";
 
 export function AppRoutes() {
   return (
@@ -44,21 +44,21 @@ export function AppRoutes() {
 
       {/* Client Only Routes */}
       <Route
-        path="/applications"
+        path="/appointments"
         element={
           <ProtectedRoute allowedRoles={['client']}>
             <DashboardLayout>
-              <Applications />
+              <Appointments />
             </DashboardLayout>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/applications/new-visa"
+        path="/appointments/new-visa"
         element={
           <ProtectedRoute allowedRoles={['client']}>
             <DashboardLayout>
-              <NewApplication />
+              <NewAppointment />
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -66,31 +66,31 @@ export function AppRoutes() {
 
       {/* Staff-only Routes (Admin, Attorney, Paralegal) */}
       <Route
-        path="/cases"
+        path="/task-manager"
         element={
           <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
             <DashboardLayout>
-              <Cases />
+              <TaskManager />
             </DashboardLayout>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/cases/create"
+        path="/task-manager/create"
         element={
           <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
             <DashboardLayout>
-              <CreateCase />
+              <CreateTask />
             </DashboardLayout>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/cases/:id"
+        path="/task-manager/:id"
         element={
           <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
             <DashboardLayout>
-              <CaseDetail />
+              <TaskDetail />
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -98,7 +98,7 @@ export function AppRoutes() {
 
       {/* Admin-only Routes */}
       <Route
-        path="/cases/new-visa"
+        path="/task-manager/new-visa"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <DashboardLayout>
@@ -108,21 +108,21 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/clients"
+        path="/patients"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <DashboardLayout>
-              <Clients />
+              <Patients />
             </DashboardLayout>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/clients/:id"
+        path="/patients/:id"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <DashboardLayout>
-              <ClientDetail />
+              <PatientDetail />
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -130,21 +130,21 @@ export function AppRoutes() {
 
       {/* Shared Routes */}
       <Route
-        path="/documents"
+        path="/diagnostic-reports"
         element={
           <ProtectedRoute>
             <DashboardLayout>
-              <Documents />
+              <DiagnosticReports />
             </DashboardLayout>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/messages"
+        path="/help-desk"
         element={
           <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
             <DashboardLayout>
-              <Messages />
+              <HelpDesk />
             </DashboardLayout>
           </ProtectedRoute>
         }
@@ -174,13 +174,13 @@ export function AppRoutes() {
         <Route path="security" element={<SecuritySettings />} />
 
         {/* Members settings only for admin */}
-        <Route 
-          path="members" 
+        <Route
+          path="members"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <MembersSettings />
             </ProtectedRoute>
-          } 
+          }
         />
         <Route index element={<Navigate to="/settings/general" replace />} />
       </Route>

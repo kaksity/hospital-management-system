@@ -91,7 +91,7 @@ export default function ClientDetail() {
     joinedDate: "2024-10-15",
     lastActivity: "2025-01-15",
     notes: "Musician and composer with extensive international experience. Prefers email communication.",
-    
+
     // Cases associated with this client
     cases: [
       {
@@ -391,14 +391,12 @@ export default function ClientDetail() {
                 <div className="space-y-3">
                   {clientData.communications.slice(0, 4).map((comm) => (
                     <div key={comm.id} className="flex items-start gap-3 pb-3 border-b last:border-b-0 last:pb-0">
-                      <div className={`flex h-6 w-6 items-center justify-center rounded-full mt-0.5 ${
-                        comm.type === 'email' ? 'bg-blue-100' :
-                        comm.type === 'call' ? 'bg-green-100' : 'bg-purple-100'
-                      }`}>
-                        <Mail className={`h-3 w-3 ${
-                          comm.type === 'email' ? 'text-blue-600' :
-                          comm.type === 'call' ? 'text-green-600' : 'text-purple-600'
-                        }`} />
+                      <div className={`flex h-6 w-6 items-center justify-center rounded-full mt-0.5 ${comm.type === 'email' ? 'bg-blue-100' :
+                          comm.type === 'call' ? 'bg-green-100' : 'bg-purple-100'
+                        }`}>
+                        <Mail className={`h-3 w-3 ${comm.type === 'email' ? 'text-blue-600' :
+                            comm.type === 'call' ? 'text-green-600' : 'text-purple-600'
+                          }`} />
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium">{comm.subject}</p>
@@ -452,7 +450,7 @@ export default function ClientDetail() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className="w-16 bg-secondary rounded-full h-2">
-                            <div 
+                            <div
                               className="bg-primary h-2 rounded-full transition-all"
                               style={{ width: `${caseItem.progress}%` }}
                             />
@@ -464,7 +462,7 @@ export default function ClientDetail() {
                       <TableCell>{caseItem.assignedTo}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/cases/${caseItem.id}`}>
+                          <Link to={`/task-manager/${caseItem.id}`}>
                             View Case
                           </Link>
                         </Button>
@@ -531,7 +529,7 @@ export default function ClientDetail() {
                         <TableCell>
                           <Badge className={
                             payment.status === 'paid' ? 'bg-green-100 text-green-800' :
-                            'bg-yellow-100 text-yellow-800'
+                              'bg-yellow-100 text-yellow-800'
                           }>
                             {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                           </Badge>

@@ -5,10 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {  
-  Upload, 
-  Search, 
-  MoreVertical, 
+import {
+  Upload,
+  Search,
+  MoreVertical,
   FileText,
   Image as ImageIcon,
   Download,
@@ -59,7 +59,7 @@ export default function Documents() {
       visaType: "O-1A Visa",
     },
     {
-      id: "ACV-2024-002", 
+      id: "ACV-2024-002",
       clientName: "Maria Garcia",
       visaType: "EB-2 NIW",
     }
@@ -81,7 +81,7 @@ export default function Documents() {
       id: "doc-2",
       name: "Y_Combinator_Acceptance.pdf",
       criterion: "Membership",
-      group: "Accelerators", 
+      group: "Accelerators",
       caseId: "ACV-2024-001",
       uploadDate: "2024-01-14",
       size: "1.1 MB",
@@ -154,13 +154,13 @@ export default function Documents() {
   };
 
   const getFirstInitial = (name: string) => {
-  return name.trim().charAt(0).toUpperCase();
-};
+    return name.trim().charAt(0).toUpperCase();
+  };
 
   const getAvatarColor = (seed: string) => {
     const colors = [
       "bg-blue-500",
-      "bg-green-500", 
+      "bg-green-500",
       "bg-purple-500",
       "bg-pink-500",
       "bg-orange-500",
@@ -183,13 +183,13 @@ export default function Documents() {
 
   // Filter documents based on search and filters
   const filteredDocuments = allDocuments.filter(doc => {
-    const matchesSearch = 
+    const matchesSearch =
       doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.criterion.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.group.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesCase = caseFilter === "all" || doc.caseId === caseFilter;
-    
+
     return matchesSearch && matchesCase;
   });
 
@@ -223,7 +223,7 @@ export default function Documents() {
   };
 
   const selectedCount = Object.keys(rowSelection).length;
-  const isAllSelected = paginatedDocuments.length > 0 && 
+  const isAllSelected = paginatedDocuments.length > 0 &&
     paginatedDocuments.every(doc => rowSelection[doc.id]);
   const isSomeSelected = paginatedDocuments.some(doc => rowSelection[doc.id]);
 
@@ -245,20 +245,20 @@ export default function Documents() {
       // Handle bulk delete
       const selectedDocumentIds = Object.keys(rowSelection);
       console.log('Deleting documents:', selectedDocumentIds);
-      
+
       // In a real app, you'd make an API call here
       toast({
         title: "Documents Deleted",
         description: `${selectedDocumentIds.length} documents have been permanently deleted.`,
         variant: "destructive",
       });
-      
+
       // Clear selection
       setRowSelection({});
     } else if (documentToDelete) {
       // Handle single delete
       console.log('Deleting document:', documentToDelete.id);
-      
+
       // In a real app, you'd make an API call here
       toast({
         title: "Document Deleted",
@@ -266,7 +266,7 @@ export default function Documents() {
         variant: "destructive",
       });
     }
-    
+
     setDeleteModalOpen(false);
     setDocumentToDelete(null);
   };
@@ -349,8 +349,8 @@ export default function Documents() {
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search documents, criteria, or groups..." 
+              <Input
+                placeholder="Search documents, criteria, or groups..."
                 className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -483,9 +483,9 @@ export default function Documents() {
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               className="h-8 w-8 p-0"
                             >
                               <MoreVertical className="h-4 w-4" />
@@ -493,8 +493,8 @@ export default function Documents() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link 
-                                to={`/cases/${doc.caseId}`} 
+                              <Link
+                                to={`/task-manager/${doc.caseId}`}
                                 className="flex items-center"
                               >
                                 <Eye className="h-4 w-4" />
@@ -506,7 +506,7 @@ export default function Documents() {
                               Download
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="text-red-600 focus:text-red-600"
                               onClick={(e) => handleDeleteClick(doc, e)}
                             >
@@ -521,7 +521,7 @@ export default function Documents() {
                 })}
               </TableBody>
             </Table>
-            
+
             {filteredDocuments.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />

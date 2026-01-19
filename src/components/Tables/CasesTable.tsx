@@ -229,8 +229,8 @@ export function CasesTable({ data }: CasesTableProps) {
             progress >= 80
               ? "text-green-600"
               : progress >= 40
-              ? "text-orange-500"
-              : "text-red-600";
+                ? "text-orange-500"
+                : "text-red-600";
           return (
             <div className="flex items-center gap-2">
               <Loader2 className={`h-4 w-4 ${color}`} />
@@ -301,7 +301,7 @@ export function CasesTable({ data }: CasesTableProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     asChild
-                    onClick={() => (window.location.href = `/cases/${caseItem.id}`)}
+                    onClick={() => (window.location.href = `/task-manager/${caseItem.id}`)}
                   >
                     <div className="flex items-center gap-2">
                       <Eye className="h-4 w-4" />
@@ -490,9 +490,9 @@ export function CasesTable({ data }: CasesTableProps) {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -502,14 +502,14 @@ export function CasesTable({ data }: CasesTableProps) {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow 
+                <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="hover:bg-muted/50 cursor-pointer transition-colors"
-                  onClick={() => (window.location.href = `/cases/${row.original.id}`)}
+                  onClick={() => (window.location.href = `/task-manager/${row.original.id}`)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell 
+                    <TableCell
                       key={cell.id}
                       onClick={(e) => {
                         if (
@@ -615,9 +615,8 @@ export function CasesTable({ data }: CasesTableProps) {
         open={showArchiveModal}
         onOpenChange={setShowArchiveModal}
         title="Archive Case"
-        description={`Are you sure you want to archive ${
-          selectedCase?.clientName || "this case"
-        }? You can restore it later from the archive.`}
+        description={`Are you sure you want to archive ${selectedCase?.clientName || "this case"
+          }? You can restore it later from the archive.`}
         confirmLabel="Archive"
         confirmVariant="outline"
         onConfirm={() => {
@@ -634,9 +633,8 @@ export function CasesTable({ data }: CasesTableProps) {
         open={showDeleteModal}
         onOpenChange={setShowDeleteModal}
         title="Delete Case"
-        description={`Are you sure you want to permanently delete ${
-          selectedCase?.clientName || "this case"
-        }? This action cannot be undone.`}
+        description={`Are you sure you want to permanently delete ${selectedCase?.clientName || "this case"
+          }? This action cannot be undone.`}
         confirmLabel="Delete"
         confirmVariant="destructive"
         onConfirm={() => {
@@ -661,9 +659,8 @@ export function CasesTable({ data }: CasesTableProps) {
         onConfirm={() => {
           toast({
             title: "Cases archived ✅",
-            description: `${selectedCases.length} case${
-              selectedCases.length > 1 ? "s" : ""
-            } moved to archive.`,
+            description: `${selectedCases.length} case${selectedCases.length > 1 ? "s" : ""
+              } moved to archive.`,
           });
           table.toggleAllPageRowsSelected(false);
           setSelectedCases([]);
@@ -682,9 +679,8 @@ export function CasesTable({ data }: CasesTableProps) {
         onConfirm={() => {
           toast({
             title: "Cases deleted 🗑️",
-            description: `${selectedCases.length} case${
-              selectedCases.length > 1 ? "s" : ""
-            } deleted successfully.`,
+            description: `${selectedCases.length} case${selectedCases.length > 1 ? "s" : ""
+              } deleted successfully.`,
             variant: "destructive",
           });
           table.toggleAllPageRowsSelected(false);

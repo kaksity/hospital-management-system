@@ -34,7 +34,7 @@ export default function ChooseApplicationCategoryModal({
     if (selectedVisa) {
       onOpenChange(false);
       // Navigate to APPLICATIONS new-visa route
-      navigate(`/applications/new-visa?type=${selectedVisa}`);
+      navigate(`/appointments/new-visa?type=${selectedVisa}`);
     }
   };
 
