@@ -1,4 +1,4 @@
-import { Home, FileText, DollarSign, Settings, Users, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, TicketsPlane } from "lucide-react";
+import { Home, FileText, DollarSign, Settings, Users, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, TicketsPlane, Receipt, BarChart3, Building2, UserCog, LayoutGrid, ScrollText } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -27,13 +27,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const getNavigationItems = (role: string) => {
   const baseItems = [
     { title: "Dashboard", url: "/", icon: Home },
+    { title: "Appointments", url: "/appointments", icon: TicketsPlane },
   ];
 
   const adminItems = [
     { title: "Task Manager", url: "/task-manager", icon: Briefcase },
     { title: "Patients", url: "/patients", icon: Users },
+    { title: "Invoices", url: "/invoices", icon: Receipt },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
+    { title: "Hospitals", url: "/hospitals", icon: Building2 },
+    { title: "Doctors", url: "/doctors", icon: UserCog },
+    { title: "Services", url: "/services", icon: LayoutGrid },
+    { title: "Templates", url: "/templates", icon: ScrollText },
     { title: "Help Desk", url: "/help-desk", icon: MessageSquareMore },
+    { title: "Reports", url: "/reports", icon: BarChart3 },
     { title: "Payments", url: "/payments", icon: DollarSign },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
@@ -46,7 +53,6 @@ const getNavigationItems = (role: string) => {
   ];
 
   const clientItems = [
-    { title: "Appointments", url: "/appointments", icon: TicketsPlane },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
     { title: "Payments", url: "/payments", icon: DollarSign },
     { title: "Settings", url: "/settings", icon: Settings },
@@ -97,8 +103,8 @@ export function AppSidebar() {
                     {({ isActive }) => (
                       <SidebarMenuButton asChild isActive={isActive}>
                         <div className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-200 ${isActive
-                            ? "!bg-gray-100 text-foreground font-medium [&_svg]:!text-[#fe5e41] hover:!bg-gray-100 focus:!bg-gray-100 active:!bg-gray-100"
-                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground [&_svg]:text-muted-foreground focus:bg-transparent active:bg-transparent"
+                          ? "!bg-gray-100 text-foreground font-medium [&_svg]:!text-[#fe5e41] hover:!bg-gray-100 focus:!bg-gray-100 active:!bg-gray-100"
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground [&_svg]:text-muted-foreground focus:bg-transparent active:bg-transparent"
                           }`}>
                           <item.icon className="h-4 w-4" />
                           {!collapsed && <span>{item.title}</span>}

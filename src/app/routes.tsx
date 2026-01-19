@@ -22,6 +22,12 @@ import { SecuritySettings } from "@/pages/settings/security";
 import { MembersSettings } from "@/pages/settings/members";
 import Appointments from "@/pages/appointments";
 import NewAppointment from "@/pages/appointments/new-visa";
+import Invoices from "@/pages/invoices";
+import Reports from "@/pages/reports";
+import Hospitals from "@/pages/hospitals";
+import Doctors from "@/pages/doctors";
+import RadiologyServices from "@/pages/services";
+import ReportTemplates from "@/pages/templates";
 
 export function AppRoutes() {
   return (
@@ -42,11 +48,11 @@ export function AppRoutes() {
         }
       />
 
-      {/* Client Only Routes */}
+      {/* Universal Shared Routes */}
       <Route
         path="/appointments"
         element={
-          <ProtectedRoute allowedRoles={['client']}>
+          <ProtectedRoute>
             <DashboardLayout>
               <Appointments />
             </DashboardLayout>
@@ -56,7 +62,7 @@ export function AppRoutes() {
       <Route
         path="/appointments/new-visa"
         element={
-          <ProtectedRoute allowedRoles={['client']}>
+          <ProtectedRoute>
             <DashboardLayout>
               <NewAppointment />
             </DashboardLayout>
@@ -155,6 +161,72 @@ export function AppRoutes() {
           <ProtectedRoute allowedRoles={['admin', 'client']}>
             <DashboardLayout>
               <Payments />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/invoices"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+            <DashboardLayout>
+              <Invoices />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <DashboardLayout>
+              <Reports />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/hospitals"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <DashboardLayout>
+              <Hospitals />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/doctors"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <DashboardLayout>
+              <Doctors />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/services"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <DashboardLayout>
+              <RadiologyServices />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/templates"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+            <DashboardLayout>
+              <ReportTemplates />
             </DashboardLayout>
           </ProtectedRoute>
         }
