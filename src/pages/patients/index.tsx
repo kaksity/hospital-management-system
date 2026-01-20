@@ -32,52 +32,19 @@ import {
   MessageSquare,
   Archive,
   RotateCcw,
-  Users
+  Users,
+  UserPlus,
+  Activity,
+  CalendarCheck,
+  ArrowUpRight
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { AddPatientModal } from "@/components/Modals/AddPatientModal";
+import { EditPatientModal } from "@/components/Modals/EditPatientModal";
+import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
+import { ScheduleAppointmentModal } from "@/components/Modals/ScheduleAppointmentModal";
+import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 
-// Helper functions
-const getInitials = (name: string) => {
-  const parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-};
-
-const getPatientAvatarPath = (id: string, gender: string) => {
-  // Use a hash of the ID to pick a deterministic but seemingly random avatar
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const positiveHash = Math.abs(hash);
-
-  if (gender.toLowerCase() === "male") {
-    const index = (positiveHash % 18) + 1;
-    return `/images/svgs/avatars/male/avatar-male-${index}.svg`;
-  } else {
-    const index = (positiveHash % 23) + 1;
-    return `/images/svgs/avatars/female/avatar-female-${index}.svg`;
-  }
-};
-
-const getAvatarBg = (seed: string) => {
-  const colors = [
-    "bg-blue-200",
-    "bg-green-200",
-    "bg-purple-200",
-    "bg-pink-200",
-    "bg-yellow-200",
-    "bg-indigo-200",
-    "bg-teal-200",
-  ];
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash % colors.length)];
-};
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -94,6 +61,12 @@ export default function Patients() {
   const [timeFilter, setTimeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Modal States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   // Mock patients data
   const patients = [
@@ -230,9 +203,23 @@ export default function Patients() {
     return variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800";
   };
 
-  const handleAddPatient = (patientData: any) => {
-    console.log('Adding new patient:', patientData);
-    // Handle patient creation logic
+  const handleAddPatient = () => {
+    navigate("/patients/create");
+  };
+
+  const handleEditPatient = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSendInvoice = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsInvoiceModalOpen(true);
+  };
+
+  const handleScheduleAppointment = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsScheduleModalOpen(true);
   };
 
   const handleRowClick = (patientId: string) => {
@@ -271,7 +258,7 @@ export default function Patients() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => navigate("/patients/create")}>
+          <Button onClick={handleAddPatient}>
             <Plus className="h-4 w-4" />
             Add New Patient
           </Button>
@@ -279,36 +266,102 @@ export default function Patients() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-3 p-4">
-            <CardDescription>Total Patients</CardDescription>
-            <CardTitle className="text-2xl">{patients.length}</CardTitle>
-          </CardHeader>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pb-6">
+        {/* Total Patients */}
+        <Card className="bg-card overflow-hidden rounded-xl">
+          <div className="p-5 flex flex-col h-full justify-between">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-7 h-7 rounded-lg border flex items-center justify-center bg-background">
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">Patients</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-3xl font-semibold tracking-tight">{patients.length}</span>
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFFF6] text-[#008037] text-[11px] font-medium border border-[#58BF85]">
+                <ArrowUpRight className="h-3 w-3" />
+                12%
+              </div>
+            </div>
+
+            <p className="text-[13px] text-muted-foreground mt-2 line-clamp-1">
+              Displays live updates of patient numbers.
+            </p>
+          </div>
         </Card>
-        <Card>
-          <CardHeader className="pb-3 p-4">
-            <CardDescription>Active Patients</CardDescription>
-            <CardTitle className="text-2xl">
-              {patients.filter(c => c.status === 'active').length}
-            </CardTitle>
-          </CardHeader>
+
+        {/* New Patients */}
+        <Card className="bg-card overflow-hidden rounded-xl">
+          <div className="p-5 flex flex-col h-full justify-between">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-7 h-7 rounded-lg border flex items-center justify-center bg-background">
+                <UserPlus className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">New Patients</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-3xl font-semibold tracking-tight">24</span>
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFFF6] text-[#008037] text-[11px] font-medium border border-[#58BF85]">
+                <ArrowUpRight className="h-3 w-3" />
+                8%
+              </div>
+            </div>
+
+            <p className="text-[13px] text-muted-foreground mt-2 line-clamp-1">
+              New registrations in the last 30 days.
+            </p>
+          </div>
         </Card>
-        <Card>
-          <CardHeader className="pb-3 p-4">
-            <CardDescription>Total Cases</CardDescription>
-            <CardTitle className="text-2xl">
-              {patients.reduce((sum, patient) => sum + patient.cases, 0)}
-            </CardTitle>
-          </CardHeader>
+
+        {/* Active Patients */}
+        <Card className="bg-card overflow-hidden rounded-xl">
+          <div className="p-5 flex flex-col h-full justify-between">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-7 h-7 rounded-lg border flex items-center justify-center bg-background">
+                <Activity className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">Active Patients</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-3xl font-semibold tracking-tight">
+                {patients.filter(p => p.status === 'active').length}
+              </span>
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFFF6] text-[#008037] text-[11px] font-medium border border-[#58BF85]">
+                Steady
+              </div>
+            </div>
+
+            <p className="text-[13px] text-muted-foreground mt-2 line-clamp-1">
+              Patients with ongoing treatments.
+            </p>
+          </div>
         </Card>
-        <Card>
-          <CardHeader className="pb-3 p-4">
-            <CardDescription>Total Value</CardDescription>
-            <CardTitle className="text-2xl">
-              {formatCurrency(patients.reduce((sum, patient) => sum + patient.totalValue, 0))}
-            </CardTitle>
-          </CardHeader>
+
+        {/* Today's Appointments */}
+        <Card className="bg-card overflow-hidden rounded-xl">
+          <div className="p-5 flex flex-col h-full justify-between">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-7 h-7 rounded-lg border flex items-center justify-center bg-background">
+                <CalendarCheck className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">Today's Appointments</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-3xl font-semibold tracking-tight">12</span>
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFFF6] text-[#008037] text-[11px] font-medium border border-[#58BF85]">
+                <ArrowUpRight className="h-3 w-3" />
+                18%
+              </div>
+            </div>
+
+            <p className="text-[13px] text-muted-foreground mt-2 line-clamp-1">
+              Scheduled clinical visits for today.
+            </p>
+          </div>
         </Card>
       </div>
 
@@ -317,7 +370,7 @@ export default function Patients() {
         {patients.length > 0 ? (
           <>
             {/* Search + Filters */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
               <div className="relative w-full max-w-sm">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -391,7 +444,7 @@ export default function Patients() {
                         <Avatar className="h-9 w-9 border border-muted shadow-sm">
                           <AvatarImage src={getPatientAvatarPath(patient.id, patient.gender)} alt={patient.name} />
                           <AvatarFallback className={cn("text-sm font-semibold", getAvatarBg(patient.name))}>
-                            {getInitials(patient.name)}
+                            {getAvatarInitials(patient.name)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
@@ -440,16 +493,16 @@ export default function Patients() {
                               View Details
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => console.log("Editing Patient...")} className="flex items-center gap-2">
+                          <DropdownMenuItem onClick={() => handleEditPatient(patient)} className="flex items-center gap-2">
                             <Edit className="h-4 w-4 text-muted-foreground" />
                             Edit Patient
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => console.log("Sending Invoice...")} className="flex items-center gap-2">
+                          <DropdownMenuItem onClick={() => handleSendInvoice(patient)} className="flex items-center gap-2">
                             <ReceiptText className="h-4 w-4 text-muted-foreground" />
                             Send Invoice
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => console.log("Scheduling Appointment...")} className="flex items-center gap-2">
+                          <DropdownMenuItem onClick={() => handleScheduleAppointment(patient)} className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             Schedule Appointment
                           </DropdownMenuItem>
@@ -589,6 +642,37 @@ export default function Patients() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <EditPatientModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        patient={selectedPatient}
+        onSave={(data) => {
+          console.log("Saving patient data:", data);
+          // Actual update logic would go here
+        }}
+      />
+
+      <SendInvoiceModal
+        open={isInvoiceModalOpen}
+        onOpenChange={setIsInvoiceModalOpen}
+        patient={selectedPatient}
+        onSendInvoice={(data) => {
+          console.log("Sending invoice:", data);
+          // Actual invoice logic would go here
+        }}
+      />
+
+      <ScheduleAppointmentModal
+        open={isScheduleModalOpen}
+        onOpenChange={setIsScheduleModalOpen}
+        patient={selectedPatient}
+        onSchedule={(data) => {
+          console.log("Scheduling appointment:", data);
+          // Actual scheduling logic would go here
+        }}
+      />
     </div>
   );
 }

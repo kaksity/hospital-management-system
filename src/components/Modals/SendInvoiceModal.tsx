@@ -1,111 +1,171 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// components/Modals/SendInvoiceModal.tsx
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Send } from "lucide-react";
-import { format } from "date-fns";
+import { Plus, Receipt, X, Send, User, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
+import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 
 interface SendInvoiceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  client: any;
-  onSendInvoice: (amount: number, dueDate: Date) => void;
+  patient: any;
+  onSendInvoice: (invoiceData: any) => void;
 }
 
-export function SendInvoiceModal({ open, onOpenChange, client, onSendInvoice }: SendInvoiceModalProps) {
-  const [amount, setAmount] = useState(client?.balance || 0);
-  const [dueDate, setDueDate] = useState<Date>(new Date());
+const MOCK_SERVICES = [
+  { id: "S-001", name: "MRI Brain (With Contrast)", price: 185000, category: "MRI" },
+  { id: "S-002", name: "MRI Spine (Lumbar)", price: 150000, category: "MRI" },
+  { id: "S-003", name: "CT Scan Head", price: 85000, category: "CT" },
+  { id: "S-004", name: "Chest X-Ray", price: 15000, category: "X-Ray" },
+  { id: "S-005", name: "Abdominal Ultrasound", price: 25000, category: "Ultrasound" },
+];
 
-  const handleSend = () => {
-    onSendInvoice(amount, dueDate);
-    onOpenChange(false);
+export function SendInvoiceModal({ open, onOpenChange, patient, onSendInvoice }: SendInvoiceModalProps) {
+  const [selectedServices, setSelectedServices] = useState<any[]>([]);
+  const [serviceSearch, setServiceSearch] = useState("");
+
+  const toggleService = (service: any) => {
+    if (selectedServices.find(s => s.id === service.id)) {
+      setSelectedServices(prev => prev.filter(s => s.id !== service.id));
+    } else {
+      setSelectedServices(prev => [...prev, service]);
+    }
   };
 
-  if (!client) return null;
+  const filteredServices = useMemo(() => {
+    return MOCK_SERVICES.filter(s =>
+      s.name.toLowerCase().includes(serviceSearch.toLowerCase()) ||
+      s.category.toLowerCase().includes(serviceSearch.toLowerCase())
+    );
+  }, [serviceSearch]);
+
+  const calculateTotal = () => {
+    return selectedServices.reduce((sum, s) => sum + s.price, 0);
+  };
+
+  const handleSend = () => {
+    onSendInvoice({
+      patientId: patient.id,
+      patientName: patient.name,
+      services: selectedServices,
+      total: calculateTotal(),
+      date: new Date().toISOString()
+    });
+    onOpenChange(false);
+    setSelectedServices([]);
+  };
+
+  if (!patient) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Send Invoice to {client?.name}</DialogTitle>
+      <DialogContent className="sm:max-w-xl h-[90vh] flex flex-col p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle>Send New Invoice</DialogTitle>
+          <DialogDescription>
+            Generate and send a radiology service invoice to the patient.
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4">
-          {/* Client Info */}
-          <div className="rounded-lg bg-muted p-3">
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <span className="text-muted-foreground">Case:</span>
-                <p className="font-medium">{client?.case}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Balance:</span>
-                <p className="font-medium">${client?.balance}</p>
-              </div>
+
+        <div className="flex-1 overflow-hidden flex flex-col px-6">
+          {/* Patient Header - Keep it fairly static but inside the flex-1 to allow it to be part of the layout */}
+          <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 border mb-6 shrink-0">
+            <Avatar className="h-10 w-10 border border-muted shadow-sm">
+              <AvatarImage src={getPatientAvatarPath(patient.id, patient.gender)} alt={patient.name} />
+              <AvatarFallback className={cn("text-base font-semibold", getAvatarBg(patient.name))}>
+                {getAvatarInitials(patient.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-semibold text-base">{patient.name}</p>
+              <p className="text-sm text-muted-foreground font-mono">{patient.id}</p>
             </div>
+            <Badge variant="outline" className="ml-auto bg-background capitalize">
+              {patient.status}
+            </Badge>
           </div>
 
-          {/* Amount Input */}
-          <div className="space-y-2">
-            <Label htmlFor="amount">Invoice Amount</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-2 text-muted-foreground">$</span>
-              <Input
-                id="amount"
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                className="pl-8"
-                max={client?.balance}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Maximum amount: ${client?.balance}</span>
-              <span>Remaining balance: ${(client?.balance - amount).toFixed(2)}</span>
-            </div>
+          {/* Service Selection Search */}
+          <div className="relative mb-4 shrink-0">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search services by name or category..."
+              className="pl-9"
+              value={serviceSearch}
+              onChange={(e) => setServiceSearch(e.target.value)}
+            />
           </div>
 
-          {/* Due Date */}
-          <div className="space-y-2">
-            <Label>Due Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
+          {/* Scrollable Service List */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4 px-1 pb-4">
+            <div className="flex items-center justify-between sticky top-0 bg-background py-2">
+              <h4 className="font-medium text-sm tracking-light text-muted-foreground">Select Services</h4>
+              <Badge variant="warning" className="font-mono">
+                {selectedServices.length} selected
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2">
+              {filteredServices.map((service) => (
+                <div
+                  key={service.id}
+                  onClick={() => toggleService(service)}
                   className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dueDate && "text-muted-foreground"
+                    "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all",
+                    selectedServices.find(s => s.id === service.id)
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "hover:bg-muted/50"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={dueDate}
-                  onSelect={setDueDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
+                      selectedServices.find(s => s.id === service.id) ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    )}>
+                      <Receipt className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{service.name}</p>
+                      <p className="text-xs text-muted-foreground">{service.category}</p>
+                    </div>
+                  </div>
+                  <p className="font-semibold font-mono">₦{service.price.toLocaleString()}</p>
+                </div>
+              ))}
+              {filteredServices.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No services found matching "{serviceSearch}"
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Static Total Section & Footer */}
+        <div className="p-6 pt-2 border-t bg-muted/5 shrink-0">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center pt-4">
+              <span className="text-base font-semibold">Total Amount</span>
+              <span className="text-base font-bold text-primary font-mono select-none">₦{calculateTotal().toLocaleString()}</span>
+            </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-3 pt-6">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSend} className="gap-2">
+            <Button
+              onClick={handleSend}
+              disabled={selectedServices.length === 0}
+              className="gap-2 min-w-[140px]"
+            >
               <Send className="h-4 w-4" />
               Send Invoice
             </Button>

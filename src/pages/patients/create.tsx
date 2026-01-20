@@ -248,7 +248,7 @@ export default function CreatePatientPage() {
               {currentStep === 1 && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="space-y-1">
-                    <Label>Patient Type</Label>
+                    <Label required>Patient Type</Label>
                     <Select value={formData.patientType} onValueChange={v => handleChange("patientType", v)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select patient type" />
@@ -263,7 +263,7 @@ export default function CreatePatientPage() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <Label>First Name</Label>
+                      <Label required>First Name</Label>
                       <Input
                         placeholder="Enter first name"
                         value={formData.firstName}
@@ -271,7 +271,7 @@ export default function CreatePatientPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label>Last Name</Label>
+                      <Label required>Last Name</Label>
                       <Input
                         placeholder="Enter last name"
                         value={formData.lastName}
@@ -293,7 +293,7 @@ export default function CreatePatientPage() {
                   <div className="grid md:grid-cols-2 gap-6 items-center">
                     <div className="space-y-1">
                       <div className="flex items-center justify-between mb-1">
-                        <Label>Date of Birth</Label>
+                        <Label required>Date of Birth</Label>
                         {age !== null && (
                           <Badge className="bg-primary/10 text-primary border-none pointer-events-none">
                             {age} years old
@@ -334,7 +334,7 @@ export default function CreatePatientPage() {
                       </Popover>
                     </div>
                     <div className="space-y-1">
-                      <Label>Gender</Label>
+                      <Label required>Gender</Label>
                       <Select value={formData.gender} onValueChange={v => handleChange("gender", v)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select gender" />
@@ -350,7 +350,7 @@ export default function CreatePatientPage() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <Label>Marital Status</Label>
+                      <Label required>Marital Status</Label>
                       <Select value={formData.maritalStatus} onValueChange={v => handleChange("maritalStatus", v)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
@@ -364,7 +364,7 @@ export default function CreatePatientPage() {
                       </Select>
                     </div>
                     <div className="space-y-1">
-                      <Label>Nationality</Label>
+                      <Label required>Nationality</Label>
                       <Select value={formData.nationality} onValueChange={v => handleChange("nationality", v)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select country" />
@@ -379,7 +379,7 @@ export default function CreatePatientPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <Label>Phone Number</Label>
+                    <Label required>Phone Number</Label>
                     <div className="flex gap-2">
                       <Select value={formData.countryCode} onValueChange={v => handleChange("countryCode", v)}>
                         <SelectTrigger className="w-[100px]">
@@ -401,16 +401,16 @@ export default function CreatePatientPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <Label>Home Address</Label>
+                    <Label required>Contact Address</Label>
                     <Textarea
-                      placeholder="Enter residential address"
+                      placeholder="Enter contact address"
                       value={formData.address}
                       onChange={e => handleChange("address", e.target.value)}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
+                    <Label className="flex items-center gap-2" required>
                       Preferred Communication
                       <span className="text-[10px] text-muted-foreground font-normal uppercase tracking-wider">(you can select more than one)</span>
                     </Label>
@@ -465,7 +465,7 @@ export default function CreatePatientPage() {
               {currentStep === 2 && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="space-y-1">
-                    <Label>Preferred Scan (Indication)</Label>
+                    <Label required>Preferred Scan (Indication)</Label>
                     <Select value={formData.indication} onValueChange={v => handleChange("indication", v)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select required scan" />
@@ -490,7 +490,7 @@ export default function CreatePatientPage() {
 
                   <div className="grid md:grid-cols-2 gap-6 pt-4 border-t">
                     <div className="space-y-1">
-                      <Label>Hospital / Facility</Label>
+                      <Label required>Hospital / Facility</Label>
                       <Select value={formData.hospital} onValueChange={handleHospitalSelect}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select hospital" />
@@ -503,7 +503,7 @@ export default function CreatePatientPage() {
                       </Select>
                     </div>
                     <div className="space-y-1">
-                      <Label>Referring Physician</Label>
+                      <Label required>Referring Physician</Label>
                       <Select
                         value={MOCK_DOCTORS.find(d => d.id === formData.physicianId)?.id || ""}
                         onValueChange={handleDoctorSelect}
