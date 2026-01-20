@@ -23,11 +23,16 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Search,
-  Filter
+  Filter,
+  Download,
+  FileUp,
+  FileDown,
+  Upload,
+  LayoutPanelTop
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { AddClientModal } from "@/components/Modals/AddClientModal";
+import { AddPatientModal } from "@/components/Modals/AddPatientModal";
 
 // Helper functions
 const getInitials = (name: string) => {
@@ -61,18 +66,17 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export default function Clients() {
+export default function Patients() {
   const navigate = useNavigate();
-  const [showAddClientModal, setShowAddClientModal] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Mock clients data
-  const clients = [
+  // Mock patients data
+  const patients = [
     {
-      id: "CL-001",
+      id: "PT-001",
       name: "Alex Turner",
       email: "alex.turner@email.com",
       phone: "+1 (555) 123-4567",
@@ -85,7 +89,7 @@ export default function Clients() {
       avatar: ""
     },
     {
-      id: "CL-002",
+      id: "PT-002",
       name: "Maria Garcia",
       email: "maria.garcia@email.com",
       phone: "+1 (555) 234-5678",
@@ -98,7 +102,7 @@ export default function Clients() {
       avatar: ""
     },
     {
-      id: "CL-003",
+      id: "PT-003",
       name: "James Wilson",
       email: "james.wilson@email.com",
       phone: "+1 (555) 345-6789",
@@ -111,7 +115,7 @@ export default function Clients() {
       avatar: ""
     },
     {
-      id: "CL-004",
+      id: "PT-004",
       name: "Lisa Wang",
       email: "lisa.wang@email.com",
       phone: "+1 (555) 456-7890",
@@ -124,7 +128,7 @@ export default function Clients() {
       avatar: ""
     },
     {
-      id: "CL-005",
+      id: "PT-005",
       name: "David Rodriguez",
       email: "david.rodriguez@email.com",
       phone: "+1 (555) 567-8901",
@@ -138,23 +142,23 @@ export default function Clients() {
     }
   ];
 
-  // Filter clients based on search and status
-  const filteredClients = clients.filter(client => {
+  // Filter patients based on search and status
+  const filteredPatients = patients.filter(patient => {
     const matchesSearch =
-      client.name.toLowerCase().includes(globalFilter.toLowerCase()) ||
-      client.email.toLowerCase().includes(globalFilter.toLowerCase()) ||
-      client.id.toLowerCase().includes(globalFilter.toLowerCase());
+      patient.name.toLowerCase().includes(globalFilter.toLowerCase()) ||
+      patient.email.toLowerCase().includes(globalFilter.toLowerCase()) ||
+      patient.id.toLowerCase().includes(globalFilter.toLowerCase());
 
     const matchesStatus =
-      statusFilter === "all" || client.status === statusFilter;
+      statusFilter === "all" || patient.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
   // Pagination
-  const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedClients = filteredClients.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedPatients = filteredPatients.slice(startIndex, startIndex + itemsPerPage);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -172,13 +176,13 @@ export default function Clients() {
     return variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800";
   };
 
-  const handleAddClient = (clientData: any) => {
-    console.log('Adding new client:', clientData);
-    // Handle client creation logic
+  const handleAddPatient = (patientData: any) => {
+    console.log('Adding new patient:', patientData);
+    // Handle patient creation logic
   };
 
-  const handleRowClick = (clientId: string) => {
-    navigate(`/patients/${clientId}`);
+  const handleRowClick = (patientId: string) => {
+    navigate(`/patients/${patientId}`);
   };
 
   return (
@@ -186,28 +190,53 @@ export default function Clients() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Clients</h1>
-          <p className="text-muted-foreground">Manage your client relationships and information</p>
+          <h1 className="text-xl font-semibold tracking-tight">Patients</h1>
+          <p className="text-muted-foreground">Manage your patient records and clinical information</p>
         </div>
-        <Button onClick={() => setShowAddClientModal(true)}>
-          <Plus className="h-4 w-4" />
-          Add New Client
-        </Button>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Download className="h-4 w-4" />
+                Import/Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[180px]">
+              <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting CSV...")}>
+                <FileDown className="h-4 w-4 text-muted-foreground" />
+                Export to CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting PDF...")}>
+                <FileDown className="h-4 w-4 text-muted-foreground" />
+                Export to PDF
+              </DropdownMenuItem>
+              <div className="h-px bg-muted my-1" />
+              <DropdownMenuItem className="gap-2" onClick={() => console.log("Importing CSV...")}>
+                <Upload className="h-4 w-4 text-muted-foreground" />
+                Import from CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={() => navigate("/patients/create")}>
+            <Plus className="h-4 w-4" />
+            Add New Patient
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3 p-4">
-            <CardDescription>Total Clients</CardDescription>
-            <CardTitle className="text-2xl">{clients.length}</CardTitle>
+            <CardDescription>Total Patients</CardDescription>
+            <CardTitle className="text-2xl">{patients.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3 p-4">
-            <CardDescription>Active Clients</CardDescription>
+            <CardDescription>Active Patients</CardDescription>
             <CardTitle className="text-2xl">
-              {clients.filter(c => c.status === 'active').length}
+              {patients.filter(c => c.status === 'active').length}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -215,7 +244,7 @@ export default function Clients() {
           <CardHeader className="pb-3 p-4">
             <CardDescription>Total Cases</CardDescription>
             <CardTitle className="text-2xl">
-              {clients.reduce((sum, client) => sum + client.cases, 0)}
+              {patients.reduce((sum, patient) => sum + patient.cases, 0)}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -223,7 +252,7 @@ export default function Clients() {
           <CardHeader className="pb-3 p-4">
             <CardDescription>Total Value</CardDescription>
             <CardTitle className="text-2xl">
-              {formatCurrency(clients.reduce((sum, client) => sum + client.totalValue, 0))}
+              {formatCurrency(patients.reduce((sum, patient) => sum + patient.totalValue, 0))}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -237,7 +266,7 @@ export default function Clients() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search clients..."
+                placeholder="Search patients..."
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 className="pl-9"
@@ -260,7 +289,7 @@ export default function Clients() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Client</TableHead>
+              <TableHead>Patient</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Cases</TableHead>
@@ -270,22 +299,22 @@ export default function Clients() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedClients.map((client) => (
+            {paginatedPatients.map((patient) => (
               <TableRow
-                key={client.id}
+                key={patient.id}
                 className="hover:bg-muted/50 cursor-pointer transition-colors"
-                onClick={() => handleRowClick(client.id)}
+                onClick={() => handleRowClick(patient.id)}
               >
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
-                      <AvatarFallback className={cn("text-sm font-semibold", getAvatarBg(client.name))}>
-                        {getInitials(client.name)}
+                      <AvatarFallback className={cn("text-sm font-semibold", getAvatarBg(patient.name))}>
+                        {getInitials(patient.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">{client.name}</div>
-                      <div className="text-sm text-muted-foreground">{client.id}</div>
+                      <div className="font-medium">{patient.name}</div>
+                      <div className="text-sm text-muted-foreground">{patient.id}</div>
                     </div>
                   </div>
                 </TableCell>
@@ -293,28 +322,28 @@ export default function Clients() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-sm">
                       <Mail className="h-3 w-3 text-muted-foreground" />
-                      {client.email}
+                      {patient.email}
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="h-3 w-3 text-muted-foreground" />
-                      {client.phone}
+                      {patient.phone}
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge className={getStatusBadge(client.status)}>
-                    {client.status.charAt(0).toUpperCase() + client.status.slice(1)}
+                  <Badge className={getStatusBadge(patient.status)}>
+                    {patient.status.charAt(0).toUpperCase() + patient.status.slice(1)}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="font-medium">{client.cases}</div>
+                  <div className="font-medium">{patient.cases}</div>
                   <div className="text-sm text-muted-foreground">active cases</div>
                 </TableCell>
                 <TableCell className="font-medium">
-                  {formatCurrency(client.totalValue)}
+                  {formatCurrency(patient.totalValue)}
                 </TableCell>
                 <TableCell>
-                  <div className="text-sm">{formatDate(client.lastActivity)}</div>
+                  <div className="text-sm">{formatDate(patient.lastActivity)}</div>
                 </TableCell>
                 <TableCell
                   className="text-right"
@@ -328,14 +357,14 @@ export default function Clients() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link to={`/patients/${client.id}`} className="flex items-center gap-2">
+                        <Link to={`/patients/${patient.id}`} className="flex items-center gap-2">
                           <Eye className="h-4 w-4" />
                           View Profile
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem>
                         <Edit className="h-4 w-4" />
-                        Edit Client
+                        Edit Patient
                       </DropdownMenuItem>
                       <DropdownMenuItem>
                         <Mail className="h-4 w-4" />
@@ -350,10 +379,10 @@ export default function Clients() {
         </Table>
 
         {/* Pagination */}
-        {filteredClients.length > 0 && (
+        {filteredPatients.length > 0 && (
           <div className="flex items-center border-t justify-between px-2 py-3">
             <div className="text-sm text-muted-foreground">
-              {filteredClients.length} results
+              {filteredPatients.length} results
             </div>
 
             <div className="flex items-center space-x-2">
@@ -420,19 +449,22 @@ export default function Clients() {
           </div>
         )}
 
-        {filteredClients.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            No clients found matching your criteria.
+        {/* No Patients Empty State */}
+        {filteredPatients.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center bg-card rounded-xl border border-dashed">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4 text-muted-foreground">
+              <Search className="h-6 w-6" />
+            </div>
+            <h3 className="text-lg font-medium">No patients found</h3>
+            <p className="text-muted-foreground max-w-sm mb-6">
+              Try adjusting your search or filters to find what you're looking for.
+            </p>
+            <Button variant="outline" onClick={() => { setGlobalFilter(""); setStatusFilter("all"); }}>
+              Clear all filters
+            </Button>
           </div>
         )}
       </div>
-
-      {/* Add Client Modal */}
-      <AddClientModal
-        open={showAddClientModal}
-        onOpenChange={setShowAddClientModal}
-        onAddClient={handleAddClient}
-      />
     </div>
   );
 }

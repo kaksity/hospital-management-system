@@ -15,6 +15,7 @@ import { Login } from "@/pages/auth/Login";
 import { Signup } from "@/pages/auth/Signup";
 import NotFound from "@/pages/not-found";
 import Patients from "@/pages/patients";
+import CreatePatient from "@/pages/patients/create";
 import PatientDetail from "@/pages/patients/[id]";
 import Settings from "@/pages/settings";
 import { GeneralSettings } from "@/pages/settings/general";
@@ -23,7 +24,7 @@ import { MembersSettings } from "@/pages/settings/members";
 import Appointments from "@/pages/appointments";
 import NewAppointment from "@/pages/appointments/new-visa";
 import Invoices from "@/pages/invoices";
-import Reports from "@/pages/reports";
+import Insights from "@/pages/insights";
 import Hospitals from "@/pages/hospitals";
 import Doctors from "@/pages/doctors";
 import RadiologyServices from "@/pages/services";
@@ -116,17 +117,29 @@ export function AppRoutes() {
       <Route
         path="/patients"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={['admin', 'staff', 'attorney', 'paralegal']}>
             <DashboardLayout>
               <Patients />
             </DashboardLayout>
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/patients/create"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+            <DashboardLayout>
+              <CreatePatient />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/patients/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={['admin', 'staff', 'attorney', 'paralegal']}>
             <DashboardLayout>
               <PatientDetail />
             </DashboardLayout>
@@ -178,11 +191,11 @@ export function AppRoutes() {
       />
 
       <Route
-        path="/reports"
+        path="/insights"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <DashboardLayout>
-              <Reports />
+              <Insights />
             </DashboardLayout>
           </ProtectedRoute>
         }

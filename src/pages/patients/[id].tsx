@@ -62,7 +62,7 @@ const getAvatarBg = (seed: string) => {
   return colors[Math.abs(hash % colors.length)];
 };
 
-export default function ClientDetail() {
+export default function PatientDetail() {
   const { id } = useParams();
   const [loading, setLoading] = React.useState(true);
 
@@ -74,14 +74,14 @@ export default function ClientDetail() {
   if (loading) {
     return (
       <div className="p-6 text-center text-muted-foreground">
-        Loading client details...
+        Loading patient details...
       </div>
     );
   }
 
-  // Mock client data
-  const clientData = {
-    id: id || "CL-001",
+  // Mock patient data
+  const patientData = {
+    id: id || "PT-001",
     name: "Alex Turner",
     email: "alex.turner@email.com",
     phone: "+1 (555) 123-4567",
@@ -90,9 +90,9 @@ export default function ClientDetail() {
     status: "active",
     joinedDate: "2024-10-15",
     lastActivity: "2025-01-15",
-    notes: "Musician and composer with extensive international experience. Prefers email communication.",
+    notes: "Patient with extensive international experience. Prefers email communication.",
 
-    // Cases associated with this client
+    // Cases associated with this patient
     cases: [
       {
         id: "ACV-2024-001",
@@ -133,16 +133,16 @@ export default function ClientDetail() {
       {
         id: "comm-1",
         type: "email",
-        subject: "Welcome to Agora Visa Services",
+        subject: "Welcome to Agora Care",
         date: "2024-10-15",
-        summary: "Initial onboarding and case setup"
+        summary: "Initial onboarding and patient profile setup"
       },
       {
         id: "comm-2",
         type: "call",
-        subject: "Document Collection Discussion",
+        subject: "Baseline Consultation",
         date: "2024-10-20",
-        summary: "Discussed required documents for O-1A application"
+        summary: "Discussed clinical history and required scans"
       },
       {
         id: "comm-3",
@@ -154,9 +154,9 @@ export default function ClientDetail() {
       {
         id: "comm-4",
         type: "meeting",
-        subject: "Case Strategy Session",
+        subject: "Clinical Strategy Session",
         date: "2024-11-05",
-        summary: "Discussed evidence strategy and timeline"
+        summary: "Discussed scan results and next steps"
       }
     ],
 
@@ -171,14 +171,14 @@ export default function ClientDetail() {
       },
       {
         id: "doc-2",
-        name: "CV_Resume.pdf",
+        name: "Medical_History.pdf",
         type: "Professional",
         uploadedAt: "2024-10-19",
         size: "1.8MB"
       },
       {
         id: "doc-3",
-        name: "Award_Certificates.zip",
+        name: "Scan_Images.zip",
         type: "Evidence",
         uploadedAt: "2024-10-25",
         size: "15.2MB"
@@ -222,31 +222,31 @@ export default function ClientDetail() {
           <div className="flex flex-wrap items-center gap-3">
             <Avatar className="h-12 w-12">
               <AvatarFallback
-                className={cn("text-sm font-semibold", getAvatarBg(clientData.name))}
+                className={cn("text-sm font-semibold", getAvatarBg(patientData.name))}
               >
-                {getInitials(clientData.name)}
+                {getInitials(patientData.name)}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-1">
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl font-semibold leading-tight">{clientData.name}</h1>
+                <h1 className="text-2xl font-semibold leading-tight">{patientData.name}</h1>
                 <div className="flex items-center gap-2">
-                  <Badge className={getStatusBadge(clientData.status)}>
-                    {clientData.status.charAt(0).toUpperCase() + clientData.status.slice(1)}
+                  <Badge className={getStatusBadge(patientData.status)}>
+                    {patientData.status.charAt(0).toUpperCase() + patientData.status.slice(1)}
                   </Badge>
                   <Badge variant="outline" className="text-sm">
-                    {clientData.id}
+                    {patientData.id}
                   </Badge>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  <span>Joined {formatDate(clientData.joinedDate)}</span>
+                  <span>Joined {formatDate(patientData.joinedDate)}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  <span>Last activity {formatDate(clientData.lastActivity)}</span>
+                  <span>Last activity {formatDate(patientData.lastActivity)}</span>
                 </div>
               </div>
             </div>
@@ -260,7 +260,7 @@ export default function ClientDetail() {
           </Button>
           <Button variant="outline" size="sm" className="gap-2">
             <Edit className="h-4 w-4" />
-            Edit Client
+            Edit Patient
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -271,7 +271,7 @@ export default function ClientDetail() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
                 <FileText className="w-4 h-4 mr-2" />
-                Export Client Data
+                Export Patient Data
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <DollarSign className="w-4 h-4 mr-2" />
@@ -313,28 +313,28 @@ export default function ClientDetail() {
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Email</p>
-                      <p className="text-sm text-muted-foreground">{clientData.email}</p>
+                      <p className="text-sm text-muted-foreground">{patientData.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Phone</p>
-                      <p className="text-sm text-muted-foreground">{clientData.phone}</p>
+                      <p className="text-sm text-muted-foreground">{patientData.phone}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Globe className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Country</p>
-                      <p className="text-sm text-muted-foreground">{clientData.country}</p>
+                      <p className="text-sm text-muted-foreground">{patientData.country}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Address</p>
-                      <p className="text-sm text-muted-foreground">{clientData.address}</p>
+                      <p className="text-sm text-muted-foreground">{patientData.address}</p>
                     </div>
                   </div>
                 </div>
@@ -344,25 +344,25 @@ export default function ClientDetail() {
             {/* Quick Stats */}
             <Card>
               <CardHeader>
-                <CardTitle>Client Summary</CardTitle>
+                <CardTitle>Patient Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Active Cases</span>
-                    <span className="font-semibold">{clientData.cases.length}</span>
+                    <span className="font-semibold">{patientData.cases.length}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Total Value</span>
-                    <span className="font-semibold">{formatCurrency(clientData.paymentSummary.totalValue)}</span>
+                    <span className="font-semibold">{formatCurrency(patientData.paymentSummary.totalValue)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Amount Paid</span>
-                    <span className="font-semibold text-green-600">{formatCurrency(clientData.paymentSummary.paid)}</span>
+                    <span className="font-semibold text-green-600">{formatCurrency(patientData.paymentSummary.paid)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Balance</span>
-                    <span className="font-semibold text-yellow-600">{formatCurrency(clientData.paymentSummary.balance)}</span>
+                    <span className="font-semibold text-yellow-600">{formatCurrency(patientData.paymentSummary.balance)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -373,11 +373,11 @@ export default function ClientDetail() {
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Client Notes</CardTitle>
+                <CardTitle>Patient Notes</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  {clientData.notes}
+                  {patientData.notes}
                 </p>
               </CardContent>
             </Card>
@@ -389,13 +389,13 @@ export default function ClientDetail() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {clientData.communications.slice(0, 4).map((comm) => (
+                  {patientData.communications.slice(0, 4).map((comm) => (
                     <div key={comm.id} className="flex items-start gap-3 pb-3 border-b last:border-b-0 last:pb-0">
                       <div className={`flex h-6 w-6 items-center justify-center rounded-full mt-0.5 ${comm.type === 'email' ? 'bg-blue-100' :
-                          comm.type === 'call' ? 'bg-green-100' : 'bg-purple-100'
+                        comm.type === 'call' ? 'bg-green-100' : 'bg-purple-100'
                         }`}>
                         <Mail className={`h-3 w-3 ${comm.type === 'email' ? 'text-blue-600' :
-                            comm.type === 'call' ? 'text-green-600' : 'text-purple-600'
+                          comm.type === 'call' ? 'text-green-600' : 'text-purple-600'
                           }`} />
                       </div>
                       <div className="flex-1">
@@ -415,8 +415,8 @@ export default function ClientDetail() {
         <TabsContent value="cases">
           <Card>
             <CardHeader>
-              <CardTitle>Client Cases</CardTitle>
-              <CardDescription>All visa cases associated with this client</CardDescription>
+              <CardTitle>Patient Cases</CardTitle>
+              <CardDescription>All clinical cases associated with this patient</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -433,7 +433,7 @@ export default function ClientDetail() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clientData.cases.map((caseItem) => (
+                  {patientData.cases.map((caseItem) => (
                     <TableRow key={caseItem.id} className="hover:bg-muted/50 transition-colors">
                       <TableCell className="font-medium">{caseItem.id}</TableCell>
                       <TableCell>{caseItem.visaType}</TableCell>
@@ -487,19 +487,19 @@ export default function ClientDetail() {
                 <div className="grid gap-4 md:grid-cols-4">
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground">Total Value</p>
-                    <p className="text-2xl font-bold">{formatCurrency(clientData.paymentSummary.totalValue)}</p>
+                    <p className="text-2xl font-bold">{formatCurrency(patientData.paymentSummary.totalValue)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground">Amount Paid</p>
-                    <p className="text-2xl font-bold text-green-600">{formatCurrency(clientData.paymentSummary.paid)}</p>
+                    <p className="text-2xl font-bold text-green-600">{formatCurrency(patientData.paymentSummary.paid)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground">Balance</p>
-                    <p className="text-2xl font-bold text-yellow-600">{formatCurrency(clientData.paymentSummary.balance)}</p>
+                    <p className="text-2xl font-bold text-yellow-600">{formatCurrency(patientData.paymentSummary.balance)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground">Next Payment Due</p>
-                    <p className="text-lg font-bold">{formatDate(clientData.paymentSummary.nextPaymentDue)}</p>
+                    <p className="text-lg font-bold">{formatDate(patientData.paymentSummary.nextPaymentDue)}</p>
                   </div>
                 </div>
               </CardContent>
@@ -522,7 +522,7 @@ export default function ClientDetail() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {clientData.paymentSummary.paymentPlan.map((payment, index) => (
+                    {patientData.paymentSummary.paymentPlan.map((payment, index) => (
                       <TableRow key={index}>
                         <TableCell className="font-medium">{payment.name}</TableCell>
                         <TableCell>{formatCurrency(payment.amount)}</TableCell>
@@ -550,8 +550,8 @@ export default function ClientDetail() {
         <TabsContent value="documents">
           <Card>
             <CardHeader>
-              <CardTitle>Client Documents</CardTitle>
-              <CardDescription>All documents uploaded by or for this client</CardDescription>
+              <CardTitle>Patient Documents</CardTitle>
+              <CardDescription>All documents uploaded by or for this patient</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -565,7 +565,7 @@ export default function ClientDetail() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clientData.documents.map((doc) => (
+                  {patientData.documents.map((doc) => (
                     <TableRow key={doc.id} className="hover:bg-muted/50 transition-colors">
                       <TableCell className="font-medium">{doc.name}</TableCell>
                       <TableCell>{doc.type}</TableCell>

@@ -1,4 +1,4 @@
-import { Home, FileText, DollarSign, Settings, Users, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, TicketsPlane, Receipt, BarChart3, Building2, UserCog, LayoutGrid, ScrollText } from "lucide-react";
+import { Home, FileText, DollarSign, Settings, Users, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, TicketsPlane, Receipt, BarChart3, Building2, UserCog, LayoutGrid, ScrollText, ClipboardCheck, CalendarCheck, IdCard, Hospital, Stethoscope, FormInputIcon, LayoutPanelTop } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -27,26 +27,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const getNavigationItems = (role: string) => {
   const baseItems = [
     { title: "Dashboard", url: "/", icon: Home },
-    { title: "Appointments", url: "/appointments", icon: TicketsPlane },
+    { title: "Appointments", url: "/appointments", icon: CalendarCheck },
   ];
 
   const adminItems = [
-    { title: "Task Manager", url: "/task-manager", icon: Briefcase },
-    { title: "Patients", url: "/patients", icon: Users },
+    { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
+    { title: "Patients", url: "/patients", icon: IdCard },
     { title: "Invoices", url: "/invoices", icon: Receipt },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
-    { title: "Hospitals", url: "/hospitals", icon: Building2 },
-    { title: "Doctors", url: "/doctors", icon: UserCog },
+    { title: "Hospitals", url: "/hospitals", icon: Hospital },
+    { title: "Doctors", url: "/doctors", icon: Stethoscope },
     { title: "Services", url: "/services", icon: LayoutGrid },
-    { title: "Templates", url: "/templates", icon: ScrollText },
+    { title: "Templates", url: "/templates", icon: LayoutPanelTop },
     { title: "Help Desk", url: "/help-desk", icon: MessageSquareMore },
-    { title: "Reports", url: "/reports", icon: BarChart3 },
+    { title: "Insights", url: "/insights", icon: BarChart3 },
     { title: "Payments", url: "/payments", icon: DollarSign },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
   const attorneyParalegalItems = [
-    { title: "Task Manager", url: "/task-manager", icon: Briefcase },
+    { title: "Tasks", url: "/task-manager", icon: Briefcase },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
     { title: "Help Desk", url: "/help-desk", icon: MessageSquareMore },
     { title: "Settings", url: "/settings", icon: Settings },

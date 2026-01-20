@@ -36,11 +36,12 @@ interface DashboardLayoutProps {
 const getBreadcrumbs = (pathname: string) => {
   const pathMap: Record<string, { label: string; href?: string }> = {
     "/": { label: "Dashboard", href: "/" },
-    "/task-manager": { label: "Task Manager", href: "/task-manager" },
+    "/task-manager": { label: "Tasks", href: "/task-manager" },
     "/task-manager/create": { label: "Create Task", href: "/task-manager/create" },
     "/diagnostic-reports": { label: "Diagnostic Reports", href: "/diagnostic-reports" },
     "/help-desk": { label: "Help Desk", href: "/help-desk" },
     "/payments": { label: "Payments", href: "/payments" },
+    "/insights": { label: "Insights", href: "/insights" },
     "/admin/products": { label: "Visa Products", href: "/admin/products" },
     "/admin/users": { label: "User Management", href: "/admin/users" },
   };
@@ -50,7 +51,7 @@ const getBreadcrumbs = (pathname: string) => {
     const taskId = pathname.split('/')[2];
     return [
       { label: "Dashboard", href: "/" },
-      { label: "Task Manager", href: "/task-manager" },
+      { label: "Tasks", href: "/task-manager" },
       { label: `Task ${taskId}`, href: pathname }
     ];
   }
@@ -147,7 +148,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="relative w-full max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Global Search..."
+                  placeholder="Search..."
                   className="w-full pl-9 h-9 bg-muted/50 border-none focus-visible:ring-1"
                 />
               </div>
@@ -182,39 +183,34 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <DropdownMenuContent align="end" className="w-[240px]">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none flex items-center gap-2">
+                      <p className="text-sm font-medium leading-none">
                         Broadplaces Radiology
-                        <span className="text-xs">🇳🇬</span>
                       </p>
-                      <p className="text-xs leading-none text-muted-foreground">
+                      <p className="text-xs leading-none text-muted-foreground flex items-center gap-2">
+                        <span className="text-xs">🇳🇬</span>
                         Admin Account
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
+                    <Settings className="h-4 w-4" />
                     <span>Org Settings</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <UserPlus className="mr-2 h-4 w-4" />
+                    <UserPlus className="h-4 w-4" />
                     <span>Invite a member</span>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <PlusCircle className="mr-2 h-4 w-4" />
+                    <PlusCircle className="h-4 w-4" />
                     <span>Add a new lab</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Repeat className="mr-2 h-4 w-4" />
-                    <span>Switch labs</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
                     Current Lab
                   </div>
                   <DropdownMenuItem className="bg-muted/50">
-                    <Check className="mr-2 h-4 w-4 text-primary" />
+                    <Check className="h-4 w-4 text-primary" />
                     <span className="flex-1">Main Facility - Lagos</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
