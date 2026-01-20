@@ -87,6 +87,8 @@ const MOCK_INDICATIONS = [
   "Echocardiogram"
 ];
 
+const COMMUNICATION_METHODS = ["WhatsApp", "Email", "SMS", "Phone Call"];
+
 export default function CreatePatientPage() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
@@ -95,10 +97,12 @@ export default function CreatePatientPage() {
   const [serviceSearch, setServiceSearch] = useState("");
   const [formData, setFormData] = useState({
     // Step 1: Contact
+    patientType: "Private",
     firstName: "",
     lastName: "",
     dob: "",
     gender: "",
+    maritalStatus: "",
     nationality: "NG",
     phone: "",
     countryCode: "NG",
@@ -120,7 +124,7 @@ export default function CreatePatientPage() {
 
   const isStepValid = () => {
     if (currentStep === 1) {
-      return formData.firstName && formData.lastName && formData.email && formData.phone && formData.preferredCommunication.length > 0;
+      return formData.patientType && formData.firstName && formData.lastName && formData.email && formData.phone && formData.preferredCommunication.length > 0;
     }
     if (currentStep === 2) {
       return formData.referringPhysician && formData.indication && formData.investigationReason;
@@ -216,7 +220,7 @@ export default function CreatePatientPage() {
     <div className="max-w-2xl mx-auto p-6 space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-medium tracking-light">Register New Patient</h1>
+        <h1 className="text-xl font-semibold tracking-light">Register New Patient</h1>
         <p className="text-muted-foreground">Follow the steps below to create a comprehensive patient record.</p>
       </div>
 
@@ -243,6 +247,20 @@ export default function CreatePatientPage() {
             <div className="pb-5">
               {currentStep === 1 && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="space-y-1">
+                    <Label>Patient Type</Label>
+                    <Select value={formData.patientType} onValueChange={v => handleChange("patientType", v)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select patient type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Private">Private</SelectItem>
+                        <SelectItem value="HMO">HMO</SelectItem>
+                        <SelectItem value="Public">Public</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-1">
                       <Label>First Name</Label>
@@ -272,9 +290,9 @@ export default function CreatePatientPage() {
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid md:grid-cols-2 gap-6 items-center">
                     <div className="space-y-1">
-                      <div className="flex items-center justify-between space-y-1">
+                      <div className="flex items-center justify-between mb-1">
                         <Label>Date of Birth</Label>
                         {age !== null && (
                           <Badge className="bg-primary/10 text-primary border-none pointer-events-none">
@@ -324,12 +342,27 @@ export default function CreatePatientPage() {
                         <SelectContent>
                           <SelectItem value="Male">Male</SelectItem>
                           <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <Label>Marital Status</Label>
+                      <Select value={formData.maritalStatus} onValueChange={v => handleChange("maritalStatus", v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Single">Single</SelectItem>
+                          <SelectItem value="Married">Married</SelectItem>
+                          <SelectItem value="Divorced">Divorced</SelectItem>
+                          <SelectItem value="Widowed">Widowed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div className="space-y-1">
                       <Label>Nationality</Label>
                       <Select value={formData.nationality} onValueChange={v => handleChange("nationality", v)}>
@@ -343,26 +376,27 @@ export default function CreatePatientPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-1">
-                      <Label>Phone Number</Label>
-                      <div className="flex gap-2">
-                        <Select value={formData.countryCode} onValueChange={v => handleChange("countryCode", v)}>
-                          <SelectTrigger className="w-[100px]">
-                            <SelectValue>{selectedCountry.dialCode}</SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countryCodes.map(c => (
-                              <SelectItem key={c.code} value={c.code}>{c.flag} {c.dialCode}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Input
-                          className="flex-1"
-                          placeholder="801 234 5678"
-                          value={formData.phone}
-                          onChange={e => handleChange("phone", e.target.value)}
-                        />
-                      </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Phone Number</Label>
+                    <div className="flex gap-2">
+                      <Select value={formData.countryCode} onValueChange={v => handleChange("countryCode", v)}>
+                        <SelectTrigger className="w-[100px]">
+                          <SelectValue>{selectedCountry.dialCode}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countryCodes.map(c => (
+                            <SelectItem key={c.code} value={c.code}>{c.flag} {c.dialCode}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        className="flex-1"
+                        placeholder="801 234 5678"
+                        value={formData.phone}
+                        onChange={e => handleChange("phone", e.target.value)}
+                      />
                     </div>
                   </div>
 
@@ -376,7 +410,10 @@ export default function CreatePatientPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Preferred Communication</Label>
+                    <Label className="flex items-center gap-2">
+                      Preferred Communication
+                      <span className="text-[10px] text-muted-foreground font-normal uppercase tracking-wider">(you can select more than one)</span>
+                    </Label>
                     <Select
                       value=""
                       onValueChange={v => {
@@ -387,19 +424,24 @@ export default function CreatePatientPage() {
                           }));
                         }
                       }}
+                      disabled={formData.preferredCommunication.length === COMMUNICATION_METHODS.length}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select method" />
+                        <SelectValue placeholder={
+                          formData.preferredCommunication.length === COMMUNICATION_METHODS.length
+                            ? "All methods selected"
+                            : "Select method"
+                        } />
                       </SelectTrigger>
                       <SelectContent>
-                        {["WhatsApp", "Email", "SMS", "Phone Call"].filter(m => !formData.preferredCommunication.includes(m)).map(m => (
+                        {COMMUNICATION_METHODS.filter(m => !formData.preferredCommunication.includes(m)).map(m => (
                           <SelectItem key={m} value={m}>{m}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {formData.preferredCommunication.map(mode => (
-                        <Badge key={mode} variant="outline" className="gap-1 py-1 px-2">
+                        <Badge key={mode} className="border bg-muted gap-1 py-1 px-2">
                           {mode}
                           <button
                             type="button"

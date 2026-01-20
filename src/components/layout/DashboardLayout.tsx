@@ -42,9 +42,22 @@ const getBreadcrumbs = (pathname: string) => {
     "/help-desk": { label: "Help Desk", href: "/help-desk" },
     "/payments": { label: "Payments", href: "/payments" },
     "/insights": { label: "Insights", href: "/insights" },
+    "/patients": { label: "Patients", href: "/patients" },
+    "/patients/create": { label: "Create New Patient", href: "/patients/create" },
+    "/patients/import": { label: "Import Records", href: "/patients/import" },
     "/admin/products": { label: "Visa Products", href: "/admin/products" },
     "/admin/users": { label: "User Management", href: "/admin/users" },
   };
+
+  // Handle dynamic patient detail pages
+  if (pathname.startsWith('/patients/') && !['/patients/create', '/patients/import'].includes(pathname)) {
+    const patientId = pathname.split('/')[2];
+    return [
+      { label: "Dashboard", href: "/" },
+      { label: "Patients", href: "/patients" },
+      { label: `Patient Profile`, href: pathname }
+    ];
+  }
 
   // Handle dynamic task-manager pages (e.g., /task-manager/123)
   if (pathname.startsWith('/task-manager/') && pathname !== '/task-manager/create') {

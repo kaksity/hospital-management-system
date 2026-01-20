@@ -16,6 +16,7 @@ import { Signup } from "@/pages/auth/Signup";
 import NotFound from "@/pages/not-found";
 import Patients from "@/pages/patients";
 import CreatePatient from "@/pages/patients/create";
+import ImportPatients from "@/pages/patients/import";
 import PatientDetail from "@/pages/patients/[id]";
 import Settings from "@/pages/settings";
 import { GeneralSettings } from "@/pages/settings/general";
@@ -131,6 +132,17 @@ export function AppRoutes() {
           <ProtectedRoute allowedRoles={['admin', 'staff']}>
             <DashboardLayout>
               <CreatePatient />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/patients/import"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+            <DashboardLayout>
+              <ImportPatients />
             </DashboardLayout>
           </ProtectedRoute>
         }
