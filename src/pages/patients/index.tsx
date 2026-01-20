@@ -43,6 +43,7 @@ import { cn } from "@/lib/utils";
 import { EditPatientModal } from "@/components/Modals/EditPatientModal";
 import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
 import { ScheduleAppointmentModal } from "@/components/Modals/ScheduleAppointmentModal";
+import { SendMessageModal } from "@/components/Modals/SendMessageModal";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 
 
@@ -66,6 +67,7 @@ export default function Patients() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   // Mock patients data
@@ -220,6 +222,11 @@ export default function Patients() {
   const handleScheduleAppointment = (patient: any) => {
     setSelectedPatient(patient);
     setIsScheduleModalOpen(true);
+  };
+
+  const handleSendMessage = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsMessageModalOpen(true);
   };
 
   const handleRowClick = (patientId: string) => {
@@ -506,7 +513,7 @@ export default function Patients() {
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             Schedule Appointment
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => console.log("Sending Message...")} className="flex items-center gap-2">
+                          <DropdownMenuItem onClick={() => handleSendMessage(patient)} className="flex items-center gap-2">
                             <MessageSquare className="h-4 w-4 text-muted-foreground" />
                             Send Message
                           </DropdownMenuItem>
@@ -671,6 +678,15 @@ export default function Patients() {
         onSchedule={(data) => {
           console.log("Scheduling appointment:", data);
           // Actual scheduling logic would go here
+        }}
+      />
+
+      <SendMessageModal
+        open={isMessageModalOpen}
+        onOpenChange={setIsMessageModalOpen}
+        patient={selectedPatient}
+        onSendMessage={(data) => {
+          console.log("Sending message:", data);
         }}
       />
     </div>

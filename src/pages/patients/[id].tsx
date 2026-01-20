@@ -15,9 +15,18 @@ import {
   User,
   Building,
   Globe,
-  Clock
+  Clock,
+  Stethoscope,
+  ChevronRight,
+  ShieldCheck,
+  Receipt,
+  FileSearch,
+  Plus,
+  ReceiptIcon,
+  CalendarCheck
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -38,32 +47,9 @@ import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/dateFormatter";
 import { formatCurrency } from "@/utils/formatCurrency";
 
-// Helper functions
-const getInitials = (name: string) => {
-  const parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-};
-
-const getAvatarBg = (seed: string) => {
-  const colors = [
-    "bg-blue-200",
-    "bg-green-200",
-    "bg-purple-200",
-    "bg-pink-200",
-    "bg-yellow-200",
-    "bg-indigo-200",
-    "bg-teal-200",
-  ];
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash % colors.length)];
-};
 
 export default function PatientDetail() {
-  const { id } = useParams();
+  const { id: routeId } = useParams();
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -81,109 +67,95 @@ export default function PatientDetail() {
 
   // Mock patient data
   const patientData = {
-    id: id || "PT-001",
+    id: routeId || "PT-001",
     name: "Alex Turner",
     email: "alex.turner@email.com",
-    phone: "+1 (555) 123-4567",
-    country: "United Kingdom",
-    address: "123 Music Street, London W1 2AB, United Kingdom",
+    phone: "+234 812 345 6789",
     status: "active",
     joinedDate: "2024-10-15",
     lastActivity: "2025-01-15",
-    notes: "Patient with extensive international experience. Prefers email communication.",
+    address: "123 Healthcare Blvd, Lagos, Nigeria",
 
-    // Cases associated with this patient
-    cases: [
+    // Clinical Information
+    clinicalInfo: {
+      patientType: "Private",
+      gender: "Male" as const,
+      dob: "1997-05-15",
+      age: 28,
+      maritalStatus: "Single",
+      nationality: "Nigerian",
+      bloodGroup: "O+",
+      genotype: "AA",
+      allergies: ["Penicillin"],
+      medications: ["None"],
+      history: "Chronic headaches for 3 months.",
+      registeredBy: "Adebayo Olusola",
+      preferredCommunication: "WhatsApp"
+    },
+
+    // Appointments associated with this patient
+    appointments: [
       {
-        id: "ACV-2024-001",
-        visaType: "O-1A Visa",
-        status: "Active",
-        priority: "High",
-        progress: 65,
-        filingDeadline: "2025-12-10",
-        assignedTo: "Sarah Johnson"
+        id: "APT-2025-001",
+        type: "MRI Brain",
+        status: "Completed",
+        date: "2025-01-15",
+        time: "10:00 AM",
+        doctor: "Dr. Sarah Johnson",
+        facility: "Main Radiology Wing"
       },
       {
-        id: "ACV-2024-005",
-        visaType: "EB-1A Visa",
-        status: "Review",
-        priority: "Medium",
-        progress: 30,
-        filingDeadline: "2025-08-15",
-        assignedTo: "Michael Chen"
+        id: "APT-2025-012",
+        type: "CT Chest",
+        status: "Schedule",
+        date: "2025-02-10",
+        time: "02:30 PM",
+        doctor: "Dr. Michael Chen",
+        facility: "Emergency Radiology"
+      },
+      {
+        id: "APT-2024-118",
+        type: "X-Ray Leg",
+        status: "Completed",
+        date: "2024-12-05",
+        time: "09:15 AM",
+        doctor: "Dr. Emily Okafor",
+        facility: "Outpatient Clinic"
+      }
+    ],
+
+    // Medical Reports
+    reports: [
+      {
+        id: "REP-9921",
+        title: "Brain MRI Analysis",
+        type: "MRI Report",
+        date: "2025-01-16",
+        status: "Finalized",
+        doctor: "Dr. Sarah Johnson"
+      },
+      {
+        id: "REP-9844",
+        title: "Lower Limb X-Ray Findings",
+        type: "X-Ray Report",
+        date: "2024-12-06",
+        status: "Finalized",
+        doctor: "Dr. Emily Okafor"
       }
     ],
 
     // Payment information
     paymentSummary: {
-      totalValue: 27000,
-      paid: 10000,
-      balance: 17000,
-      nextPaymentDue: "2025-03-15",
-      paymentPlan: [
-        { name: "Initial Retainer", amount: 5000, status: "paid", date: "2024-10-20" },
-        { name: "Document Review", amount: 5000, status: "paid", date: "2024-11-15" },
-        { name: "Filing Preparation", amount: 7000, status: "pending", dueDate: "2025-03-15" },
-        { name: "USCIS Filing", amount: 10000, status: "pending", dueDate: "2025-06-01" }
+      totalValue: 185000,
+      paid: 150000,
+      balance: 35000,
+      nextPaymentDue: "2025-02-15",
+      invoices: [
+        { id: "INV-1001", name: "MRI Brain Scanning", amount: 120000, status: "paid", date: "2025-01-15" },
+        { id: "INV-1002", name: "CT Chest Consultation", amount: 30000, status: "paid", date: "2025-01-20" },
+        { id: "INV-1003", name: "Follow-up Preparation", amount: 35000, status: "pending", dueDate: "2025-02-15" }
       ]
-    },
-
-    // Communication history
-    communications: [
-      {
-        id: "comm-1",
-        type: "email",
-        subject: "Welcome to Agora Care",
-        date: "2024-10-15",
-        summary: "Initial onboarding and patient profile setup"
-      },
-      {
-        id: "comm-2",
-        type: "call",
-        subject: "Baseline Consultation",
-        date: "2024-10-20",
-        summary: "Discussed clinical history and required scans"
-      },
-      {
-        id: "comm-3",
-        type: "email",
-        subject: "Payment Confirmation - Initial Retainer",
-        date: "2024-10-21",
-        summary: "Confirmed receipt of initial retainer payment"
-      },
-      {
-        id: "comm-4",
-        type: "meeting",
-        subject: "Clinical Strategy Session",
-        date: "2024-11-05",
-        summary: "Discussed scan results and next steps"
-      }
-    ],
-
-    // Documents
-    documents: [
-      {
-        id: "doc-1",
-        name: "Passport_Scan.pdf",
-        type: "Identification",
-        uploadedAt: "2024-10-18",
-        size: "2.1MB"
-      },
-      {
-        id: "doc-2",
-        name: "Medical_History.pdf",
-        type: "Professional",
-        uploadedAt: "2024-10-19",
-        size: "1.8MB"
-      },
-      {
-        id: "doc-3",
-        name: "Scan_Images.zip",
-        type: "Evidence",
-        uploadedAt: "2024-10-25",
-        size: "15.2MB"
-      }
-    ]
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -195,23 +167,14 @@ export default function PatientDetail() {
     return variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800";
   };
 
-  const getCaseStatusBadge = (status: string) => {
+  const getAppointmentStatusBadge = (status: string) => {
     const variants = {
-      Active: "bg-green-100 text-green-800",
-      Review: "bg-yellow-100 text-yellow-800",
-      Draft: "bg-gray-100 text-gray-800",
-      Approved: "bg-blue-100 text-blue-800"
+      Completed: "bg-green-100 text-green-800",
+      Schedule: "bg-blue-100 text-blue-800",
+      Cancelled: "bg-red-100 text-red-800",
+      Pending: "bg-yellow-100 text-yellow-800"
     };
     return variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800";
-  };
-
-  const getPriorityBadge = (priority: string) => {
-    const variants = {
-      High: "bg-red-100 text-red-800",
-      Medium: "bg-orange-100 text-orange-800",
-      Low: "bg-blue-100 text-blue-800"
-    };
-    return variants[priority as keyof typeof variants] || "bg-gray-100 text-gray-800";
   };
 
   return (
@@ -220,16 +183,17 @@ export default function PatientDetail() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <Avatar className="h-12 w-12">
+            <Avatar className="h-12 w-12 border border-muted shadow-sm">
+              <AvatarImage src={getPatientAvatarPath(patientData.id, patientData.clinicalInfo.gender)} alt={patientData.name} />
               <AvatarFallback
                 className={cn("text-sm font-semibold", getAvatarBg(patientData.name))}
               >
-                {getInitials(patientData.name)}
+                {getAvatarInitials(patientData.name)}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-1">
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl font-semibold leading-tight">{patientData.name}</h1>
+                <h1 className="text-xl font-semibold leading-tight">{patientData.name}</h1>
                 <div className="flex items-center gap-2">
                   <Badge className={getStatusBadge(patientData.status)}>
                     {patientData.status.charAt(0).toUpperCase() + patientData.status.slice(1)}
@@ -258,10 +222,6 @@ export default function PatientDetail() {
             <Mail className="h-4 w-4" />
             Send Email
           </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Edit className="h-4 w-4" />
-            Edit Patient
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -270,11 +230,19 @@ export default function PatientDetail() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <FileText className="w-4 h-4 mr-2" />
+                <Edit className="h-4 w-4" />
+                Edit Patient
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <CalendarCheck className="h-4 w-4" />
+                Schedule Appointment
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <FileText className="w-4 h-4" />
                 Export Patient Data
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <DollarSign className="w-4 h-4 mr-2" />
+                <ReceiptIcon className="w-4 h-4" />
                 Create Invoice
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -283,188 +251,152 @@ export default function PatientDetail() {
       </div>
 
       {/* Tabs Section */}
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs defaultValue="info" className="w-full">
         <TabsList className="mb-4" variant="line">
-          <TabsTrigger variant="line" value="overview" className="flex items-center gap-1">
-            <User className="h-4 w-4" /> Overview
+          <TabsTrigger variant="line" value="info" className="flex items-center gap-1">
+            <User className="h-4 w-4" /> Patient Information
           </TabsTrigger>
-          <TabsTrigger variant="line" value="cases" className="flex items-center gap-1">
-            <FileText className="h-4 w-4" /> Cases
+          <TabsTrigger variant="line" value="appointments" className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" /> Appointments
           </TabsTrigger>
           <TabsTrigger variant="line" value="payments" className="flex items-center gap-1">
-            <DollarSign className="h-4 w-4" /> Payments
+            <Receipt className="h-4 w-4" /> Payments / Invoices
           </TabsTrigger>
-          <TabsTrigger variant="line" value="documents" className="flex items-center gap-1">
-            <FileText className="h-4 w-4" /> Documents
+          <TabsTrigger variant="line" value="reports" className="flex items-center gap-1">
+            <FileSearch className="h-4 w-4" /> Report (Medical)
           </TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            {/* Contact Information */}
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Email</p>
-                      <p className="text-sm text-muted-foreground">{patientData.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Phone</p>
-                      <p className="text-sm text-muted-foreground">{patientData.phone}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Country</p>
-                      <p className="text-sm text-muted-foreground">{patientData.country}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Address</p>
-                      <p className="text-sm text-muted-foreground">{patientData.address}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Patient Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Active Cases</span>
-                    <span className="font-semibold">{patientData.cases.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Value</span>
-                    <span className="font-semibold">{formatCurrency(patientData.paymentSummary.totalValue)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Amount Paid</span>
-                    <span className="font-semibold text-green-600">{formatCurrency(patientData.paymentSummary.paid)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Balance</span>
-                    <span className="font-semibold text-yellow-600">{formatCurrency(patientData.paymentSummary.balance)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Notes & Recent Activity */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Patient Notes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {patientData.notes}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Communications</CardTitle>
-                <CardDescription>Last 4 interactions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {patientData.communications.slice(0, 4).map((comm) => (
-                    <div key={comm.id} className="flex items-start gap-3 pb-3 border-b last:border-b-0 last:pb-0">
-                      <div className={`flex h-6 w-6 items-center justify-center rounded-full mt-0.5 ${comm.type === 'email' ? 'bg-blue-100' :
-                        comm.type === 'call' ? 'bg-green-100' : 'bg-purple-100'
-                        }`}>
-                        <Mail className={`h-3 w-3 ${comm.type === 'email' ? 'text-blue-600' :
-                          comm.type === 'call' ? 'text-green-600' : 'text-purple-600'
-                          }`} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{comm.subject}</p>
-                        <p className="text-xs text-muted-foreground">{comm.summary}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{formatDate(comm.date)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Cases Tab */}
-        <TabsContent value="cases">
+        {/* Patient Information Tab */}
+        <TabsContent value="info">
           <Card>
             <CardHeader>
-              <CardTitle>Patient Cases</CardTitle>
-              <CardDescription>All clinical cases associated with this patient</CardDescription>
+              <CardTitle className="text-lg">Full Patient Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Patient Type</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.patientType}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Patient Name</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Patient ID</p>
+                  <p className="text-sm font-mono mt-1.5">{patientData.id}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Email Address</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.email}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Mobile Number</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.phone}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Date of Birth</p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-sm font-medium">{formatDate(patientData.clinicalInfo.dob)}</span>
+                    <Badge variant="outline" className="text-[10px] font-bold h-5 px-1.5">
+                      {patientData.clinicalInfo.age} YRS
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Gender</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.gender}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Marital Status</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.maritalStatus}</p>
+                </div>
+
+                <div className="md:col-span-2">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Residential Address</p>
+                  <p className="text-sm font-medium mt-1.5 leading-relaxed">{patientData.address}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Nationality</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.nationality}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Preferred Communication</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.preferredCommunication}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Last Appointment</p>
+                  <p className="text-sm font-medium mt-1.5">
+                    {patientData.appointments.length > 0
+                      ? formatDate(patientData.appointments[0].date)
+                      : "No record"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Date of Registration</p>
+                  <p className="text-sm font-medium mt-1.5">{formatDate(patientData.joinedDate)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Registered By</p>
+                  <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.registeredBy}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Appointments Tab */}
+        <TabsContent value="appointments">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle>Appointment History</CardTitle>
+                <CardDescription>View upcoming and previous clinical visits</CardDescription>
+              </div>
+              <Button size="sm" className="gap-2">
+                <Plus className="h-4 w-4" /> Schedule New
+              </Button>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Case ID</TableHead>
-                    <TableHead>Visa Type</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Date & Time</TableHead>
+                    <TableHead>Facility</TableHead>
+                    <TableHead>Doctor</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Progress</TableHead>
-                    <TableHead>Filing Deadline</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-right"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {patientData.cases.map((caseItem) => (
-                    <TableRow key={caseItem.id} className="hover:bg-muted/50 transition-colors">
-                      <TableCell className="font-medium">{caseItem.id}</TableCell>
-                      <TableCell>{caseItem.visaType}</TableCell>
-                      <TableCell>
-                        <Badge className={getCaseStatusBadge(caseItem.status)}>
-                          {caseItem.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getPriorityBadge(caseItem.priority)}>
-                          {caseItem.priority}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
+                  {patientData.appointments.map((apt) => (
+                    <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors">
+                      <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-secondary rounded-full h-2">
-                            <div
-                              className="bg-primary h-2 rounded-full transition-all"
-                              style={{ width: `${caseItem.progress}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium">{caseItem.progress}%</span>
+                          <Stethoscope className="h-4 w-4 text-muted-foreground" />
+                          {apt.type}
                         </div>
                       </TableCell>
-                      <TableCell>{formatDate(caseItem.filingDeadline)}</TableCell>
-                      <TableCell>{caseItem.assignedTo}</TableCell>
+                      <TableCell>
+                        <div className="space-y-0.5">
+                          <div className="text-sm font-medium">{formatDate(apt.date)}</div>
+                          <div className="text-xs text-muted-foreground">{apt.time}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{apt.facility}</TableCell>
+                      <TableCell>{apt.doctor}</TableCell>
+                      <TableCell>
+                        <Badge className={getAppointmentStatusBadge(apt.status)}>
+                          {apt.status}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/task-manager/${caseItem.id}`}>
-                            View Case
-                          </Link>
+                        <Button variant="ghost" size="icon">
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -475,67 +407,77 @@ export default function PatientDetail() {
           </Card>
         </TabsContent>
 
-        {/* Payments Tab */}
+        {/* Payments / Invoices Tab */}
         <TabsContent value="payments">
-          <div className="grid gap-6 md:grid-cols-3">
-            {/* Payment Summary */}
-            <Card className="md:col-span-3">
-              <CardHeader>
-                <CardTitle>Payment Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-4">
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Total Value</p>
-                    <p className="text-2xl font-bold">{formatCurrency(patientData.paymentSummary.totalValue)}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Amount Paid</p>
-                    <p className="text-2xl font-bold text-green-600">{formatCurrency(patientData.paymentSummary.paid)}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Balance</p>
-                    <p className="text-2xl font-bold text-yellow-600">{formatCurrency(patientData.paymentSummary.balance)}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Next Payment Due</p>
-                    <p className="text-lg font-bold">{formatDate(patientData.paymentSummary.nextPaymentDue)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Total Revenue</div>
+                  <div className="text-xl font-bold font-mono">₦{patientData.paymentSummary.totalValue.toLocaleString()}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Amount Paid</div>
+                  <div className="text-xl font-bold text-green-600 font-mono">₦{patientData.paymentSummary.paid.toLocaleString()}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Balance Due</div>
+                  <div className="text-xl font-bold text-yellow-600 font-mono">₦{patientData.paymentSummary.balance.toLocaleString()}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="pt-6">
+                  <div className="text-xs text-primary/80 uppercase tracking-wider font-semibold mb-1">Next Due Date</div>
+                  <div className="text-xl font-bold text-primary">{formatDate(patientData.paymentSummary.nextPaymentDue)}</div>
+                </CardContent>
+              </Card>
+            </div>
 
-            {/* Payment Plan */}
-            <Card className="md:col-span-3">
-              <CardHeader>
-                <CardTitle>Payment Plan</CardTitle>
-                <CardDescription>Scheduled payments and their status</CardDescription>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <div>
+                  <CardTitle>Invoices</CardTitle>
+                  <CardDescription>Billing history and outstanding invoices</CardDescription>
+                </div>
+                <Button size="sm" variant="outline" className="gap-2">
+                  <Receipt className="h-4 w-4" /> Create Invoice
+                </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Payment</TableHead>
+                      <TableHead>Invoice ID</TableHead>
+                      <TableHead>Service Name</TableHead>
                       <TableHead>Amount</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
+                      <TableHead>Date / Due</TableHead>
+                      <TableHead className="text-right"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {patientData.paymentSummary.paymentPlan.map((payment, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{payment.name}</TableCell>
-                        <TableCell>{formatCurrency(payment.amount)}</TableCell>
+                    {patientData.paymentSummary.invoices.map((inv) => (
+                      <TableRow key={inv.id}>
+                        <TableCell className="font-mono text-xs">{inv.id}</TableCell>
+                        <TableCell className="font-medium text-sm">{inv.name}</TableCell>
+                        <TableCell className="font-mono tracking-tighter">₦{inv.amount.toLocaleString()}</TableCell>
                         <TableCell>
                           <Badge className={
-                            payment.status === 'paid' ? 'bg-green-100 text-green-800' :
-                              'bg-yellow-100 text-yellow-800'
+                            inv.status === 'paid' ? 'bg-green-100 text-green-800 border-none' :
+                              'bg-yellow-100 text-yellow-800 border-none'
                           }>
-                            {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                            {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          {payment.status === 'paid' ? formatDate(payment.date) : formatDate(payment.dueDate)}
+                        <TableCell className="text-sm">
+                          {inv.status === 'paid' ? formatDate(inv.date!) : formatDate(inv.dueDate!)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="sm">Download</Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -546,38 +488,66 @@ export default function PatientDetail() {
           </div>
         </TabsContent>
 
-        {/* Documents Tab */}
-        <TabsContent value="documents">
+        {/* Medical Reports Tab */}
+        <TabsContent value="reports">
           <Card>
-            <CardHeader>
-              <CardTitle>Patient Documents</CardTitle>
-              <CardDescription>All documents uploaded by or for this patient</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle>Medical Reports</CardTitle>
+                <CardDescription>Diagnostic findings and clinical report archives</CardDescription>
+              </div>
+              <Button size="sm" variant="outline" className="gap-2">
+                <Plus className="h-4 w-4" /> Add Report
+              </Button>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Document Name</TableHead>
+                    <TableHead>Report ID</TableHead>
+                    <TableHead>Title</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead>Uploaded</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Radiologist</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {patientData.documents.map((doc) => (
-                    <TableRow key={doc.id} className="hover:bg-muted/50 transition-colors">
-                      <TableCell className="font-medium">{doc.name}</TableCell>
-                      <TableCell>{doc.type}</TableCell>
-                      <TableCell>{formatDate(doc.uploadedAt)}</TableCell>
-                      <TableCell>{doc.size}</TableCell>
+                  {patientData.reports.map((report) => (
+                    <TableRow key={report.id} className="hover:bg-muted/50 transition-colors">
+                      <TableCell className="font-mono text-xs font-semibold">{report.id}</TableCell>
+                      <TableCell className="font-medium">{report.title}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-muted/30 font-normal">
+                          {report.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{formatDate(report.date)}</TableCell>
+                      <TableCell>{report.doctor}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                          <span className="text-sm">{report.status}</span>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
-                          Download
+                        <Button variant="ghost" size="sm" className="gap-2">
+                          View PDF <ChevronRight className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))}
+                  {patientData.reports.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                        <div className="flex flex-col items-center gap-2">
+                          <FileSearch className="h-8 w-8 opacity-20" />
+                          No medical reports found for this patient.
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
