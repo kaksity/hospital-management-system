@@ -155,7 +155,7 @@ export default function Doctors() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-semibold tracking-tight">Referring Doctors</h1>
+            <h1 className="text-xl font-semibold tracking-light">Referring Doctors</h1>
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-bold rounded-full">
               {doctors.length}
             </Badge>
@@ -298,17 +298,9 @@ export default function Doctors() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col gap-0.5">
-                    <span className={cn(
-                      "text-xs font-semibold",
-                      doctor.status === "active" ? "text-green-600" : "text-muted-foreground"
-                    )}>
-                      {doctor.status === "active" ? "Active" : "Inactive"}
-                    </span>
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
-                      <Ticket className="h-3 w-3 text-muted-foreground" />
-                      {doctor.usedCodes} / {doctor.totalCodes}
-                    </div>
+                  <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
+                    <Ticket className="h-3 w-3 text-muted-foreground" />
+                    {doctor.usedCodes} / {doctor.totalCodes}
                   </div>
                 </TableCell>
                 <TableCell>

@@ -39,10 +39,58 @@ All colors MUST be HSL.
     font-display: swap;
   }
 
+  @font-face {
+    font-family: 'gilroy';
+    src: url('/fonts/Gilroy_Regular.woff') format('woff'), url('/fonts/Gilroy_Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'gilroy';
+    src: url('/fonts/Gilroy_Medium.woff') format('woff'), url('/fonts/Gilroy_Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'gilroy';
+    src: url('/fonts/Gilroy_Semibold.woff') format('woff'), url('/fonts/Gilroy_Semibold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'gilroy';
+    src: url('/fonts/Gilroy_Bold.woff') format('woff'), url('/fonts/Gilroy_Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Proxima Nova';
+    src: url('/fonts/ProximaNova-Regular.woff') format('woff'), url('/fonts/ProximaNova-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Proxima Nova';
+    src: url('/fonts/ProximaNova-Semibold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
   :root {
-    --font-sans: 'ZC Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: 'Proxima Nova', -apple-system, BlinkMacSystemFont, sans-serif;
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 210deg 72.97% 14.51%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 28.47% 24.91%;
@@ -75,8 +123,8 @@ All colors MUST be HSL.
     --warning-foreground: 0 0% 100%;
     --warning-light: 38 90% 96%;
 
-    --border: 214.3 24.74% 87.29%;
-    --input: 214.3 24.74% 87.29%;
+    --border: 211.2deg 40.98% 88.04%;
+    --input: 210.7 31.85% 73.53%;
     --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;

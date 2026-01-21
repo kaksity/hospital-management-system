@@ -238,7 +238,7 @@ export default function Patients() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Patients</h1>
+          <h1 className="text-xl font-semibold tracking-light">Patients</h1>
           <p className="text-muted-foreground">Manage your patient records and clinical information</p>
         </div>
         <div className="flex items-center gap-2">

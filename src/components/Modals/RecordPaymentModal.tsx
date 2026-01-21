@@ -34,7 +34,7 @@ export function RecordPaymentModal({ open, onOpenChange, client, onRecordPayment
       date: paymentDate,
       method: paymentMethod,
       reference,
-      clientId: client.id
+      txnId: client.id
     };
     onRecordPayment(paymentData);
     onOpenChange(false);
@@ -52,27 +52,27 @@ export function RecordPaymentModal({ open, onOpenChange, client, onRecordPayment
         <DialogHeader>
           <DialogTitle>Record Payment - {client?.name}</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {/* Client Info */}
-          <div className="rounded-lg bg-muted p-3">
-            <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="rounded-xl bg-muted/50 p-4 border border-border/50">
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-muted-foreground">Case:</span>
-                <p className="font-medium">{client?.case}</p>
+                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Patient Type</span>
+                <p className="font-semibold">{client?.case}</p>
               </div>
               <div>
-                <span className="text-muted-foreground">Balance:</span>
-                <p className="font-medium">{formatCurrency(client?.balance)}</p>
+                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Balance Due</span>
+                <p className="font-bold text-red-600">{formatCurrency(client?.balance)}</p>
               </div>
             </div>
           </div>
 
           {/* Amount Input */}
           <div className="space-y-2">
-            <Label htmlFor="amount">Payment Amount</Label>
+            <Label htmlFor="amount" className="text-xs font-semibold">Payment Amount</Label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-muted-foreground">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">₦</span>
               <Input
                 id="amount"
                 type="number"
@@ -80,21 +80,20 @@ export function RecordPaymentModal({ open, onOpenChange, client, onRecordPayment
                 onChange={(e) => {
                   const value = e.target.value;
                   const numValue = parseFloat(value);
-                  // Prevent entering amount higher than balance
                   if (numValue > client?.balance) {
                     setAmount(client?.balance.toString());
                   } else {
                     setAmount(value);
                   }
                 }}
-                className="pl-8"
+                className="pl-8 h-11"
                 placeholder="0.00"
                 max={client?.balance}
               />
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Maximum amount: {formatCurrency(client?.balance)}</span>
-              <span>Remaining: {formatCurrency(client?.balance - (parseFloat(amount) || 0))}</span>
+            <div className="flex justify-between text-[10px] text-muted-foreground font-medium">
+              <span>Maximum: {formatCurrency(client?.balance)}</span>
+              <span>Remaining: {formatCurrency(Math.max(0, client?.balance - (parseFloat(amount) || 0)))}</span>
             </div>
           </div>
 
@@ -172,8 +171,8 @@ export function RecordPaymentModal({ open, onOpenChange, client, onRecordPayment
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleRecord} 
+            <Button
+              onClick={handleRecord}
               disabled={!amount || !paymentMethod || parseFloat(amount) <= 0 || parseFloat(amount) > client?.balance}
               className="gap-2"
             >

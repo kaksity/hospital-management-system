@@ -39,7 +39,7 @@ const getNavigationItems = (role: string) => {
     { title: "Doctors", url: "/doctors", icon: Stethoscope },
     { title: "Services", url: "/services", icon: LayoutGrid },
     { title: "Templates", url: "/templates", icon: LayoutPanelTop },
-    { title: "Help Desk", url: "/help-desk", icon: MessageSquareMore },
+    { title: "Communication", url: "/communication", icon: MessageSquareMore },
     { title: "Insights", url: "/insights", icon: BarChart3 },
     { title: "Payments", url: "/payments", icon: DollarSign },
     { title: "Settings", url: "/settings", icon: Settings },
@@ -48,7 +48,7 @@ const getNavigationItems = (role: string) => {
   const attorneyParalegalItems = [
     { title: "Tasks", url: "/task-manager", icon: Briefcase },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
-    { title: "Help Desk", url: "/help-desk", icon: MessageSquareMore },
+    { title: "Communication", url: "/communication", icon: MessageSquareMore },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 

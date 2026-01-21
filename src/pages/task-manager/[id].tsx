@@ -44,7 +44,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { UploadCaseDocumentsModal } from "@/components/Modals/UploadCaseDocumentsModal";
 import { AddEditGroupModal } from "@/components/Modals/AddEditGroupModal";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getVisaSchema } from "@/services/visaSchemaService";
+// import { getVisaSchema } from "@/services/visaSchemaService";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { AssignTeamMemberModal } from "@/components/Modals/AssignTeamMemberModal";
@@ -96,8 +96,8 @@ export default function CaseDetail() {
     const timer = setTimeout(() => {
       setLoading(false);
       // In a real app, you'd fetch the case data and then get the schema
-      const schema = getVisaSchema("O-1A"); // This would come from case data
-      setVisaSchema(schema);
+      // const schema = getVisaSchema("O-1A"); // This would come from case data
+      // setVisaSchema(schema);
     }, 500);
     return () => clearTimeout(timer);
   }, []);
@@ -288,9 +288,9 @@ export default function CaseDetail() {
             <Edit className="h-4 w-4" />
             Edit Case
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="gap-2"
             onClick={() => setShowAssignModal(true)}
           >
@@ -401,7 +401,7 @@ export default function CaseDetail() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* <Separator />
                 
                 <div>
@@ -470,7 +470,7 @@ export default function CaseDetail() {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Supporting Documents</h3>
               </div>
-              
+
               {Object.entries(caseData.backgroundFiles).map(([sectionTitle, files]) => (
                 <Card key={sectionTitle}>
                   <CardHeader className="pb-3">
@@ -506,9 +506,9 @@ export default function CaseDetail() {
                               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                                 <Download className="h-4 w-4" />
                               </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -575,9 +575,9 @@ export default function CaseDetail() {
                           <FileText className="h-4 w-4" />
                           <span>{totalDocs} Documents</span>
                         </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="gap-1 text-xs"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -613,7 +613,7 @@ export default function CaseDetail() {
                                       e.stopPropagation();
                                       setEditMode(true);
                                       setSelectedGroup(group);
-                                      setShowGroupModal(true); 
+                                      setShowGroupModal(true);
                                     }}
                                   >
                                     <Pencil className="h-3.5 w-3.5" />

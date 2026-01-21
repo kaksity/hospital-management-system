@@ -7,9 +7,8 @@ import Dashboard from "@/pages/dashboard";
 import TaskManager from "@/pages/task-manager";
 import CreateTask from "@/pages/task-manager/create";
 import TaskDetail from "@/pages/task-manager/[id]";
-import NewVisa from "@/pages/task-manager/new-visa";
 import DiagnosticReports from "@/pages/diagnostic-reports";
-import HelpDesk from "@/pages/help-desk";
+import Communication from "@/pages/communication";
 import Payments from "@/pages/payments";
 import { Login } from "@/pages/auth/Login";
 import { Signup } from "@/pages/auth/Signup";
@@ -23,7 +22,6 @@ import { GeneralSettings } from "@/pages/settings/general";
 import { SecuritySettings } from "@/pages/settings/security";
 import { MembersSettings } from "@/pages/settings/members";
 import Appointments from "@/pages/appointments";
-import NewAppointment from "@/pages/appointments/new-visa";
 import Invoices from "@/pages/invoices";
 import Insights from "@/pages/insights";
 import Hospitals from "@/pages/hospitals";
@@ -61,16 +59,6 @@ export function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/appointments/new-visa"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout>
-              <NewAppointment />
-            </DashboardLayout>
-          </ProtectedRoute>
-        }
-      />
 
       {/* Staff-only Routes (Admin, Attorney, Paralegal) */}
       <Route
@@ -104,17 +92,6 @@ export function AppRoutes() {
         }
       />
 
-      {/* Admin-only Routes */}
-      <Route
-        path="/task-manager/new-visa"
-        element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <DashboardLayout>
-              <NewVisa />
-            </DashboardLayout>
-          </ProtectedRoute>
-        }
-      />
       <Route
         path="/patients"
         element={
@@ -171,11 +148,11 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/help-desk"
+        path="/communication"
         element={
           <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
             <DashboardLayout>
-              <HelpDesk />
+              <Communication />
             </DashboardLayout>
           </ProtectedRoute>
         }

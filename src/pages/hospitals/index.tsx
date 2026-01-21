@@ -118,7 +118,7 @@ export default function Hospitals() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-semibold tracking-tight">Hospitals</h1>
+            <h1 className="text-xl font-semibold tracking-light">Hospitals</h1>
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-bold rounded-full">
               {hospitals.length}
             </Badge>

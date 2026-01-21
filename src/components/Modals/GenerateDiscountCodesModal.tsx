@@ -121,7 +121,7 @@ export function GenerateDiscountCodesModal({
 
             <div className="space-y-5 flex-1">
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
                   Discount Type
                 </Label>
                 <Select
@@ -149,7 +149,7 @@ export function GenerateDiscountCodesModal({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="discountValue" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
+                <Label htmlFor="discountValue" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
                   {discountType === "percentage" ? "Percentage Value (%)" : "Fixed Amount (₦)"}
                 </Label>
                 <div className="relative">
@@ -172,7 +172,7 @@ export function GenerateDiscountCodesModal({
               </div>
 
               <div className="space-y-2 pt-2 border-t border-border/50">
-                <Label htmlFor="codeCount" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
+                <Label htmlFor="codeCount" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
                   Number of codes
                 </Label>
                 <Input
@@ -216,7 +216,7 @@ export function GenerateDiscountCodesModal({
           <div className="flex-1 p-6 bg-background flex flex-col">
             <div className="flex items-center gap-2 text-muted-foreground mb-6">
               <History className="h-4 w-4" />
-              <h4 className="text-sm font-bold uppercase tracking-wider">
+              <h4 className="text-sm font-semibold">
                 Discount Ledger
               </h4>
               <Badge variant="secondary" className="text-[10px] font-bold px-2 h-5 rounded-full">
@@ -230,7 +230,7 @@ export function GenerateDiscountCodesModal({
                   {allCodes.map((item, index) => (
                     <div
                       key={index}
-                      className="group flex flex-col p-3 bg-muted/20 border border-border/50 rounded-xl hover:border-primary/20 transition-all shadow-sm"
+                      className="group flex flex-col p-3 bg-muted/20 border border-input rounded-xl transition-all"
                     >
                       <div className="flex items-center justify-between mb-2 pb-2 border-b border-border/50">
                         <code className="text-sm font-bold tracking-tight text-foreground/90">{item.code}</code>
@@ -252,8 +252,8 @@ export function GenerateDiscountCodesModal({
                       <div className="flex items-center justify-between text-[11px]">
                         <div className="flex items-center gap-3">
                           <div className="flex flex-col">
-                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Benefit</span>
-                            <span className="font-bold text-foreground flex items-center gap-1">
+                            <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-tight">Benefit</span>
+                            <span className="font-semibold text-foreground flex items-center gap-1">
                               {item.type === "percentage" ? (
                                 <><Percent className="h-2.5 w-2.5" />{item.value}% Off</>
                               ) : (
@@ -263,10 +263,10 @@ export function GenerateDiscountCodesModal({
                           </div>
                           <div className="w-px h-6 bg-border/50" />
                           <div className="flex flex-col">
-                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Status</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-tight">Status</span>
                             <Badge
                               className={cn(
-                                "text-[9px] px-1.5 py-0 h-4 uppercase font-bold text-white w-fit",
+                                "text-[9px] px-1.5 py-0 h-4 uppercase font-semibold text-white w-fit",
                                 item.status === "used" ? "bg-gray-400" : "bg-green-500"
                               )}
                             >
@@ -274,7 +274,7 @@ export function GenerateDiscountCodesModal({
                             </Badge>
                           </div>
                         </div>
-                        <span className="text-[9px] text-muted-foreground max-w-[80px] text-right leading-tight">
+                        <span className="text-[10px] text-muted-foreground max-w-[100px] text-right leading-tight">
                           {item.status === "used" ? "Used on Patient Bill" : "Ready for usage"}
                         </span>
                       </div>
