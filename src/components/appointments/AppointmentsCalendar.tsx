@@ -27,7 +27,8 @@ import {
   Clock,
   User,
   Stethoscope,
-  CalendarPlus
+  CalendarPlus,
+  CalendarDays
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -124,16 +125,16 @@ export function AppointmentsCalendar() {
   const renderHeader = () => {
     return (
       <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-6">
-          <h2 className="text-xl font-semibold tracking-light min-w-[200px]">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-semibold tracking-light">
             {format(currentDate, "MMMM yyyy")}
           </h2>
-          <div className="flex items-center bg-muted/40 rounded-lg p-1 border">
+          <Button variant="outline" size="sm" onClick={goToToday} className="px-3 h-8 text-xs font-semibold border-border">
+            Today
+          </Button>
+          <div className="flex items-center">
             <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={goToToday} className="px-3 h-8 text-xs font-semibold">
-              Today
             </Button>
             <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8">
               <ChevronRight className="h-4 w-4" />
@@ -199,7 +200,7 @@ export function AppointmentsCalendar() {
             className={cn(
               "relative h-32 border-r border-b group transition-all duration-200 p-1 flex flex-col cursor-pointer",
               !isSameMonth(day, monthStart) ? "bg-muted/10 text-muted-foreground/40" : "bg-background",
-              isSameDay(day, selectedDate) && "bg-primary/[0.02] ring-1 ring-inset ring-primary/20",
+              isSameDay(day, selectedDate) && "bg-primary/[0.02] ring-1 ring-inset ring-[#70B2DB]",
               isPast && "bg-muted/5 opacity-80",
               i === 0 ? "border-l-0" : "",
               i === 6 && "border-r-0",
@@ -284,14 +285,14 @@ export function AppointmentsCalendar() {
         {renderCells()}
       </div>
 
-      {/* Selected Day Agenda */}
+      {/* Selected Day Appointments */}
       <div className="w-full lg:w-80 shrink-0 space-y-6">
         <Card className="bg-muted/20">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-primary">
-                <CalendarIcon className="h-5 w-5" />
-                <h3 className="font-bold text-sm">Agenda</h3>
+                <CalendarDays className="h-5 w-5" />
+                <h3 className="font-bold text-sm">Appointments</h3>
               </div>
               <Badge variant="outline" className="bg-background text-[10px] font-black uppercase tracking-tight">
                 {format(selectedDate, "MMM d")}
@@ -325,15 +326,17 @@ export function AppointmentsCalendar() {
                       </DropdownMenu>
                     </div>
 
-                    <div className="flex items-start gap-3">
-                      <Avatar className="h-8 w-8 border shrink-0">
-                        <AvatarImage src={getPatientAvatarPath(app.patientId, app.patientGender)} alt={app.patientName} />
-                        <AvatarFallback className={cn("text-[10px]", getAvatarBg(app.patientName))}>
-                          {getAvatarInitials(app.patientName)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1">
+                    <div className="flex flex-col items-start gap-1">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-5 w-5 border shrink-0">
+                          <AvatarImage src={getPatientAvatarPath(app.patientId, app.patientGender)} alt={app.patientName} />
+                          <AvatarFallback className={cn("text-[10px]", getAvatarBg(app.patientName))}>
+                            {getAvatarInitials(app.patientName)}
+                          </AvatarFallback>
+                        </Avatar>
                         <h4 className="text-sm font-bold text-foreground truncate">{app.patientName}</h4>
+                      </div>
+                      <div className="min-w-0 flex-1">
                         <div className="space-y-1 mt-1.5">
                           <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                             <Stethoscope className="h-3 w-3" />

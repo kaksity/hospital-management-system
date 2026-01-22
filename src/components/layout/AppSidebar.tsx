@@ -103,7 +103,7 @@ export function AppSidebar() {
                     {({ isActive }) => (
                       <SidebarMenuButton asChild isActive={isActive}>
                         <div className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-200 ${isActive
-                          ? "!bg-gray-100 text-foreground font-medium [&_svg]:!text-[#fe5e41] hover:!bg-gray-100 focus:!bg-gray-100 active:!bg-gray-100"
+                          ? "!bg-gray-100 text-foreground font-medium data-[active=true]:font-semibold [&_svg]:!text-[#fe5e41] hover:!bg-gray-100 focus:!bg-gray-100 active:!bg-gray-100"
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground [&_svg]:text-muted-foreground focus:bg-transparent active:bg-transparent"
                           }`}>
                           <item.icon className="h-4 w-4" />

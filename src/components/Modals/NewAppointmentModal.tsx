@@ -125,8 +125,8 @@ export function NewAppointmentModal({ open, onOpenChange, initialDate }: NewAppo
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col">
-                        <span className="font-semibold text-sm">{p.name}</span>
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">{p.id}</span>
+                        <div className="font-semibold leading-snug text-sm">{p.name}</div>
+                        <div className="text-[10px] leading-tight text-muted-foreground uppercase font-mono font-semibold">{p.id}</div>
                       </div>
                     </div>
                   </SelectItem>
