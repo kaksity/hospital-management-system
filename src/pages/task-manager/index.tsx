@@ -20,7 +20,15 @@ import {
   Edit,
   FileText,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  ListFilter,
+  UserMinus,
+  UserPlus,
+  Calendar,
+  X,
+  UserCheck,
+  UserX,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,15 +52,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 type PatientType = "regular" | "private" | "hmo";
-type TaskStatus = "pending" | "reporting" | "completed";
+type TaskStatus = "pending" | "draft" | "completed" | "assigned" | "unassigned";
 type Priority = "high" | "medium" | "low";
+type AssignmentStatus = "assigned" | "unassigned";
 
 interface Task {
   id: string;
   scanType: string;
   patient: string;
   patientType: PatientType;
-  doctor: string;
+  referringDoctor?: string;
+  assignedDoctor?: string;
   status: TaskStatus;
   priority: Priority;
   time: string;
@@ -62,6 +72,13 @@ interface Task {
   isEmergency: boolean;
   isComparison: boolean;
   tags: string[];
+  assignmentStatus: AssignmentStatus;
+  assignedTo?: string;
+  createdDate?: string;
+  dueDate?: string;
+  referralNotes?: string;
+  isWalkIn: boolean;
+  paymentStatus?: "paid" | "pending" | "insurance";
 }
 
 const tasks: Task[] = [
@@ -70,7 +87,8 @@ const tasks: Task[] = [
     scanType: "MRI Brain (Contrast)",
     patient: "John Adebayo",
     patientType: "hmo",
-    doctor: "Dr. Ope Adeyemi",
+    referringDoctor: "Dr. Ope Adeyemi",
+    assignedDoctor: "Dr. Sarah Johnson",
     status: "pending",
     priority: "high",
     time: "10:30 AM",
@@ -79,15 +97,23 @@ const tasks: Task[] = [
     subService: "Brain with Contrast",
     isEmergency: true,
     isComparison: false,
-    tags: ["neuro", "urgent"]
+    tags: ["neuro", "urgent"],
+    assignmentStatus: "assigned",
+    assignedTo: "Dr. Sarah Johnson",
+    createdDate: "2024-11-19",
+    dueDate: "2024-11-20",
+    referralNotes: "Rule out metastases, known lung cancer",
+    isWalkIn: false,
+    paymentStatus: "insurance"
   },
   {
     id: "TSK-2024-002",
     scanType: "CT Chest",
     patient: "Maria Garcia",
     patientType: "private",
-    doctor: "Dr. Michael Chen",
-    status: "reporting",
+    referringDoctor: "Dr. Michael Chen",
+    assignedDoctor: "Dr. Sarah Johnson",
+    status: "draft",
     priority: "medium",
     time: "11:15 AM",
     date: "2024-11-20",
@@ -95,14 +121,20 @@ const tasks: Task[] = [
     subService: "Chest CT",
     isEmergency: false,
     isComparison: true,
-    tags: ["pulmonary", "follow-up"]
+    tags: ["pulmonary", "follow-up"],
+    assignmentStatus: "unassigned",
+    createdDate: "2024-11-19",
+    dueDate: "2024-11-20",
+    isWalkIn: true,
+    paymentStatus: "paid"
   },
   {
     id: "TSK-2024-003",
     scanType: "CT Abdomen",
     patient: "James Wilson",
     patientType: "regular",
-    doctor: "Dr. Sarah Johnson",
+    referringDoctor: undefined,
+    assignedDoctor: "Dr. David Lee",
     status: "completed",
     priority: "low",
     time: "09:00 AM",
@@ -111,14 +143,22 @@ const tasks: Task[] = [
     subService: "Abdomen & Pelvis",
     isEmergency: false,
     isComparison: false,
-    tags: ["abdominal", "routine"]
+    tags: ["abdominal", "routine"],
+    assignmentStatus: "assigned",
+    assignedTo: "Dr. Sarah Johnson",
+    createdDate: "2024-11-19",
+    dueDate: "2024-11-20",
+    referralNotes: "",
+    isWalkIn: false,
+    paymentStatus: "insurance"
   },
   {
     id: "TSK-2024-004",
     scanType: "Ultrasound Pelvis",
     patient: "Lisa Wang",
     patientType: "hmo",
-    doctor: "Dr. Michael Chen",
+    referringDoctor: "Dr. Michael Chen",
+    assignedDoctor: "Dr. David Lee",
     status: "pending",
     priority: "high",
     time: "02:45 PM",
@@ -127,14 +167,22 @@ const tasks: Task[] = [
     subService: "Pelvic",
     isEmergency: true,
     isComparison: false,
-    tags: ["gynae", "urgent"]
+    tags: ["gynae", "urgent"],
+    assignmentStatus: "assigned",
+    assignedTo: "Dr. Sarah Johnson",
+    createdDate: "2024-11-19",
+    dueDate: "2024-11-20",
+    referralNotes: "",
+    isWalkIn: false,
+    paymentStatus: "insurance"
   },
   {
     id: "TSK-2024-005",
     scanType: "X-Ray Wrist",
     patient: "Robert Kim",
     patientType: "private",
-    doctor: "Dr. David Lee",
+    referringDoctor: "Dr. Michael Chen",
+    assignedDoctor: "Dr. David Lee",
     status: "pending",
     priority: "medium",
     time: "03:30 PM",
@@ -143,15 +191,23 @@ const tasks: Task[] = [
     subService: "Wrist",
     isEmergency: false,
     isComparison: true,
-    tags: ["ortho", "trauma"]
+    tags: ["ortho", "trauma"],
+    assignmentStatus: "assigned",
+    assignedTo: "Dr. Sarah Johnson",
+    createdDate: "2024-11-19",
+    dueDate: "2024-11-20",
+    referralNotes: "",
+    isWalkIn: false,
+    paymentStatus: "insurance"
   },
   {
     id: "TSK-2024-006",
     scanType: "MRI Spine",
     patient: "Sarah Connor",
     patientType: "regular",
-    doctor: "Dr. Ope Adeyemi",
-    status: "reporting",
+    referringDoctor: "Dr. Ope Adeyemi",
+    assignedDoctor: "Dr. David Lee",
+    status: "draft",
     priority: "medium",
     time: "01:15 PM",
     date: "2024-11-20",
@@ -159,7 +215,14 @@ const tasks: Task[] = [
     subService: "Lumbar Spine",
     isEmergency: false,
     isComparison: false,
-    tags: ["spinal", "routine"]
+    tags: ["spinal", "routine"],
+    assignmentStatus: "assigned",
+    assignedTo: "Dr. Sarah Johnson",
+    createdDate: "2024-11-19",
+    dueDate: "2024-11-20",
+    referralNotes: "",
+    isWalkIn: false,
+    paymentStatus: "insurance"
   }
 ];
 
@@ -172,6 +235,9 @@ export default function TaskManager() {
   const [selectedService, setSelectedService] = useState("All Services");
   const [collapsedCards, setCollapsedCards] = useState<Record<string, boolean>>({});
   const [collapsedServices, setCollapsedServices] = useState<Record<string, boolean>>({});
+  const [assignmentFilter, setAssignmentFilter] = useState("all");
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [activeFilterTab, setActiveFilterTab] = useState<"status" | "service" | "assignment" | "date">("status");
 
   const toggleCard = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -179,31 +245,49 @@ export default function TaskManager() {
   };
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
+    const filtered = tasks.filter(task => {
       const matchesSearch =
         task.patient.toLowerCase().includes(searchQuery.toLowerCase()) ||
         task.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         task.scanType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        task.doctor.toLowerCase().includes(searchQuery.toLowerCase());
+        (task.referringDoctor && task.referringDoctor.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (task.assignedDoctor && task.assignedDoctor.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchesStatus =
         statusFilter === "all" ||
-        (statusFilter === "pending" && task.status === "pending") ||
-        (statusFilter === "reporting" && task.status === "reporting") ||
-        (statusFilter === "completed" && task.status === "completed");
+        task.status === statusFilter;
 
       const matchesService =
         selectedService === "All Services" ||
         task.service === selectedService;
 
-      return matchesSearch && matchesStatus && matchesService;
+      const matchesAssignment =
+        assignmentFilter === "all" ||
+        task.assignmentStatus === assignmentFilter;
+
+      // Date range filter
+      const taskDate = new Date(task.date);
+      const matchesDateRange =
+        (!dateRange.from || taskDate >= dateRange.from) &&
+        (!dateRange.to || taskDate <= dateRange.to);
+
+      return matchesSearch && matchesStatus && matchesService && matchesAssignment && matchesDateRange;
     });
-  }, [statusFilter, searchQuery, selectedService]);
+
+    // Sort with emergency tasks first, then by priority
+    return filtered.sort((a, b) => {
+      if (a.isEmergency && !b.isEmergency) return -1;
+      if (!a.isEmergency && b.isEmergency) return 1;
+
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    });
+  }, [statusFilter, searchQuery, selectedService, assignmentFilter, dateRange]);
 
   const statusCounts = useMemo(() => {
     return {
       pending: tasks.filter(t => t.status === "pending").length,
-      reporting: tasks.filter(t => t.status === "reporting").length,
+      draft: tasks.filter(t => t.status === "draft").length,
       completed: tasks.filter(t => t.status === "completed").length,
     };
   }, []);
@@ -211,16 +295,28 @@ export default function TaskManager() {
   const getStatusBadge = (status: TaskStatus) => {
     const variants = {
       pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      reporting: "bg-blue-100 text-blue-800 border-blue-200",
+      draft: "bg-blue-100 text-blue-800 border-blue-200",
       completed: "bg-green-100 text-green-800 border-green-200",
+      assigned: "bg-purple-100 text-purple-800 border-purple-200",
+      unassigned: "bg-gray-100 text-gray-800 border-gray-200",
     };
     return variants[status] || "bg-gray-100 text-gray-800";
   };
 
   const statusColors = {
     pending: "bg-yellow-500",
-    reporting: "bg-blue-500",
+    draft: "bg-blue-500",
     completed: "bg-green-500",
+    assigned: "bg-purple-500",
+    unassigned: "bg-gray-500",
+  };
+
+  const getAssignmentBadge = (status: AssignmentStatus) => {
+    const variants = {
+      assigned: "bg-green-100 text-green-800 border-green-200",
+      unassigned: "bg-gray-100 text-gray-800 border-gray-200",
+    };
+    return variants[status] || "bg-gray-100 text-gray-800";
   };
 
   const getPriorityBadge = (priority: Priority) => {
@@ -234,11 +330,24 @@ export default function TaskManager() {
 
   const getPatientTypeBadge = (type: PatientType) => {
     const variants = {
-      regular: "bg-blue-50 text-blue-700 border-blue-200",
-      private: "bg-purple-50 text-purple-700 border-purple-200",
-      hmo: "bg-green-50 text-green-700 border-green-200",
+      regular: "bg-blue-100 text-blue-700 border-blue-200",
+      private: "bg-purple-100 text-purple-700 border-purple-200",
+      hmo: "bg-green-100 text-green-700 border-green-200",
     };
     return variants[type];
+  };
+
+  const getStatusBorderColor = (task: Task) => {
+    if (task.isEmergency) return '#ef4444'; // Red for emergency
+
+    const statusColors = {
+      pending: '#f59e0b', // Yellow
+      draft: '#3b82f6', // Blue
+      completed: '#10b981', // Green
+      assigned: '#8b5cf6', // Purple
+      unassigned: '#6b7280', // Gray
+    };
+    return statusColors[task.status] || '#6b7280';
   };
 
   const groupTasksByService = () => {
@@ -257,7 +366,7 @@ export default function TaskManager() {
   const serviceGroups = groupTasksByService();
 
   return (
-    <div className="flex flex-col h-full overflow-x-hidden bg-slate-50/50">
+    <div className="flex flex-col h-full overflow-x-hidden bg-[#fafafa]">
       {/* Header section fixed */}
       <div className="flex-none space-y-6 p-6 pb-4 bg-background border-b">
         <div className="flex items-center justify-between">
@@ -277,14 +386,14 @@ export default function TaskManager() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search tasks, patients, doctors..."
-                className="pl-9 h-10 border-muted-foreground/20 bg-muted/20 focus-visible:bg-background transition-colors"
+                className="pl-9 h-10 border bg-muted/20 focus-visible:bg-background transition-colors"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
             <div className="flex items-center gap-4">
-              {(['pending', 'reporting', 'completed'] as TaskStatus[]).map((status) => (
+              {(['pending', 'draft', 'completed'] as const).map((status) => (
                 <div key={status} className="flex items-center gap-2 group cursor-default">
                   <div className={cn("h-2.5 w-2.5 rounded-full", statusColors[status], status === 'pending' && "animate-pulse")} />
                   <span className="text-xs font-semibold text-slate-600 capitalize">{status}</span>
@@ -299,51 +408,239 @@ export default function TaskManager() {
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 gap-2 px-3 min-w-[160px] justify-between border-slate-200">
-                  <div className="flex items-center gap-2 text-slate-700 font-medium">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
+                <Button variant="outline" className="h-10 gap-2 px-3 min-w-[100px] justify-between border">
+                  <div className="flex items-center gap-2 text-slate-700 font-semibold">
+                    <ListFilter className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      {statusFilter === 'all' && selectedService === 'All Services'
-                        ? 'Filters'
-                        : `${statusFilter !== 'all' ? statusFilter : ''}${statusFilter !== 'all' && selectedService !== 'All Services' ? ' • ' : ''}${selectedService !== 'All Services' ? selectedService : ''}`
+                      {statusFilter === 'all' && selectedService === 'All Services' && assignmentFilter === 'all'
+                        ? 'Filter'
+                        : `${statusFilter !== 'all' ? statusFilter : ''}${statusFilter !== 'all' && (selectedService !== 'All Services' || assignmentFilter !== 'all') ? ' • ' : ''}${selectedService !== 'All Services' ? selectedService : ''}${selectedService !== 'All Services' && assignmentFilter !== 'all' ? ' • ' : ''}${assignmentFilter !== 'all' ? assignmentFilter : ''}`
                       }
                     </span>
                   </div>
                   <ChevronDown className="h-4 w-4 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[220px]">
-                <div className="px-2 py-2">
-                  <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2 px-2">Filter by Status</p>
-                  <div className="space-y-1">
-                    {["all", "pending", "reporting", "completed"].map((s) => (
-                      <DropdownMenuItem
-                        key={s}
-                        onClick={() => setStatusFilter(s)}
-                        className={cn("capitalize justify-between py-2 cursor-pointer", statusFilter === s && "bg-slate-100 text-primary font-bold")}
-                      >
-                        {s}
-                        {statusFilter === s && <CheckCircle2 className="h-3.5 w-3.5" />}
-                      </DropdownMenuItem>
-                    ))}
+              <DropdownMenuContent align="end" className="w-[400px] p-0 flex">
+                {/* Vertical Tabs */}
+                <div className="w-[120px] border-r bg-white">
+                  <div className="p-3">
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start text-[13px] h-8 rounded-none",
+                        activeFilterTab === "status"
+                          ? "bg-[#e9f2fe] text-[#1868db] font-semibold border-l-2 border-[#1868db]"
+                          : "text-slate-600 hover:bg-white/50"
+                      )}
+                      onClick={() => setActiveFilterTab("status")}
+                    >
+                      Status
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start text-[13px] h-8 rounded-none",
+                        activeFilterTab === "service"
+                          ? "bg-[#e9f2fe] text-[#1868db] font-semibold border-l-2 border-[#1868db]"
+                          : "text-slate-600 hover:bg-white/50"
+                      )}
+                      onClick={() => setActiveFilterTab("service")}
+                    >
+                      Service
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start text-[13px] h-8 rounded-none",
+                        activeFilterTab === "assignment"
+                          ? "bg-[#e9f2fe] text-[#1868db] font-semibold border-l-2 border-[#1868db]"
+                          : "text-slate-600 hover:bg-white/50"
+                      )}
+                      onClick={() => setActiveFilterTab("assignment")}
+                    >
+                      Assignment
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start text-[13px] h-8 rounded-none",
+                        activeFilterTab === "date"
+                          ? "bg-[#e9f2fe] text-[#1868db] font-semibold border-l-2 border-[#1868db]"
+                          : "text-slate-600 hover:bg-white/50"
+                      )}
+                      onClick={() => setActiveFilterTab("date")}
+                    >
+                      Date
+                    </Button>
                   </div>
                 </div>
-                <DropdownMenuSeparator />
-                <div className="px-2 py-2">
-                  <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2 px-2">Filter by Service</p>
-                  <div className="space-y-1 max-h-[200px] overflow-y-auto custom-scrollbar">
-                    {services.map((s) => (
-                      <DropdownMenuItem
-                        key={s}
-                        onClick={() => setSelectedService(s)}
-                        className={cn("justify-between py-2 cursor-pointer", selectedService === s && "bg-slate-100 text-primary font-bold")}
-                      >
-                        {s}
-                        {selectedService === s && <CheckCircle2 className="h-3.5 w-3.5" />}
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
+
+                {/* Filter Content Area */}
+                <div className="flex-1 p-4 max-h-[300px] overflow-y-auto">
+                  {activeFilterTab === "status" && (
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-slate-700">Filter by Status</p>
+                      <div>
+                        {["all", "pending", "draft", "completed", "assigned", "unassigned"].map((s) => (
+                          <Button
+                            key={s}
+                            variant="ghost"
+                            className={cn(
+                              "w-full justify-start capitalize text-[13px] h-9",
+                              statusFilter === s
+                                ? "bg-primary/10 text-primary font-semibold "
+                                : "text-slate-700 hover:bg-slate-100"
+                            )}
+                            onClick={() => setStatusFilter(s)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className={cn(
+                                "h-2 w-2 rounded-full",
+                                s === 'pending' ? 'bg-yellow-500' :
+                                  s === 'draft' ? 'bg-blue-500' :
+                                    s === 'completed' ? 'bg-green-500' :
+                                      s === 'assigned' ? 'bg-purple-500' :
+                                        s === 'unassigned' ? 'bg-gray-500' :
+                                          'bg-slate-300'
+                              )} />
+                              {s}
+                            </div>
+                            {statusFilter === s && <CheckCircle2 className="h-3.5 w-3.5 ml-auto" />}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeFilterTab === "service" && (
+                    <div className="space-y-3">
+                      <div className="flex flex-col items-start gap-2">
+                        <p className="text-xs font-bold text-slate-700">Filter by Service</p>
+                        <div className="relative w-full">
+                          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                          <Input
+                            placeholder="Search services..."
+                            className="h-9 text-xs w-full pl-8"
+                            onChange={(e) => {
+                              // Implement service search here
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        {services.map((s) => (
+                          <Button
+                            key={s}
+                            variant="ghost"
+                            className={cn(
+                              "w-full justify-start text-[13px] h-9",
+                              selectedService === s
+                                ? "bg-primary/10 text-primary font-semibold"
+                                : "text-slate-700 hover:bg-slate-100"
+                            )}
+                            onClick={() => setSelectedService(s)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Scan className="h-3.5 w-3.5 text-muted-foreground" />
+                              {s}
+                            </div>
+                            {selectedService === s && <CheckCircle2 className="h-3.5 w-3.5 text-[#006bff] ml-auto" />}
+                          </Button>
+                        ))}
+                      </div>
+                      <Button variant="ghost" className="w-full text-xs text-slate-500 hover:text-slate-700 mt-2">
+                        <Plus className="h-3 w-3 mr-1" />
+                        Show more services
+                      </Button>
+                    </div>
+                  )}
+
+                  {activeFilterTab === "assignment" && (
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-slate-700">Filter by Assignment</p>
+                      <div className="space-y-1">
+                        {["all", "assigned", "unassigned"].map((a) => (
+                          <Button
+                            key={a}
+                            variant="ghost"
+                            className={cn(
+                              "w-full justify-start capitalize text-[13px] h-9",
+                              assignmentFilter === a
+                                ? "bg-primary/10 text-primary font-semibold"
+                                : "text-slate-700 hover:bg-slate-100"
+                            )}
+                            onClick={() => setAssignmentFilter(a)}
+                          >
+                            <div className="flex items-center gap-2">
+                              {a === 'assigned' ? (
+                                <UserCheck className="h-3.5 w-3.5 text-green-500" />
+                              ) : a === 'unassigned' ? (
+                                <UserX className="h-3.5 w-3.5 text-red-500" />
+                              ) : (
+                                <Users className="h-3.5 w-3.5 text-slate-400" />
+                              )}
+                              {a}
+                            </div>
+                            {assignmentFilter === a && <CheckCircle2 className="h-3.5 w-3.5 ml-auto" />}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeFilterTab === "date" && (
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-slate-700">Filter by Date Range</p>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs text-slate-600 mb-2 font-medium">From Date</p>
+                          <div className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                              <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                              <Input
+                                type="date"
+                                className="h-9 text-sm pl-8"
+                                onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value ? new Date(e.target.value) : undefined }))}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-600 mb-2 font-medium">To Date</p>
+                          <div className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                              <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                              <Input
+                                type="date"
+                                className="h-9 text-sm pl-8"
+                                onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value ? new Date(e.target.value) : undefined }))}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                {(statusFilter !== 'all' || selectedService !== 'All Services' || assignmentFilter !== 'all' || dateRange.from || dateRange.to) && (
+                  <div className="absolute bottom-0 left-0 right-0 border-t bg-white p-3">
+                    <Button
+                      variant="ghost"
+                      className="w-full text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setSelectedService('All Services');
+                        setAssignmentFilter('all');
+                        setDateRange({});
+                      }}
+                    >
+                      <X className="h-3.5 w-3.5 mr-2" />
+                      Clear all filters
+                    </Button>
+                  </div>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -378,11 +675,11 @@ export default function TaskManager() {
           <div className="h-full overflow-x-auto overflow-y-hidden custom-scrollbar">
             <div className="flex gap-6 min-w-max p-6 pb-4">
               {Object.entries(serviceGroups).map(([service, serviceTasks]) => (
-                <div key={service} className="w-[320px] flex flex-col gap-4">
+                <div key={service} className="w-[320px] bg-background border rounded-lg flex flex-col gap-4 px-3 py-2">
                   <div className="flex items-center justify-between flex-none pb-2 border-b-2">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-sm tracking-tight text-slate-700">{service}</h3>
-                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px] font-extrabold bg-slate-100 text-slate-600">
+                      <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-semibold bg-slate-100 text-slate-600">
                         {serviceTasks.length}
                       </Badge>
                     </div>
@@ -391,7 +688,7 @@ export default function TaskManager() {
                     </Button>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar pb-10">
+                  <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
                     {serviceTasks.map((task) => {
                       const isCollapsed = collapsedCards[task.id];
                       return (
@@ -401,11 +698,11 @@ export default function TaskManager() {
                             "transition-all duration-200 cursor-pointer border-l-4",
                             isCollapsed ? "py-1" : "py-0"
                           )}
-                          style={{ borderLeftColor: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f59e0b' : '#10b981' }}
+                          style={{ borderLeftColor: getStatusBorderColor(task) }}
                           onClick={() => setCollapsedCards(prev => ({ ...prev, [task.id]: !prev[task.id] }))}
                         >
                           <CardContent className={cn("p-4", isCollapsed && "py-3")}>
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-start">
                               {isCollapsed ? (
                                 <div className="flex items-center gap-3 flex-1 overflow-hidden">
                                   <span className="font-bold text-sm truncate text-slate-700">{task.patient}</span>
@@ -420,18 +717,19 @@ export default function TaskManager() {
                                   <div className="flex gap-2 items-center mb-1">
                                     <h4 className="font-bold text-sm tracking-tight text-slate-800 truncate">{task.patient}</h4>
                                     <Badge
-                                      variant="outline"
-                                      className={cn("text-[9px] font-extrabold capitalize border-slate-200 bg-slate-50", getPatientTypeBadge(task.patientType))}
+                                      variant="default"
+                                      className={cn("text-[9px] font-extrabold capitalize border", getPatientTypeBadge(task.patientType))}
                                     >
                                       {task.patientType}
                                     </Badge>
                                   </div>
                                   <div className="flex items-center gap-2 h-4">
-                                    <code className="text-[10px] text-muted-foreground bg-muted/50 px-1 rounded">{task.id}</code>
+                                    <code className="text-[10px] font-semibold text-muted-foreground bg-muted px-1 rounded">{task.id}</code>
                                     <div className="flex gap-1">
                                       {task.isEmergency && <div className="h-1.5 w-1.5 rounded-full bg-red-500" />}
                                       {task.isComparison && <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
                                     </div>
+                                    <span className="text-[10px] text-slate-500 ml-auto">{task.date}</span>
                                   </div>
                                 </div>
                               )}
@@ -442,25 +740,55 @@ export default function TaskManager() {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      className="h-7 w-7 opacity-40 hover:opacity-100"
+                                      className="h-7 w-7 opacity-70 hover:opacity-100"
                                       onClick={(e) => e.stopPropagation()}
                                     >
                                       <MoreHorizontal className="h-4 w-4" />
                                     </Button>
                                   </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="w-[180px]">
-                                    <DropdownMenuItem><Edit className="h-4 w-4" /> Edit Task</DropdownMenuItem>
-                                    <DropdownMenuItem><FileText className="h-4 w-4" /> Write Report</DropdownMenuItem>
+                                  <DropdownMenuContent align="end" className="w-[220px]">
+                                    <DropdownMenuItem>
+                                      <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
+                                      Edit Task Details
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                                      Start Report
+                                    </DropdownMenuItem>
+                                    {/* Assignment actions */}
+                                    {task.assignedDoctor ? (
+                                      <>
+                                        <DropdownMenuItem>
+                                          <User className="h-4 w-4 mr-2" />
+                                          Reassign Task...
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                          <UserMinus className="h-4 w-4 mr-2" />
+                                          Unassign
+                                        </DropdownMenuItem>
+                                      </>
+                                    ) : (
+                                      <DropdownMenuItem>
+                                        <UserPlus className="h-4 w-4 mr-2" />
+                                        Assign to Radiologist...
+                                      </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuItem>
+                                      <CheckCircle2 className="h-4 w-4 mr-2 text-muted-foreground" />
+                                      Mark as Completed
+                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem><CheckCircle2 className="h-4 w-4" /> Mark Completed</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-red-600"><AlertCircle className="h-4 w-4" /> Flag Issue</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-red-600">
+                                      <AlertCircle className="h-4 w-4 mr-2" />
+                                      Flag Issue
+                                    </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
 
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-7 w-7 p-0 text-slate-400 hover:text-slate-600"
+                                  className="h-7 w-7 p-0 text-slate-600 hover:text-slate-800"
                                   onClick={(e) => toggleCard(task.id, e)}
                                 >
                                   {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -475,31 +803,49 @@ export default function TaskManager() {
                                     <Scan className="h-3.5 w-3.5" />
                                     {task.subService}
                                   </div>
+                                  <Badge className={cn("text-[9px] px-2 py-0 font-bold capitalize", getStatusBadge(task.status))}>
+                                    {task.status}
+                                  </Badge>
                                 </div>
 
                                 <div className="flex flex-wrap gap-1.5">
                                   {task.isEmergency && (
-                                    <Badge variant="outline" className="bg-red-50 text-red-600 border-red-100 text-[10px] font-bold py-0">
+                                    <Badge variant="default" className="bg-red-100 text-red-700 border-red-200 text-[10px] font-bold py-0">
                                       EMERGENCY
                                     </Badge>
                                   )}
                                   {task.isComparison && (
-                                    <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-100 text-[10px] font-bold py-0">
+                                    <Badge variant="default" className="bg-blue-100 text-blue-700 border-blue-200 text-[10px] font-bold py-0">
                                       COMPARISON
                                     </Badge>
                                   )}
                                 </div>
 
-                                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                                  <div className="flex items-center gap-1.5">
-                                    <div className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm">
-                                      <Stethoscope className="h-3 w-3 text-primary" />
-                                    </div>
-                                    <span className="text-[11px] font-bold text-slate-700">{task.doctor}</span>
+                                <div className="flex items-center justify-between pt-3 border-t">
+                                  <div className="space-y-2">
+                                    {task.referringDoctor && (
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm">
+                                          <Stethoscope className="h-3 w-3 text-primary" />
+                                        </div>
+                                        <span className="text-[11px] font-bold text-slate-700">{task.referringDoctor}</span>
+                                      </div>
+                                    )}
+                                    {task.assignedDoctor && (
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center border border-green-200">
+                                          <User className="h-2.5 w-2.5 text-green-600" />
+                                        </div>
+                                        <span className="text-[10px] text-slate-600">Assigned to <span className="font-bold">{task.assignedDoctor}</span></span>
+                                      </div>
+                                    )}
                                   </div>
-                                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-bold">
-                                    <Clock className="h-3 w-3" />
-                                    {task.time}
+                                  <div className="flex flex-col items-end gap-1">
+                                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-bold">
+                                      <Clock className="h-3 w-3" />
+                                      {task.time}
+                                    </div>
+                                    <div className="text-[10px] text-slate-400">{task.date}</div>
                                   </div>
                                 </div>
                               </div>
@@ -561,128 +907,91 @@ export default function TaskManager() {
                           <TableHead className="w-[120px] font-bold text-slate-500 uppercase text-[10px] tracking-wider">Task ID</TableHead>
                           <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Patient Details</TableHead>
                           <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Task</TableHead>
+                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Status</TableHead>
                           <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Priority</TableHead>
-                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider text-right">Time</TableHead>
+                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider text-right">Date/Time</TableHead>
                           <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {serviceTasks.map((task) => {
-                          const isCollapsed = collapsedCards[task.id] !== false; // Default to collapsed
+                          const isCollapsed = collapsedCards[task.id] !== false;
                           return (
-                            <>
-                              <TableRow
-                                key={task.id}
-                                className={cn(
-                                  "cursor-pointer transition-colors border-slate-100",
-                                  !isCollapsed ? "bg-slate-50/50" : "hover:bg-slate-50/30"
-                                )}
-                                onClick={() => setCollapsedCards(prev => ({ ...prev, [task.id]: !prev[task.id] }))}
-                              >
-                                <TableCell className="px-6">
-                                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400">
-                                    {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                                  </Button>
-                                </TableCell>
-                                <TableCell>
-                                  <code className="text-[10px] font-bold font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                                    {task.id}
-                                  </code>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm text-slate-700">{task.patient}</span>
-                                    <Badge
-                                      variant="outline"
-                                      className={cn("text-[9px] font-extrabold capitalize border-slate-200 bg-white", getPatientTypeBadge(task.patientType))}
-                                    >
-                                      {task.patientType}
-                                    </Badge>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                                    <Scan className="h-3.5 w-3.5 opacity-60" />
-                                    {task.subService}
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-1.5">
-                                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f59e0b' : '#10b981' }} />
-                                    <span className="text-xs font-bold capitalize text-slate-600">{task.priority}</span>
-                                  </div>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <div className="text-xs font-bold text-slate-500">{task.time}</div>
-                                </TableCell>
-                                <TableCell onClick={(e) => e.stopPropagation()}>
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-[180px]">
-                                      <DropdownMenuItem><Edit className="h-4 w-4 mr-2" /> Edit Task</DropdownMenuItem>
-                                      <DropdownMenuItem><FileText className="h-4 w-4 mr-2" /> Write Report</DropdownMenuItem>
-                                      <DropdownMenuSeparator />
-                                      <DropdownMenuItem><CheckCircle2 className="h-4 w-4 mr-2" /> Mark Completed</DropdownMenuItem>
-                                      <DropdownMenuItem className="text-red-600"><AlertCircle className="h-4 w-4 mr-2" /> Flag Issue</DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </TableCell>
-                              </TableRow>
-                              {!isCollapsed && (
-                                <TableRow className="border-slate-100 bg-slate-50/50 hover:bg-slate-50/50">
-                                  <TableCell colSpan={7} className="p-0">
-                                    <div className="px-16 pb-6 pt-2 grid grid-cols-1 md:grid-cols-3 gap-8">
-                                      <div className="space-y-3">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Clinical Context</p>
-                                        <div className="flex flex-wrap gap-2">
-                                          {task.isEmergency && (
-                                            <Badge className="bg-red-100 text-red-700 border-red-200 hover:bg-red-100 text-[9px] font-bold py-0.5">
-                                              EMERGENCY
-                                            </Badge>
-                                          )}
-                                          {task.isComparison && (
-                                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[9px] font-bold py-0.5">
-                                              COMPARISON
-                                            </Badge>
-                                          )}
-                                        </div>
-                                        <div className="flex items-center gap-2 text-xs text-slate-600">
-                                          <Stethoscope className="h-3.5 w-3.5 opacity-60" />
-                                          <span className="font-semibold">Referred by {task.doctor}</span>
-                                        </div>
-                                      </div>
-
-                                      <div className="space-y-3">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Study info</p>
-                                        <div className="grid grid-cols-2 gap-4">
-                                          <div>
-                                            <span className="text-[10px] text-slate-500 block">Status</span>
-                                            <Badge className={cn("text-[9px] px-2 py-0 font-bold capitalize mt-1", getStatusBadge(task.status))}>
-                                              {task.status}
-                                            </Badge>
-                                          </div>
-                                          <div>
-                                            <span className="text-[10px] text-slate-500 block">Date</span>
-                                            <span className="text-xs font-bold text-slate-700">{task.date}</span>
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      <div className="flex flex-col justify-end items-end gap-2">
-                                        <Button className="w-full md:w-auto h-8 font-bold text-[11px] gap-2 px-4 shadow-sm">
-                                          <FileText className="h-3.5 w-3.5" />
-                                          View Study
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </TableCell>
-                                </TableRow>
+                            <TableRow
+                              key={task.id}
+                              className={cn(
+                                "cursor-pointer transition-colors border-slate-100",
+                                !isCollapsed ? "bg-slate-50/50" : "hover:bg-slate-50/30"
                               )}
-                            </>
+                              onClick={() => setCollapsedCards(prev => ({ ...prev, [task.id]: !prev[task.id] }))}
+                            >
+                              <TableCell className="px-6">
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400">
+                                  {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                </Button>
+                              </TableCell>
+                              <TableCell>
+                                <code className="text-[10px] font-bold font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+                                  {task.id}
+                                </code>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-sm text-slate-700">{task.patient}</span>
+                                  <Badge
+                                    variant="outline"
+                                    className={cn("text-[9px] font-extrabold capitalize border", getPatientTypeBadge(task.patientType))}
+                                  >
+                                    {task.patientType}
+                                  </Badge>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                                  <Scan className="h-3.5 w-3.5 opacity-60" />
+                                  {task.subService}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge className={cn("text-[9px] px-2 py-0 font-bold capitalize", getStatusBadge(task.status))}>
+                                  {task.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1.5">
+                                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f59e0b' : '#10b981' }} />
+                                  <span className="text-xs font-bold capitalize text-slate-600">{task.priority}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="text-xs font-bold text-slate-500">{task.time}</div>
+                                <div className="text-[10px] text-slate-400">{task.date}</div>
+                              </TableCell>
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-[200px]">
+                                    <DropdownMenuItem><Edit className="h-4 w-4 mr-2" /> Edit Task</DropdownMenuItem>
+                                    <DropdownMenuItem><FileText className="h-4 w-4 mr-2" /> Write Report</DropdownMenuItem>
+                                    {task.assignedDoctor ? (
+                                      <>
+                                        <DropdownMenuItem><User className="h-4 w-4 mr-2" /> Reassign</DropdownMenuItem>
+                                        <DropdownMenuItem><UserMinus className="h-4 w-4 mr-2" /> Unassign</DropdownMenuItem>
+                                      </>
+                                    ) : (
+                                      <DropdownMenuItem><UserPlus className="h-4 w-4 mr-2" /> Assign</DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem><CheckCircle2 className="h-4 w-4 mr-2" /> Mark Completed</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-red-600"><AlertCircle className="h-4 w-4 mr-2" /> Flag Issue</DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
                           );
                         })}
                       </TableBody>
