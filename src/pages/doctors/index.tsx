@@ -317,15 +317,15 @@ export default function Doctors() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-[160px]">
                       <DropdownMenuItem onClick={() => handleViewDoctor(doctor)}>
-                        <Eye className="h-4 w-4" />
+                        <Eye className="h-4 w-4 text-muted-foreground" />
                         View Profile
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleEditDoctor(doctor)}>
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-4 w-4 text-muted-foreground" />
                         Edit Doctor
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleGenerateCodes(doctor)}>
-                        <Ticket className="h-4 w-4" />
+                        <Ticket className="h-4 w-4 text-muted-foreground" />
                         Discount Codes
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />

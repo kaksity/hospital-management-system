@@ -258,6 +258,10 @@ All colors MUST be HSL.
     outline: none;
   }
 
+  .ProseMirror p {
+    margin-bottom: 1rem;
+  }
+
   .ProseMirror p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     float: left;
@@ -289,5 +293,34 @@ All colors MUST be HSL.
     color: hsl(var(--primary));
     text-decoration: underline;
     cursor: pointer;
+  }
+
+  .ProseMirror strong {
+    font-weight: 600;
+  }
+
+  div[contenteditable="true"] p {
+    margin-bottom: 1rem !important;
+  }
+
+  div[contenteditable="true"] ul,
+  div[contenteditable="true"] ol {
+    margin-top: 0.5rem !important;
+    margin-bottom: 1rem !important;
+    padding-left: 1.5rem !important;
+    list-style-type: disc !important;
+  }
+
+  div[contenteditable="true"] ol {
+    list-style-type: decimal !important;
+  }
+
+  div[contenteditable="true"] li {
+    margin-bottom: 0.25rem !important;
+    display: list-item !important;
+  }
+
+  div[contenteditable="true"] strong {
+    font-weight: 600 !important;
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   Filter,
@@ -151,6 +152,7 @@ const examTypes = ["MRI", "CT Scan", "Ultrasound", "Gastroscopy", "X-Ray"];
 const dispatchStatuses = ["pending", "sent_to_hospital", "sent_to_patient"];
 
 export default function DiagnosticReports() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsedReports, setCollapsedReports] = useState<Record<string, boolean>>({});
 
@@ -212,9 +214,9 @@ export default function DiagnosticReports() {
 
   const getDispatchStatusBadge = (status: DispatchStatus) => {
     const variants = {
-      pending: "bg-slate-50 text-slate-500",
-      sent_to_hospital: "bg-blue-50 text-blue-600",
-      sent_to_patient: "bg-indigo-50 text-indigo-600",
+      pending: "bg-slate-100 text-slate-800",
+      sent_to_hospital: "bg-blue-100 text-blue-800",
+      sent_to_patient: "bg-indigo-100 text-indigo-800",
     };
     const labels = {
       pending: "Pending",
@@ -252,7 +254,7 @@ export default function DiagnosticReports() {
           <h1 className="text-xl font-bold tracking-tight text-slate-800">Diagnostic Reports</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage and track all patient diagnostic reports and their dispatch status</p>
         </div>
-        <Button>
+        <Button onClick={() => navigate("/diagnostic-reports/create")}>
           <Plus className="h-4 w-4" />
           New Report
         </Button>
@@ -271,37 +273,40 @@ export default function DiagnosticReports() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-0 border border-muted-foreground/20 rounded-md overflow-hidden bg-background h-10">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("h-10 px-4 justify-start text-left font-normal gap-2 border-muted-foreground/20", !startDate && "text-muted-foreground")}>
+                <Button variant="ghost" className={cn("h-full px-4 justify-start text-left font-normal gap-2 rounded-none border-none", !startDate && "text-muted-foreground")}>
                   <CalendarIcon className="h-4 w-4" />
                   {startDate ? format(startDate, "MMM dd, yyyy") : "Start Date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
               </PopoverContent>
             </Popover>
 
-            <span className="text-muted-foreground text-sm font-medium">to</span>
+            <div className="w-px h-4 bg-muted-foreground/20 shrink-0" />
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("h-10 px-4 justify-start text-left font-normal gap-2 border-muted-foreground/20", !endDate && "text-muted-foreground")}>
+                <Button variant="ghost" className={cn("h-full px-4 justify-start text-left font-normal gap-2 rounded-none border-none", !endDate && "text-muted-foreground")}>
                   <CalendarIcon className="h-4 w-4" />
                   {endDate ? format(endDate, "MMM dd, yyyy") : "End Date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
               </PopoverContent>
             </Popover>
 
             {(startDate || endDate) && (
-              <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-foreground" onClick={() => { setStartDate(undefined); setEndDate(undefined); }}>
-                <X className="h-4 w-4" />
-              </Button>
+              <>
+                <div className="w-px h-4 bg-muted-foreground/20 shrink-0" />
+                <Button variant="ghost" size="icon" className="h-full w-10 text-muted-foreground hover:text-foreground rounded-none" onClick={() => { setStartDate(undefined); setEndDate(undefined); }}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </>
             )}
           </div>
 
@@ -499,7 +504,7 @@ export default function DiagnosticReports() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-[200px]">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/diagnostic-reports/${report.id}`)}>
                           <Eye className="h-4 w-4 text-muted-foreground" />
                           View Report
                         </DropdownMenuItem>
@@ -566,7 +571,7 @@ export default function DiagnosticReports() {
                           </div>
                         </div>
                         {isPartial && (
-                          <div className="flex items-start gap-2 bg-orange-50/50 border border-orange-100 p-3 rounded-lg mt-2">
+                          <div className="flex items-start gap-2 bg-orange-50/50 p-3 rounded-lg mb-2">
                             <AlertCircle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
                             <p className="text-xs text-orange-800 leading-relaxed font-semibold">
                               This report is held as a draft due to partial payment. Complete payment to enable dispatch and approval options.

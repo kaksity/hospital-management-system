@@ -23,9 +23,10 @@ interface RichEditorProps {
     content: string;
     onChange: (content: string) => void;
     placeholder?: string;
+    className?: string;
 }
 
-export function RichEditor({ content, onChange }: RichEditorProps) {
+export function RichEditor({ content, onChange, className }: RichEditorProps) {
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -40,7 +41,7 @@ export function RichEditor({ content, onChange }: RichEditorProps) {
         },
         editorProps: {
             attributes: {
-                class: "min-h-[150px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+                class: `min-h-[150px] w-full rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`,
             },
         },
     });

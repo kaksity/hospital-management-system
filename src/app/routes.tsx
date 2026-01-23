@@ -8,6 +8,8 @@ import TaskManager from "@/pages/task-manager";
 import CreateTask from "@/pages/task-manager/create";
 import TaskDetail from "@/pages/task-manager/[id]";
 import DiagnosticReports from "@/pages/diagnostic-reports";
+import CreateDiagnosticReport from "@/pages/diagnostic-reports/create";
+import ReportDetail from "@/pages/diagnostic-reports/[id]";
 import Communication from "@/pages/communication";
 import Payments from "@/pages/payments";
 import { Login } from "@/pages/auth/Login";
@@ -143,6 +145,26 @@ export function AppRoutes() {
           <ProtectedRoute>
             <DashboardLayout>
               <DiagnosticReports />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/diagnostic-reports/create"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <CreateDiagnosticReport />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/diagnostic-reports/:id"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <ReportDetail />
             </DashboardLayout>
           </ProtectedRoute>
         }
