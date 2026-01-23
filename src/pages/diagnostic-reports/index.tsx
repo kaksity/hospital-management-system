@@ -48,10 +48,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -508,7 +504,7 @@ export default function DiagnosticReports() {
                           <Eye className="h-4 w-4 text-muted-foreground" />
                           View Report
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/diagnostic-reports/${report.id}/edit`)}>
                           <Edit className="h-4 w-4 text-muted-foreground" />
                           Edit Report
                         </DropdownMenuItem>

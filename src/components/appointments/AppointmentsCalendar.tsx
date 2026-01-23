@@ -21,7 +21,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Search,
   Calendar as CalendarIcon,
   MoreVertical,
   Clock,
@@ -38,79 +37,27 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { NewAppointmentModal } from "@/components/Modals/NewAppointmentModal";
+import { AddEditAppointmentModal } from "@/components/Modals/AddEditAppointmentModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
-
-interface Appointment {
-  id: string;
-  patientId: string;
-  patientName: string;
-  patientGender: "Male" | "Female";
-  service: string;
-  doctor: string;
-  time: string;
-  date: Date;
-  status: "scheduled" | "completed" | "cancelled";
-}
-
-const MOCK_APPOINTMENTS: Appointment[] = [
-  {
-    id: "APP-001",
-    patientId: "CP120456A",
-    patientName: "John Adebayo",
-    patientGender: "Male",
-    service: "MRI Brain",
-    doctor: "Dr. Ope Adeyemi",
-    time: "09:00 AM",
-    date: new Date(2026, 0, 21), // Jan 21, 2026
-    status: "scheduled",
-  },
-  {
-    id: "APP-002",
-    patientId: "CP456789D",
-    patientName: "Sarah Phillips",
-    patientGender: "Female",
-    service: "CT Head",
-    doctor: "Dr. Michael Chen",
-    time: "10:30 AM",
-    date: new Date(2026, 0, 21),
-    status: "scheduled",
-  },
-  {
-    id: "APP-003",
-    patientId: "CP238122C",
-    patientName: "Maria Garcia",
-    patientGender: "Female",
-    service: "Chest X-Ray",
-    doctor: "Dr. Sarah Johnson",
-    time: "02:00 PM",
-    date: new Date(2026, 0, 22),
-    status: "scheduled",
-  },
-  {
-    id: "APP-004",
-    patientId: "CP349011B",
-    patientName: "James Wilson",
-    patientGender: "Male",
-    service: "Ultrasound Pelvis",
-    doctor: "Dr. Michael Chen",
-    time: "03:45 PM",
-    date: new Date(2026, 0, 21),
-    status: "completed",
-  },
-];
+import { Appointment, useAppointments } from "@/hooks/use-appointments";
+import { toast } from "sonner";
 
 export function AppointmentsCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalInitialDate, setModalInitialDate] = useState<Date | undefined>(undefined);
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+
+  const { appointments, addAppointment, updateAppointment, deleteAppointment } = useAppointments();
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+
   const goToToday = () => {
     const today = new Date();
     setCurrentDate(today);
@@ -191,7 +138,7 @@ export function AppointmentsCalendar() {
         const cloneDay = day;
 
         // Find appointments for this day
-        const dayAppointments = MOCK_APPOINTMENTS.filter(app => isSameDay(app.date, cloneDay));
+        const dayAppointments = appointments.filter(app => isSameDay(app.date, cloneDay));
         const isPast = isBefore(cloneDay, startOfDay(new Date()));
 
         days.push(
@@ -211,7 +158,7 @@ export function AppointmentsCalendar() {
             <div className="flex items-center justify-between p-1 px-1.5 mb-1">
               <span className={cn(
                 "text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full transition-colors",
-                isToday(day) ? "bg-primary text-primary-foreground" : "group-hover:bg-muted"
+                isToday(day) ? "bg-[#006bff] text-primary-foreground" : "group-hover:bg-muted"
               )}>
                 {formattedDate}
               </span>
@@ -276,6 +223,9 @@ export function AppointmentsCalendar() {
     return <div className="ring-1 ring-border rounded-xl overflow-hidden shadow-sm">{rows}</div>;
   };
 
+  // Get appointments for selected date
+  const selectedDateAppointments = appointments.filter(app => isSameDay(app.date, selectedDate));
+
   return (
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Main Calendar Grid */}
@@ -300,8 +250,8 @@ export function AppointmentsCalendar() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {MOCK_APPOINTMENTS.filter(app => isSameDay(app.date, selectedDate)).length > 0 ? (
-              MOCK_APPOINTMENTS.filter(app => isSameDay(app.date, selectedDate)).map((app) => (
+            {selectedDateAppointments.length > 0 ? (
+              selectedDateAppointments.map((app) => (
                 <div key={app.id} className="relative group transition-all">
                   <div className={cn(
                     "absolute left-0 top-0 bottom-0 w-1 rounded-full",
@@ -320,8 +270,38 @@ export function AppointmentsCalendar() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="text-xs font-bold">Edit Appointment</DropdownMenuItem>
-                          <DropdownMenuItem className="text-xs font-bold text-red-600">Cancel</DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-xs font-bold"
+                            onClick={() => {
+                              setEditingAppointment(app);
+                              setIsModalOpen(true);
+                            }}
+                          >
+                            Edit Appointment
+                          </DropdownMenuItem>
+
+                          {app.status === 'scheduled' && (
+                            <DropdownMenuItem
+                              className="text-xs font-bold"
+                              onClick={() => updateAppointment(app.id, { status: 'completed' })}
+                            >
+                              Mark as Completed
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          {app.status !== 'cancelled' && (
+                            <DropdownMenuItem
+                              className="text-xs font-bold text-red-600"
+                              onClick={() => {
+                                if (window.confirm(`Cancel appointment for ${app.patientName}?`)) {
+                                  updateAppointment(app.id, { status: 'cancelled' });
+                                  toast.success("Appointment cancelled");
+                                }
+                              }}
+                            >
+                              Cancel Appointment
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -374,10 +354,25 @@ export function AppointmentsCalendar() {
         </Card>
       </div>
 
-      <NewAppointmentModal
+      <AddEditAppointmentModal
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) setEditingAppointment(null); // Clear edit state when modal closes
+        }}
         initialDate={modalInitialDate}
+        appointmentToEdit={editingAppointment}
+        onSave={(appointmentData, isEdit) => {
+          if (isEdit) {
+            updateAppointment(appointmentData.id, appointmentData);
+          } else {
+            addAppointment(appointmentData);
+          }
+          setSelectedDate(appointmentData.date);
+        }}
+        onDelete={(appointmentId) => {
+          deleteAppointment(appointmentId);
+        }}
       />
     </div>
   );

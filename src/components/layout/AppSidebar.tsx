@@ -1,4 +1,4 @@
-import { Home, FileText, DollarSign, Settings, Users, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, TicketsPlane, Receipt, BarChart3, Building2, UserCog, LayoutGrid, ScrollText, ClipboardCheck, CalendarCheck, IdCard, Hospital, Stethoscope, FormInputIcon, LayoutPanelTop } from "lucide-react";
+import { Home, FileText, Settings, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, Receipt, BarChart3, LayoutGrid, ClipboardCheck, CalendarCheck, IdCard, Hospital, Stethoscope, LayoutPanelTop, CircleDollarSign } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -41,7 +41,7 @@ const getNavigationItems = (role: string) => {
     { title: "Templates", url: "/templates", icon: LayoutPanelTop },
     { title: "Communication", url: "/communication", icon: MessageSquareMore },
     { title: "Insights", url: "/insights", icon: BarChart3 },
-    { title: "Payments", url: "/payments", icon: DollarSign },
+    { title: "Payments", url: "/payments", icon: CircleDollarSign },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
@@ -54,7 +54,7 @@ const getNavigationItems = (role: string) => {
 
   const clientItems = [
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
-    { title: "Payments", url: "/payments", icon: DollarSign },
+    { title: "Payments", url: "/payments", icon: CircleDollarSign },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 

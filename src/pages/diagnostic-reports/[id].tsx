@@ -1,58 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
-  Calendar,
   User,
   Mail,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  CreditCard,
-  Mic,
-  MicOff,
-  Pause,
-  Square,
-  FileText,
-  Save,
-  Printer,
-  Send,
-  MoreHorizontal,
+  Building,
   Stethoscope,
-  Activity,
-  Volume2,
-  Check,
+  CreditCard,
+  FileText,
+  Download,
+  Printer,
+  Eye,
+  Edit,
+  Send,
+  Paperclip,
+  FileImage,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { RichEditor } from "@/components/ui/rich-editor";
-import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 import { formatDateOnly, formatDateTime } from "@/utils/dateFormatter";
-import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
-import { toast } from "sonner";
 
-// Mock Report Data (In a real app, this would be fetched based on ID)
+// Mock Report Data
 const mockReport = {
   id: "RAD-2024-5401",
   requestNo: "REQ-90210",
   requestDate: "2024-11-15",
+  reportDate: "2024-11-16",
   reportNo: "RAD-2024-5401",
-  reportId: "REP-001",
   patientName: "John Adebayo",
   patientType: "hmo",
   gender: "Male",
+  age: 45,
   email: "john.adebayo@email.com",
   hospital: "Evercare Hospital",
   physician: "Dr. Ope Adeyemi",
@@ -65,553 +46,314 @@ const mockReport = {
   status: "approved",
   examType: "MRI",
   examName: "MRI Brain (Contrast)",
-};
-
-const templates = [
-  {
-    id: "t1",
-    name: "Normal MRI Brain",
-    content: `
-      <p><strong>MRI BRAIN WITH AND WITHOUT CONTRAST</strong></p>
-      <p><strong>CLINICAL INDICATION:</strong> Headache and dizziness.</p>
-      <p><strong>TECHNIQUE:</strong> Multiplanar, multisequence MRI of the brain was performed on a 3 Tesla scanner. Pre- and post-contrast sequences were obtained including T1, T2, FLAIR, DWI, and ADC.</p>
-      <p><strong>COMPARISON:</strong> None.</p>
-      <p><strong>FINDINGS:</strong></p>
-      <ul>
-        <li>The brain parenchyma demonstrates normal signal intensity. There is normal gray-white matter differentiation.</li>
-        <li>No evidence of acute infarct, hemorrhage, or mass lesion is identified.</li>
-        <li>The ventricular system and subarachnoid spaces are within normal limits. No midline shift.</li>
-        <li>The basal ganglia, thalamus, brainstem, and cerebellum appear unremarkable.</li>
-        <li>No abnormal enhancement is noted following administration of gadolinium-based contrast.</li>
-        <li>The visualized portions of the skull base and calvarium are intact.</li>
-        <li>The major intracranial vessels show normal flow voids.</li>
-      </ul>
-      <p><strong>IMPRESSION:</strong></p>
-      <p><strong>1. Normal MRI of the brain.</strong></p>
-      <p><strong>RECOMMENDATION:</strong> None.</p>
-    `
-  },
-  {
-    id: "t2",
-    name: "Acute Ischemic Stroke",
-    content: `
-      <p><strong>MRI BRAIN WITH DIFFUSION</strong></p>
-      <p><strong>CLINICAL INDICATION:</strong> 68-year-old male with acute onset left-sided weakness and facial droop, presenting 4 hours after symptom onset.</p>
-      <p><strong>TECHNIQUE:</strong> MRI brain with DWI/ADC sequences, T2, FLAIR, and MRA.</p>
-      <p><strong>COMPARISON:</strong> CT head from today shows subtle early ischemic changes.</p>
-      <p><strong>FINDINGS:</strong></p>
-      <ul>
-        <li>There is restricted diffusion involving the right middle cerebral artery (MCA) territory, involving the right basal ganglia, insular cortex, and frontal operculum.</li>
-        <li>The ADC map confirms true restricted diffusion with corresponding low ADC values.</li>
-        <li>MRA demonstrates an occlusion of the proximal right M1 segment of the MCA.</li>
-        <li>There is mild sulcal effacement in the right hemisphere but no significant midline shift.</li>
-        <li>The remainder of the brain parenchyma shows age-appropriate volume loss without acute abnormality.</li>
-        <li>No intracranial hemorrhage is identified on susceptibility-weighted imaging (SWI).</li>
-        <li>The posterior circulation territories are patent and unremarkable.</li>
-      </ul>
-      <p><strong>IMPRESSION:</strong></p>
-      <p><strong>1. Acute right MCA territory infarction, consistent with the patient's clinical presentation.</strong></p>
-      <p><strong>2. Right M1 segment MCA occlusion.</strong></p>
-      <p><strong>RECOMMENDATION:</strong></p>
-      <ol>
-        <li>Urgent Neurology consultation for consideration of thrombolysis/thrombectomy.</li>
-        <li>Consider stat CT perfusion if thrombectomy is being considered.</li>
-        <li>Follow-up imaging in 24-48 hours to evaluate for hemorrhagic transformation.</li>
-      </ol>
-    `
-  },
-];
-
-export default function ReportDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [reportData, setReportData] = useState(mockReport);
-  const [editorContent, setEditorContent] = useState(`
+  reportContent: `
     <p><strong>MRI BRAIN WITH AND WITHOUT CONTRAST</strong></p>
-    <p><strong>CLINICAL INDICATION:</strong> ${reportData.patientName} presents with persistent headaches and dizziness for evaluation.</p>
-    <p><strong>TECHNIQUE:</strong> Multiplanar, multisequence MRI of the brain was performed with pre- and post-contrast administration.</p>
-    <p><strong>COMPARISON:</strong> None available.</p>
+    <p><br></p>
+    <p><strong>CLINICAL INDICATION:</strong> Headache and dizziness.</p>
+    <p><br></p>
+    <p><strong>TECHNIQUE:</strong> Multiplanar, multisequence MRI of the brain was performed on a 3 Tesla scanner. Pre- and post-contrast sequences were obtained including T1, T2, FLAIR, DWI, and ADC.</p>
+    <p><br></p>
+    <p><strong>COMPARISON:</strong> None.</p>
+    <p><br></p>
     <p><strong>FINDINGS:</strong></p>
     <ul>
-      <li>The cerebral hemispheres are symmetric with preserved gray-white matter differentiation.</li>
-      <li>No mass lesion, hemorrhage, or acute territorial infarction is identified.</li>
-      <li>The ventricular system and subarachnoid spaces are within normal limits for patient's age.</li>
-      <li>The brainstem and cerebellum appear unremarkable.</li>
-      <li>No abnormal parenchymal or meningeal enhancement following contrast administration.</li>
+      <li>The brain parenchyma demonstrates normal signal intensity. There is normal gray-white matter differentiation.</li>
+      <li>No evidence of acute infarct, hemorrhage, or mass lesion is identified.</li>
+      <li>The ventricular system and subarachnoid spaces are within normal limits. No midline shift.</li>
+      <li>The basal ganglia, thalamus, brainstem, and cerebellum appear unremarkable.</li>
+      <li>No abnormal enhancement is noted following administration of gadolinium-based contrast.</li>
+      <li>The visualized portions of the skull base and calvarium are intact.</li>
+      <li>The major intracranial vessels show normal flow voids.</li>
     </ul>
+    <p><br></p>
     <p><strong>IMPRESSION:</strong></p>
-    <p><strong>1. Normal MRI brain examination.</strong></p>
-    <p><strong>RECOMMENDATION:</strong> Clinical correlation recommended.</p>
-  `);
-  const [activeMode, setActiveMode] = useState<'template' | 'voice' | 'manual'>('manual');
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
-  const [isBrowserSupported, setIsBrowserSupported] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+    <p><strong>1. Normal MRI of the brain.</strong></p>
+    <p><br></p>
+    <p><strong>RECOMMENDATION:</strong> None.</p>
+  `,
+  attachments: [
+    { id: 1, name: "MRI_Brain_Images.zip", type: "archive", size: "45.2 MB", uploaded: "2024-11-16 10:30" },
+    { id: 2, name: "Lab_Results.pdf", type: "pdf", size: "2.1 MB", uploaded: "2024-11-16 10:32" },
+    { id: 3, name: "Patient_Consent_Form.pdf", type: "pdf", size: "1.5 MB", uploaded: "2024-11-16 10:35" },
+  ],
+  images: [
+    { id: 1, name: "Axial_T2_FLAIR.jpg", description: "Axial T2 FLAIR sequence" },
+    { id: 2, name: "Sagittal_T1.jpg", description: "Sagittal T1 post-contrast" },
+    { id: 3, name: "Coronal_T2.jpg", description: "Coronal T2 weighted" },
+  ],
+};
 
-  const {
-    isListening,
-    isPaused,
-    transcript,
-    recordingTime,
-    audioLevel,
-    startRecording,
-    stopRecording,
-    pauseRecording,
-    clearTranscript,
-  } = useSpeechRecognition({
-    onResult: (newTranscript) => {
-      if (activeMode === 'voice') {
-        setEditorContent(prev => {
-          if (prev.includes("Start typing your report here...")) {
-            return `<p>${newTranscript}</p>`;
-          }
-          const withoutClosingTag = prev.replace('</p>', '');
-          return `${withoutClosingTag} ${newTranscript}</p>`;
-        });
-      }
-    },
-  });
+export default function ViewReport() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const reportData = mockReport;
 
-  useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    setIsBrowserSupported(!!SpeechRecognition);
-  }, []);
-
-  const handleTemplateSelect = (templateId: string) => {
-    const template = templates.find((t) => t.id === templateId);
-    if (template) {
-      setSelectedTemplate(templateId);
-      setActiveMode('template');
-      setEditorContent(template.content);
-      toast.success("Template applied", {
-        description: `"${template.name}" template loaded`,
-      });
-    }
-  };
-
-  const handleVoiceMode = () => {
-    if (activeMode === 'voice' && isListening) {
-      stopRecording();
-      setActiveMode('manual');
-      toast.info("Voice dictation stopped");
-    } else {
-      setActiveMode('voice');
-      setSelectedTemplate('');
-      startRecording();
-      toast.success("Voice dictation started", {
-        description: "Speak clearly into your microphone",
-      });
-    }
-  };
-
-  const handleManualMode = () => {
-    if (isListening) {
-      stopRecording();
-    }
-    setActiveMode('manual');
-    setSelectedTemplate('');
-  };
-
-  const handleSaveChanges = () => {
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      toast.success("Report updated successfully", {
-        description: `Report ${reportData.reportNo} has been saved`,
-        duration: 3000,
-      });
-    }, 1500);
+  const handleEditReport = () => {
+    navigate(`/diagnostic-reports/${id}/edit`);
   };
 
   const handlePrint = () => {
-    toast.info("Print dialog would open", {
-      description: "In production, this would open print dialog",
-    });
+    window.print();
   };
 
-  const handleSendReport = () => {
-    toast.info("Report would be sent", {
-      description: "In production, this would send report to physician/patient",
-    });
+  const handleDownload = (fileName: string) => {
+    alert(`Would download: ${fileName}`);
+  };
+
+  const handleViewImage = (imageName: string) => {
+    alert(`Would open image viewer for: ${imageName}`);
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/50 p-6 space-y-6 overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full bg-slate-50/50 p-6 space-y-6 overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/diagnostic-reports")}
+            className="gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to Reports
+          </Button>
           <div>
-            <h1 className="text-xl font-semibold tracking-light text-slate-800">
+            <h1 className="text-2xl font-bold text-slate-800">
               Diagnostic Report: {reportData.reportNo}
             </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge className="bg-green-100 text-green-800 capitalize">
-                {reportData.status}
+            <div className="flex items-center gap-3 mt-1">
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                {reportData.status.toUpperCase()}
               </Badge>
-              <span className="text-xs text-muted-foreground">•</span>
-              <span className="text-xs text-muted-foreground">
-                Request ID: {reportData.requestNo}
+              <span className="text-sm text-muted-foreground">
+                Created: {formatDateOnly(reportData.reportDate)}
               </span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2 bg-white" onClick={handlePrint}>
+          <Button variant="outline" className="gap-2" onClick={handlePrint}>
             <Printer className="h-4 w-4" />
             Print
           </Button>
-          <Button variant="outline" className="gap-2 bg-white" onClick={handleSendReport}>
+          <Button variant="outline" className="gap-2">
             <Send className="h-4 w-4" />
-            Send
+            Send to Patient
           </Button>
-          <Button
-            className="gap-2"
-            onClick={handleSaveChanges}
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Save Changes
-              </>
-            )}
+          <Button className="gap-2" onClick={handleEditReport}>
+            <Edit className="h-4 w-4" />
+            Edit Report
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 h-full min-h-0">
-        {/* Left Side: Form & Editor */}
-        <div className="lg:col-span-2 space-y-6 h-full flex flex-col">
-          <Card className="border overflow-hidden bg-white">
-            <CardHeader className="border-b bg-slate-50/50 py-4">
-              <CardTitle className="text-sm tracking-normal font-semibold text-[#476788]">
-                Examination Details
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Report Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Report Content Card */}
+          <Card className="bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50">
+              <CardTitle className="text-lg font-semibold text-slate-800">
+                Report Content
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 pt-4 grid grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <Label>Exam Type</Label>
-                <Input value={reportData.examType} readOnly className="bg-slate-50" />
-              </div>
-              <div className="space-y-1">
-                <Label>Exam Name</Label>
-                <Input value={reportData.examName} readOnly className="bg-slate-50" />
-              </div>
-              <div className="space-y-1">
-                <Label>Exam Cost</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₦</span>
-                  <Input value={reportData.totalCost.toLocaleString()} readOnly className="pl-7 bg-slate-50 font-semibold" />
-                </div>
-              </div>
+            <CardContent className="p-6">
+              <div
+                className="prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: reportData.reportContent }}
+              />
             </CardContent>
           </Card>
 
-          <Card className="border overflow-hidden bg-white flex-1 flex flex-col">
-            <CardHeader className="border-b bg-slate-50/50 py-4 flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-semibold tracking-normal text-[#476788]">
-                Report Editor
+          {/* Images Card */}
+          <Card className="bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50">
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <FileImage className="h-5 w-5" />
+                Images
               </CardTitle>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={activeMode === 'template' ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setActiveMode('template')}
-                    className="h-8"
-                  >
-                    <FileText className="h-3.5 w-3.5 mr-1" />
-                    Template
-                  </Button>
-                  <Button
-                    variant={activeMode === 'voice' ? "default" : "outline"}
-                    size="sm"
-                    onClick={handleVoiceMode}
-                    disabled={!isBrowserSupported}
-                    className={cn("h-8 gap-2", activeMode === 'voice' && isListening && "animate-pulse")}
-                  >
-                    {activeMode === 'voice' && isListening ? (
-                      <Square className="h-3.5 w-3.5" />
-                    ) : (
-                      <Mic className="h-3.5 w-3.5" />
-                    )}
-                    Voice
-                  </Button>
-                  <Button
-                    variant={activeMode === 'manual' ? "default" : "outline"}
-                    size="sm"
-                    onClick={handleManualMode}
-                    className="h-8"
-                  >
-                    ✏️ Manual
-                  </Button>
-                </div>
-              </div>
             </CardHeader>
-
-            <CardContent className="p-6 flex-1 flex flex-col space-y-4">
-              {/* Mode-specific controls */}
-              {activeMode === 'template' && (
-                <div className="space-y-2">
-                  <Label>Select Template</Label>
-                  <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Choose a template..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {templates.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Selecting a template will replace current content
-                  </p>
-                </div>
-              )}
-
-              {activeMode === 'voice' && (
-                <Card className="border bg-slate-50/50">
-                  <CardContent className="p-4">
-                    {!isBrowserSupported ? (
-                      <div className="p-3 border border-amber-200 bg-amber-50 rounded-md">
-                        <div className="flex items-center gap-2 text-amber-800 text-sm">
-                          <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                          <span>Voice dictation requires Chrome or Edge. Manual typing is available.</span>
-                        </div>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {reportData.images.map((image) => (
+                  <div key={image.id} className="border rounded-lg overflow-hidden bg-slate-50">
+                    <div className="h-32 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                      <FileImage className="h-12 w-12 text-blue-400" />
+                    </div>
+                    <div className="p-3">
+                      <p className="text-sm font-medium text-slate-800 truncate">
+                        {image.name}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {image.description}
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs"
+                          onClick={() => handleViewImage(image.name)}
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          View
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs"
+                          onClick={() => handleDownload(image.name)}
+                        >
+                          <Download className="h-3 w-3 mr-1" />
+                          Download
+                        </Button>
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "h-10 w-10 rounded-full flex items-center justify-center",
-                              isListening
-                                ? isPaused
-                                  ? "bg-amber-100 text-amber-600"
-                                  : "bg-red-100 text-red-600 animate-pulse"
-                                : "bg-slate-100 text-slate-600"
-                            )}>
-                              {isListening ? (
-                                isPaused ? <Pause className="h-5 w-5" /> : <Mic className="h-5 w-5" />
-                              ) : (
-                                <MicOff className="h-5 w-5" />
-                              )}
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium">
-                                {isListening ? (isPaused ? "Paused" : "Recording...") : "Ready to record"}
-                              </div>
-                              <div className="text-xs text-muted-foreground flex items-center gap-2">
-                                <Clock className="h-3 w-3" />
-                                {isListening ? recordingTime : "00:00"}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            {isListening ? (
-                              <>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={pauseRecording}
-                                >
-                                  {isPaused ? (
-                                    <>
-                                      <Mic className="h-3.5 w-3.5 mr-1" />
-                                      Resume
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Pause className="h-3.5 w-3.5 mr-1" />
-                                      Pause
-                                    </>
-                                  )}
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={handleVoiceMode}
-                                >
-                                  <Square className="h-3.5 w-3.5 mr-1" />
-                                  Stop
-                                </Button>
-                              </>
-                            ) : (
-                              <Button
-                                onClick={handleVoiceMode}
-                                className="gap-2"
-                              >
-                                <Mic className="h-4 w-4" />
-                                Start Recording
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Audio Level Visualization */}
-                        {isListening && !isPaused && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>Audio Level</span>
-                              <span>{Math.round(audioLevel)}%</span>
-                            </div>
-                            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-green-500 transition-all duration-150"
-                                style={{ width: `${audioLevel}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Live Transcript Preview */}
-                        {transcript && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-xs">Live Transcript</Label>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={clearTranscript}
-                                className="h-6 text-xs"
-                              >
-                                Clear
-                              </Button>
-                            </div>
-                            <div className="p-3 bg-white border rounded-md text-sm max-h-32 overflow-y-auto">
-                              {transcript}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              💡 Speak clearly. Say "comma", "period", "new paragraph" for punctuation.
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Editor */}
-              <div className="flex-1 flex flex-col">
-                <div className="mb-2 flex items-center justify-between">
-                  <Label>Report Content</Label>
-                  {activeMode === 'voice' && isListening && (
-                    <Badge variant="outline" className="text-xs animate-pulse bg-red-50 text-red-700 border-red-200">
-                      <Volume2 className="h-3 w-3 mr-1" />
-                      Live Dictation Active
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex-1 min-h-[400px]">
-                  <RichEditor
-                    content={editorContent}
-                    onChange={setEditorContent}
-                  />
-                </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Side: Summary */}
+        {/* Right Column: Summary & Attachments */}
         <div className="space-y-6">
-          <Card className="border overflow-hidden bg-white">
-            <CardHeader className="border-b bg-slate-50/50 py-4">
-              <CardTitle className="text-sm font-semibold tracking-normal text-[#476788]">
-                Patient & Request Summary
+          {/* Patient Summary Card */}
+          <Card className="bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50">
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Patient Summary
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
-              <div className="space-y-4 pb-4 border-b">
-                <div className="flex justify-between items-start">
-                  <span className="text-xs font-semibold text-slate-500">Patient Name</span>
-                  <span className="text-[13px] font-semibold text-slate-800">{reportData.patientName}</span>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Patient Name</span>
+                  <span className="text-sm font-semibold text-slate-800">{reportData.patientName}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500">Gender / Type</span>
-                  <div className="flex gap-2">
-                    <Badge variant="outline" className="text-[10px] bg-slate-50">
-                      {reportData.gender}
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px] bg-blue-50 text-blue-700 border-blue-100">
-                      {reportData.patientType.toUpperCase()}
-                    </Badge>
-                  </div>
+                  <span className="text-sm text-slate-600">Age / Gender</span>
+                  <span className="text-sm font-semibold text-slate-800">{reportData.age} years, {reportData.gender}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500">Email Address</span>
-                  <span className="text-[13px] font-semibold text-slate-600">
+                  <span className="text-sm text-slate-600">Email</span>
+                  <span className="text-sm font-semibold text-slate-800 flex items-center gap-1">
+                    <Mail className="h-3 w-3" />
                     {reportData.email}
                   </span>
                 </div>
-              </div>
-
-              <div className="space-y-3 pb-4 border-b">
-                <div className="flex justify-between items-start">
-                  <span className="text-xs font-semibold text-slate-500">Report No</span>
-                  <span className="text-[13px] font-semibold text-slate-800">{reportData.reportNo}</span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-xs font-semibold text-slate-500">Request No</span>
-                  <span className="text-[13px] font-semibold text-slate-800">{reportData.requestNo}</span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-xs font-semibold text-slate-500">Request Date</span>
-                  <span className="text-[13px] font-semibold text-slate-800">{formatDateOnly(reportData.requestDate)}</span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-xs font-semibold text-slate-500">Clinic / Hospital</span>
-                  <span className="text-[13px] font-semibold text-slate-800">{reportData.hospital}</span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-xs font-semibold text-slate-500">Physician</span>
-                  <span className="text-[13px] font-semibold text-slate-800">{reportData.physician}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2 pb-4 border-b">
+                <Separator />
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500">Dispatch Status</span>
-                  <Badge className="text-[10px] bg-blue-50 text-blue-700 border-blue-100">
-                    {reportData.dispatchStatus.replace(/_/g, " ")}
+                  <span className="text-sm text-slate-600">Patient Type</span>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                    {reportData.patientType.toUpperCase()}
                   </Badge>
                 </div>
-                {reportData.dispatchStatus !== "pending" && (
-                  <div className="mt-2 p-3 bg-slate-50 rounded-lg space-y-1">
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-slate-500">Dispatched:</span>
-                      <span className="font-bold text-slate-700">{formatDateTime(reportData.dispatchedDate)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-slate-500">By:</span>
-                      <span className="font-bold text-slate-700">{reportData.dispatchedBy}</span>
-                    </div>
-                  </div>
-                )}
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="pt-2 space-y-3">
+          {/* Exam Details Card */}
+          <Card className="bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50">
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <Stethoscope className="h-5 w-5" />
+                Exam Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500">Total Cost</span>
-                  <span className="text-[13px] font-bold text-slate-800">₦{reportData.totalCost.toLocaleString()}</span>
+                  <span className="text-sm text-slate-600">Exam Type</span>
+                  <span className="text-sm font-semibold text-slate-800">{reportData.examType}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500">Amount Paid</span>
-                  <span className="text-[13px] font-bold text-green-600">₦{reportData.amountPaid.toLocaleString()}</span>
+                  <span className="text-sm text-slate-600">Exam Name</span>
+                  <span className="text-sm font-semibold text-slate-800">{reportData.examName}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Hospital</span>
+                  <span className="text-sm font-semibold text-slate-800 flex items-center gap-1">
+                    <Building className="h-3 w-3" />
+                    {reportData.hospital}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-slate-500">Balance</span>
-                  <span className="text-[13px] font-extrabold text-slate-700">₦{reportData.balance.toLocaleString()}</span>
+                  <span className="text-sm text-slate-600">Referring Physician</span>
+                  <span className="text-sm font-semibold text-slate-800">{reportData.physician}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Attachments Card */}
+          <Card className="bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50">
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <Paperclip className="h-5 w-5" />
+                Attachments ({reportData.attachments.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-3">
+                {reportData.attachments.map((file) => (
+                  <div key={file.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                        {file.type === "pdf" ? (
+                          <FileText className="h-5 w-5 text-red-500" />
+                        ) : (
+                          <FileText className="h-5 w-5 text-blue-500" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-800">
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {file.size} • {formatDateTime(file.uploaded)}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDownload(file.name)}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Financial Summary Card */}
+          <Card className="bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50">
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Financial Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Total Cost</span>
+                  <span className="text-lg font-bold text-slate-800">₦{reportData.totalCost.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Amount Paid</span>
+                  <span className="text-lg font-bold text-green-600">₦{reportData.amountPaid.toLocaleString()}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                  <span className="text-sm font-bold text-slate-700">Balance</span>
+                  <span className="text-lg font-extrabold text-slate-800">
+                    ₦{reportData.balance.toLocaleString()}
+                  </span>
                 </div>
               </div>
             </CardContent>

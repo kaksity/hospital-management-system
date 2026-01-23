@@ -30,6 +30,7 @@ import Hospitals from "@/pages/hospitals";
 import Doctors from "@/pages/doctors";
 import RadiologyServices from "@/pages/services";
 import ReportTemplates from "@/pages/templates";
+import EditDiagnosticReport from "@/pages/diagnostic-reports/edit";
 
 export function AppRoutes() {
   return (
@@ -165,6 +166,16 @@ export function AppRoutes() {
           <ProtectedRoute>
             <DashboardLayout>
               <ReportDetail />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/diagnostic-reports/:id/edit"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <EditDiagnosticReport />
             </DashboardLayout>
           </ProtectedRoute>
         }
