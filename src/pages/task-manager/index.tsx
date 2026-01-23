@@ -257,7 +257,7 @@ export default function TaskManager() {
   const serviceGroups = groupTasksByService();
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-slate-50/50">
+    <div className="flex flex-col h-full overflow-x-hidden bg-slate-50/50">
       {/* Header section fixed */}
       <div className="flex-none space-y-6 p-6 pb-4 bg-background border-b">
         <div className="flex items-center justify-between">
@@ -373,10 +373,10 @@ export default function TaskManager() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden min-w-0">
         {viewMode === "board" ? (
-          <div className="h-full overflow-x-auto custom-scrollbar p-6">
-            <div className="flex gap-6 h-full min-w-max pb-4">
+          <div className="h-full overflow-x-auto overflow-y-hidden custom-scrollbar">
+            <div className="flex gap-6 min-w-max p-6 pb-4">
               {Object.entries(serviceGroups).map(([service, serviceTasks]) => (
                 <div key={service} className="w-[320px] flex flex-col gap-4">
                   <div className="flex items-center justify-between flex-none pb-2 border-b-2">
