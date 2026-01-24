@@ -327,18 +327,6 @@ export function PatientCollection({
 
             </div>
           )}
-
-          {/* Returning Patient Notice */}
-          {selectedPatient.totalVisits > 1 && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-700">
-                  Returning patient ({selectedPatient.totalVisits} visits). Comparison study will be auto-selected.
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>

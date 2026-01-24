@@ -488,7 +488,7 @@ export default function CreateTask() {
                               )} />
                               <div>
                                 <div className="font-medium">{doctor.name}</div>
-                                <div className="text-xs text-muted-foreground">{doctor.specialty}</div>
+                                {/* <div className="text-xs text-muted-foreground">{doctor.specialty}</div> */}
                               </div>
                             </div>
                             {!doctor.available && (
@@ -520,9 +520,9 @@ export default function CreateTask() {
                 </div>
 
                 {/* Flags */}
-                <div className="space-y-4">
-                  <Label className="text-base">Flags</Label>
-                  <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Flags</Label>
+                  <div className="grid md:grid-cols-2 gap-4 pb-3">
                     <div className="flex items-center justify-between p-3 rounded-lg border">
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-red-500" />
@@ -541,7 +541,7 @@ export default function CreateTask() {
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-blue-500" />
                         <Label htmlFor="comparison" className="cursor-pointer">
-                          Comparison Study
+                          Comparison
                         </Label>
                       </div>
                       <Switch
@@ -554,10 +554,10 @@ export default function CreateTask() {
                   </div>
 
                   {shouldAutoSetComparison && (
-                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="p-3 bg-blue-50 rounded-lg">
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm text-blue-700">
+                        <span className="text-sm text-primary">
                           Comparison study auto-selected for returning patient
                         </span>
                       </div>
