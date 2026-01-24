@@ -640,7 +640,7 @@ export default function TaskManager() {
                             <Button
                               variant="ghost"
                               className={cn(
-                                "h-full px-3 justify-start text-left font-normal gap-2 rounded-none border-none text-xs",
+                                "h-full px-3 justify-start w-full text-left font-normal gap-2 rounded-none border-none text-xs",
                                 !dateRange.from && "text-slate-400"
                               )}
                             >
@@ -665,7 +665,7 @@ export default function TaskManager() {
                             <Button
                               variant="ghost"
                               className={cn(
-                                "h-full px-3 justify-start text-left font-normal gap-2 rounded-none border-none text-xs",
+                                "h-full px-3 justify-start w-full text-left font-normal gap-2 rounded-none border-none text-xs",
                                 !dateRange.to && "text-slate-400"
                               )}
                             >
