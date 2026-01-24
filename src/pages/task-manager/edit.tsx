@@ -1,711 +1,653 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Save,
+  ChevronRight,
+  ChevronLeft,
+  Plus,
+  Check,
   X,
-  User,
+  Search,
   Calendar as CalendarIcon,
   Clock,
-  Stethoscope,
   Scan,
+  Stethoscope,
   AlertTriangle,
-  FileText,
-  Tag,
-  CreditCard,
-  Building,
-  Phone,
-  Mail,
-  ChevronDown,
-  Search,
-  Link,
   UserPlus,
+  UserCheck,
+  Users,
+  FileText,
+  User,
   Trash2,
-  Copy,
-  History,
-  Plus
+  Save
 } from "lucide-react";
+import { format, parse } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
+import { PatientCollection } from "@/components/PatientCollection";
 
-// Mock data for editing
-const mockTask = {
-  id: "TSK-2024-001",
-  patientName: "John Adebayo",
-  patientId: "PT-2024-001",
-  phone: "0800 123 4567",
-  email: "john.adebayo@example.com",
-  patientType: "hmo" as const,
-  insurance: "ABC Insurance Co.",
-  service: "MRI",
-  subService: "Brain with Contrast",
-  date: new Date("2024-11-20"),
-  time: "10:30",
-  priority: "high" as const,
-  referringDoctor: "Dr. Ope Adeyemi",
-  clinicalNotes: "Rule out metastases, known lung cancer. Patient has history of smoking for 15 years.",
-  isEmergency: true,
-  isComparison: false,
-  isWalkIn: false,
-  tags: ["neuro", "urgent", "oncology"],
-  assignedDoctor: "1",
-  status: "pending" as const,
-  createdAt: new Date("2024-11-19"),
-  createdBy: "Admin User",
-  lastModified: new Date("2024-11-19"),
-  modifiedBy: "Admin User"
-};
+
+// Services data
+const MOCK_SERVICES = [
+  { id: "MRI", name: "MRI", subServices: ["Brain (Contrast)", "Spine (Lumbar)", "Knee", "Shoulder", "Abdomen"] },
+  { id: "CT", name: "CT Scan", subServices: ["Chest", "Abdomen & Pelvis", "Head", "Angiography", "Virtual Colonoscopy"] },
+  { id: "XRAY", name: "X-Ray", subServices: ["Chest", "Wrist", "Knee", "Spine", "Skull"] },
+  { id: "US", name: "Ultrasound", subServices: ["Pelvis", "Abdomen", "Thyroid", "Breast", "Doppler"] },
+  { id: "MAMMO", name: "Mammography", subServices: ["Digital", "3D Tomosynthesis", "Screening", "Diagnostic"] },
+];
+
+const PRIORITIES = [
+  { value: "low", label: "Low", color: "bg-green-100 text-green-700" },
+  { value: "medium", label: "Medium", color: "bg-yellow-100 text-yellow-700" },
+  { value: "high", label: "High", color: "bg-red-100 text-red-700" },
+];
+
+// Mock patients data with visit history
+const MOCK_PATIENTS = [
+  {
+    id: "CP120456A",
+    name: "Alex Turner",
+    age: 28,
+    gender: "Male",
+    patientType: "private" as const,
+    phone: "+234 801 234 5678",
+    email: "alex.turner@email.com",
+    lastVisit: "2025-01-15",
+    totalVisits: 3,
+    lastService: "MRI Brain",
+    pendingTests: ["CT Chest", "X-Ray Wrist"],
+    avatar: "",
+    status: "active" as const,
+    referringHospital: "City General Hospital",
+    referringDoctor: "Dr. Sarah Johnson"
+  },
+  {
+    id: "CP238122C",
+    name: "Maria Garcia",
+    age: 34,
+    gender: "Female",
+    patientType: "hmo" as const,
+    phone: "+234 802 345 6789",
+    email: "maria.garcia@email.com",
+    lastVisit: "2025-01-10",
+    totalVisits: 2,
+    lastService: "Ultrasound Pelvis",
+    pendingTests: ["MRI Spine"],
+    avatar: "",
+    status: "active" as const,
+    referringHospital: "Metropolitan Medical Center",
+    referringDoctor: "Dr. Michael Chen"
+  },
+  {
+    id: "CP349011B",
+    name: "James Wilson",
+    age: 42,
+    gender: "Male",
+    patientType: "regular" as const,
+    phone: "+234 803 456 7890",
+    email: "james.wilson@email.com",
+    lastVisit: "2024-12-05",
+    totalVisits: 5,
+    lastService: "CT Abdomen",
+    pendingTests: ["X-Ray Chest"],
+    avatar: "",
+    status: "active" as const,
+    referringHospital: "St. Jude Specialist Center",
+    referringDoctor: "Dr. Emily Okafor"
+  },
+  {
+    id: "CP456789D",
+    name: "Lisa Wang",
+    age: 25,
+    gender: "Female",
+    patientType: "hmo" as const,
+    phone: "+234 804 567 8901",
+    email: "lisa.wang@email.com",
+    lastVisit: "2025-01-08",
+    totalVisits: 1,
+    lastService: "Mammography",
+    pendingTests: ["Ultrasound Breast"],
+    avatar: "",
+    status: "active" as const,
+    referringHospital: "Redeemer Health Clinic",
+    referringDoctor: "Dr. David Smith"
+  },
+  {
+    id: "CP567890E",
+    name: "David Rodriguez",
+    age: 31,
+    gender: "Male",
+    patientType: "private" as const,
+    phone: "+234 805 678 9012",
+    email: "david.rodriguez@email.com",
+    lastVisit: "2024-11-15",
+    totalVisits: 2,
+    lastService: "X-Ray Knee",
+    pendingTests: ["MRI Knee"],
+    avatar: "",
+    status: "active" as const,
+    referringHospital: "City General Hospital",
+    referringDoctor: "Dr. Sarah Johnson"
+  }
+];
+
+// Mock doctors data
+const MOCK_DOCTORS = [
+  { id: "DOC-001", name: "Dr. Sarah Johnson", specialty: "Radiologist", available: true },
+  { id: "DOC-002", name: "Dr. Michael Chen", specialty: "Neurologist", available: true },
+  { id: "DOC-003", name: "Dr. Ope Adeyemi", specialty: "Radiologist", available: false },
+  { id: "DOC-004", name: "Dr. David Lee", specialty: "Orthopedist", available: true },
+  { id: "DOC-005", name: "Dr. Alice Wong", specialty: "Pediatrician", available: true },
+];
 
 export default function EditTask() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [date, setDate] = useState<Date>();
-  const [time, setTime] = useState("09:00");
-  const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState("");
-  const [isEmergency, setIsEmergency] = useState(false);
-  const [isComparison, setIsComparison] = useState(false);
-  const [isWalkIn, setIsWalkIn] = useState(false);
-  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTime, setSelectedTime] = useState("09:00");
 
-  const doctors = [
-    { id: "1", name: "Dr. Sarah Johnson", specialty: "Radiologist" },
-    { id: "2", name: "Dr. Michael Chen", specialty: "Radiologist" },
-    { id: "3", name: "Dr. Ope Adeyemi", specialty: "Neurologist" },
-    { id: "4", name: "Dr. David Lee", specialty: "Orthopedist" },
-  ];
+  const [formData, setFormData] = useState({
+    // Patient Selection
+    patientId: "",
 
-  const services = [
-    "MRI",
-    "CT Scan",
-    "X-Ray",
-    "Ultrasound",
-    "Mammography",
-    "Angiography",
-    "Nuclear Medicine",
-    "Fluoroscopy"
-  ];
-
-  const subServices = [
-    "MRI Brain",
-    "MRI Spine",
-    "CT Chest",
-    "CT Abdomen",
-    "X-Ray Chest",
-    "X-Ray Wrist",
-    "Ultrasound Pelvis",
-    "Ultrasound Abdomen"
-  ];
-
-  const priorities = [
-    { value: "low", label: "Low", color: "bg-green-100 text-green-800" },
-    { value: "medium", label: "Medium", color: "bg-yellow-100 text-yellow-800" },
-    { value: "high", label: "High", color: "bg-red-100 text-red-800" },
-  ];
-
-  const patientTypes = [
-    { value: "regular", label: "Regular", color: "bg-blue-100 text-blue-800" },
-    { value: "private", label: "Private", color: "bg-purple-100 text-purple-800" },
-    { value: "hmo", label: "HMO", color: "bg-green-100 text-green-800" },
-  ];
-
-  const statuses = [
-    { value: "pending", label: "Pending", color: "bg-yellow-100 text-yellow-800" },
-    { value: "draft", label: "Draft", color: "bg-blue-100 text-blue-800" },
-    { value: "completed", label: "Completed", color: "bg-green-100 text-green-800" },
-    { value: "assigned", label: "Assigned", color: "bg-purple-100 text-purple-800" },
-  ];
+    // Task Details
+    service: "",
+    subService: "",
+    priority: "medium",
+    referringHospital: "",
+    referringDoctor: "",
+    assignedDoctor: "",
+    date: "",
+    time: "09:00",
+    clinicalNotes: "",
+    isEmergency: false,
+    isComparison: false,
+  });
 
   useEffect(() => {
-    // Simulate loading task data
-    setTimeout(() => {
-      setDate(mockTask.date);
-      setTime(mockTask.time);
-      setTags(mockTask.tags);
-      setIsEmergency(mockTask.isEmergency);
-      setIsComparison(mockTask.isComparison);
-      setIsWalkIn(mockTask.isWalkIn);
-      setSelectedDoctor(mockTask.assignedDoctor);
-      setIsLoading(false);
-    }, 500);
-  }, []);
+    // Simulate fetching task data
+    const fetchTask = () => {
+      setIsLoading(true);
+      // In a real app, you'd fetch by ID. Here we just pre-fill with some data
+      setTimeout(() => {
+        // Mocking a task that was found
+        const foundTask = {
+          patientId: "CP120456A",
+          service: "MRI",
+          subService: "Brain (Contrast)",
+          priority: "high",
+          referringHospital: "City General Hospital",
+          referringDoctor: "Dr. Sarah Johnson",
+          assignedDoctor: "DOC-001",
+          date: "2025-01-25",
+          time: "10:30",
+          clinicalNotes: "Rule out metastases, known lung cancer.",
+          isEmergency: true,
+          isComparison: false,
+        };
 
-  const addTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag("");
+        setFormData({
+          patientId: foundTask.patientId,
+          service: foundTask.service,
+          subService: foundTask.subService,
+          priority: foundTask.priority,
+          referringHospital: foundTask.referringHospital,
+          referringDoctor: foundTask.referringDoctor,
+          assignedDoctor: foundTask.assignedDoctor,
+          date: foundTask.date,
+          time: foundTask.time,
+          clinicalNotes: foundTask.clinicalNotes,
+          isEmergency: foundTask.isEmergency,
+          isComparison: foundTask.isComparison,
+        });
+
+        setSelectedDate(new Date(foundTask.date));
+        setSelectedTime(foundTask.time);
+        setIsLoading(false);
+      }, 800);
+    };
+
+    fetchTask();
+  }, [id]);
+
+  const isFormValid = useMemo(() => {
+    return formData.patientId !== "" &&
+      formData.service !== "" &&
+      formData.subService !== "" &&
+      selectedDate;
+  }, [formData.patientId, formData.service, formData.subService, selectedDate]);
+
+
+  // Get selected patient details
+  const selectedPatient = useMemo(() => {
+    return MOCK_PATIENTS.find(p => p.id === formData.patientId);
+  }, [formData.patientId]);
+
+  // Get selected doctor details
+  const selectedDoctor = useMemo(() => {
+    return MOCK_DOCTORS.find(d => d.id === formData.assignedDoctor);
+  }, [formData.assignedDoctor]);
+
+  // Get sub-services for selected service
+  const availableSubServices = useMemo(() => {
+    const service = MOCK_SERVICES.find(s => s.id === formData.service);
+    return service ? service.subServices : [];
+  }, [formData.service]);
+
+  // Auto-set comparison if patient has visited before
+  const shouldAutoSetComparison = useMemo(() => {
+    return selectedPatient && selectedPatient.totalVisits > 1;
+  }, [selectedPatient]);
+
+  const handleChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+      // Auto-populate referring info when patient is selected
+      ...(field === "patientId" && selectedPatient ? {
+        isComparison: selectedPatient.totalVisits > 1,
+        referringHospital: selectedPatient.referringHospital || "",
+        referringDoctor: selectedPatient.referringDoctor || ""
+      } : {})
+    }));
+
+    // Reset sub-service when service changes
+    if (field === "service" && value !== formData.service) {
+      setFormData(prev => ({ ...prev, subService: "" }));
     }
   };
 
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
+  const handleSubmit = () => {
+    if (!isFormValid) return;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically make an API call
-    console.log("Updating task...");
-    navigate("/task-manager");
+    setIsSubmitting(true);
+    // Combine all form data
+    const finalData = {
+      ...formData,
+      id,
+      date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : "",
+      time: selectedTime,
+      patientName: selectedPatient?.name,
+      patientType: selectedPatient?.patientType,
+    };
+
+    console.log("Updating task:", finalData);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      navigate("/task-manager");
+    }, 1500);
   };
 
   const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this task? This action cannot be undone.")) {
-      // Delete logic here
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      console.log("Deleting task:", id);
       navigate("/task-manager");
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading task data...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <p className="text-muted-foreground animate-pulse">Loading task details...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-slate-800">Edit Task</h1>
-              <Badge variant="outline" className="font-mono text-primary border-primary">
-                {mockTask.id}
-              </Badge>
+    <div className="max-w-3xl mx-auto p-6 space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-light">Edit Task</h1>
+          <p className="text-muted-foreground">Update task details for {selectedPatient?.name || "Patient"}</p>
+        </div>
+        <Badge variant="outline" className="font-mono px-3 py-1">
+          {id}
+        </Badge>
+      </div>
+
+      {/* Vertical Timeline Layout */}
+      <div className="relative space-y-0">
+        {/* Timeline Line */}
+        <div className="absolute left-4 top-0 bottom-0 w-[2px] bg-border" />
+
+        {/* Step 1: Patient Selection */}
+        <div className="relative ml-4 pl-10 pb-8">
+          {/* Step Indicator */}
+          <div className="absolute left-0 top-0 h-8 w-8 rounded-full border-2 border-white bg-background flex items-center justify-center font-medium -translate-x-1/2">
+            <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+              <Check className="h-4 w-4" />
             </div>
-            <p className="text-slate-600 mt-1">Update task details and assignment</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => navigate(`/task-manager`)}
-            >
-              <Copy className="h-4 w-4" />
-              Duplicate
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10"
-              onClick={() => navigate("/task-manager")}
-            >
-              <X className="h-5 w-5" />
-            </Button>
+
+          {/* Content */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Patient Selection</h3>
+            </div>
+
+            <PatientCollection
+              patients={MOCK_PATIENTS}
+              selectedPatientId={formData.patientId}
+              onPatientSelect={(patientId) => handleChange("patientId", patientId)}
+              label="Selected Patient"
+              required
+            />
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Patient & Task Details */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Task Status & Info Card */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <History className="h-5 w-5 text-primary" />
-                      Task Information
-                    </CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Label className="text-sm text-slate-600">Status:</Label>
-                      <Select defaultValue={mockTask.status}>
-                        <SelectTrigger className="w-[140px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statuses.map((status) => (
-                            <SelectItem key={status.value} value={status.value}>
-                              <div className="flex items-center gap-2">
-                                <div className={cn("h-2 w-2 rounded-full", status.value === 'pending' ? 'bg-yellow-500' : status.value === 'draft' ? 'bg-blue-500' : status.value === 'completed' ? 'bg-green-500' : 'bg-purple-500')} />
-                                {status.label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-slate-500">Created By</p>
-                      <p className="font-medium">{mockTask.createdBy}</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500">Created On</p>
-                      <p className="font-medium">{format(mockTask.createdAt, "MMM dd, yyyy HH:mm")}</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500">Last Modified</p>
-                      <p className="font-medium">{format(mockTask.lastModified, "MMM dd, yyyy HH:mm")}</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500">Modified By</p>
-                      <p className="font-medium">{mockTask.modifiedBy}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Step 2: Task Details */}
+        <div className="relative ml-4 pl-10">
+          {/* Step Indicator */}
+          <div className="absolute left-0 top-0 h-8 w-8 rounded-full border-2 border-white bg-background flex items-center justify-center font-medium -translate-x-1/2">
+            <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+              2
+            </div>
+          </div>
 
-              {/* Patient Information Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <User className="h-5 w-5 text-primary" />
-                    Patient Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="patientName">Full Name *</Label>
-                      <Input
-                        id="patientName"
-                        defaultValue={mockTask.patientName}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="patientId">Patient ID</Label>
-                      <Input
-                        id="patientId"
-                        defaultValue={mockTask.patientId}
-                      />
-                    </div>
-                  </div>
+          {/* Content */}
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">Task Details</h3>
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <Input
-                          id="phone"
-                          defaultValue={mockTask.phone}
-                          className="pl-10"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <Input
-                          id="email"
-                          type="email"
-                          defaultValue={mockTask.email}
-                          className="pl-10"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Patient Type *</Label>
-                    <RadioGroup defaultValue={mockTask.patientType} className="flex gap-4">
-                      {patientTypes.map((type) => (
-                        <div key={type.value} className="flex items-center space-x-2">
-                          <RadioGroupItem value={type.value} id={`edit-${type.value}`} />
-                          <Label
-                            htmlFor={`edit-${type.value}`}
-                            className={cn(
-                              "px-3 py-1.5 rounded-md text-sm font-medium cursor-pointer",
-                              type.color
-                            )}
-                          >
-                            {type.label}
-                          </Label>
-                        </div>
+              {/* Service Selection */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <Label required>Service Type</Label>
+                  <Select value={formData.service} onValueChange={(v) => handleChange("service", v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MOCK_SERVICES.map((service) => (
+                        <SelectItem key={service.id} value={service.id}>
+                          <div className="flex items-center gap-2">
+                            <Scan className="h-4 w-4 text-muted-foreground" />
+                            {service.name}
+                          </div>
+                        </SelectItem>
                       ))}
-                    </RadioGroup>
-                  </div>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="insurance">Insurance/HMO Provider</Label>
-                    <Input
-                      id="insurance"
-                      defaultValue={mockTask.insurance}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="space-y-1">
+                  <Label required>Sub-Service</Label>
+                  <Select
+                    value={formData.subService}
+                    onValueChange={(v) => handleChange("subService", v)}
+                    disabled={!formData.service}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={formData.service ? "Select sub-service" : "Select service first"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableSubServices.map((sub) => (
+                        <SelectItem key={sub} value={sub}>
+                          {sub}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-              {/* Task Details Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Scan className="h-5 w-5 text-primary" />
-                    Task Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="service">Service Type *</Label>
-                      <Select defaultValue={mockTask.service}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {services.map((service) => (
-                            <SelectItem key={service} value={service}>
-                              {service}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="subService">Sub-Service *</Label>
-                      <Select defaultValue={mockTask.subService}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {subServices.map((sub) => (
-                            <SelectItem key={sub} value={sub}>
-                              {sub}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label>Date & Time *</Label>
-                      <div className="flex gap-2">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "flex-1 justify-start text-left font-normal",
-                                !date && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {date ? format(date, "MMM dd, yyyy") : "Select date"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
-                            <Calendar
-                              mode="single"
-                              selected={date}
-                              onSelect={setDate}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <div className="relative flex-1">
-                          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                          <Input
-                            type="time"
-                            value={time}
-                            onChange={(e) => setTime(e.target.value)}
-                            className="pl-10"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Priority *</Label>
-                      <Select defaultValue={mockTask.priority}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {priorities.map((priority) => (
-                            <SelectItem key={priority.value} value={priority.value}>
-                              <div className="flex items-center gap-2">
-                                <div className={cn("h-2 w-2 rounded-full", priority.value === 'high' ? 'bg-red-500' : priority.value === 'medium' ? 'bg-yellow-500' : 'bg-green-500')} />
-                                {priority.label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="referringDoctor">Referring Doctor</Label>
-                    <div className="relative">
-                      <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              {/* Date & Time */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <Label required>Date & Time</Label>
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "flex-1 justify-start text-left font-normal",
+                            !selectedDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "MMM dd, yyyy") : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <div className="relative flex-1">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                        id="referringDoctor"
-                        defaultValue={mockTask.referringDoctor}
+                        type="time"
+                        value={selectedTime}
+                        onChange={(e) => setSelectedTime(e.target.value)}
                         className="pl-10"
                       />
                     </div>
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="clinicalNotes">Clinical Notes/History</Label>
-                    <Textarea
-                      id="clinicalNotes"
-                      defaultValue={mockTask.clinicalNotes}
-                      rows={4}
-                    />
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-base">Flags & Tags</Label>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-red-500" />
-                          <Label htmlFor="emergency" className="cursor-pointer">
-                            Emergency Case
-                          </Label>
-                        </div>
-                        <Switch
-                          id="emergency"
-                          checked={isEmergency}
-                          onCheckedChange={setIsEmergency}
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-blue-500" />
-                          <Label htmlFor="comparison" className="cursor-pointer">
-                            Requires Comparison
-                          </Label>
-                        </div>
-                        <Switch
-                          id="comparison"
-                          checked={isComparison}
-                          onCheckedChange={setIsComparison}
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <UserPlus className="h-4 w-4 text-purple-500" />
-                          <Label htmlFor="walkin" className="cursor-pointer">
-                            Walk-in Patient
-                          </Label>
-                        </div>
-                        <Switch
-                          id="walkin"
-                          checked={isWalkIn}
-                          onCheckedChange={setIsWalkIn}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Tags</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Add tags (neuro, urgent, follow-up...)"
-                          value={newTag}
-                          onChange={(e) => setNewTag(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                        />
-                        <Button type="button" onClick={addTag}>
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {tags.map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="px-3 py-1 flex items-center gap-1"
-                          >
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => removeTag(tag)}
-                              className="ml-1 hover:text-red-500"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Column - Assignment & Actions */}
-            <div className="space-y-6">
-              {/* Assignment Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <User className="h-5 w-5 text-primary" />
-                    Assign Radiologist
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Select Radiologist</Label>
-                    <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Search or select radiologist">
-                          {selectedDoctor ? (
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-6 w-6">
-                                <AvatarFallback>
-                                  {doctors.find(d => d.id === selectedDoctor)?.name.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>{doctors.find(d => d.id === selectedDoctor)?.name}</span>
-                            </div>
-                          ) : (
-                            "Search or select radiologist"
-                          )}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <div className="p-2 border-b">
-                          <div className="relative">
-                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                            <Input
-                              placeholder="Search doctors..."
-                              className="pl-8"
-                            />
-                          </div>
-                        </div>
-                        <div className="max-h-60 overflow-y-auto">
-                          {doctors.map((doctor) => (
-                            <SelectItem key={doctor.id} value={doctor.id}>
-                              <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarFallback className="bg-primary/10 text-primary">
-                                    {doctor.name.charAt(0)}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                  <div className="font-medium">{doctor.name}</div>
-                                  <div className="text-xs text-slate-500">{doctor.specialty}</div>
-                                </div>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </div>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {selectedDoctor && (
-                    <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                            {doctors.find(d => d.id === selectedDoctor)?.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-semibold">
-                            {doctors.find(d => d.id === selectedDoctor)?.name}
-                          </div>
-                          <div className="text-sm text-slate-600">
-                            {doctors.find(d => d.id === selectedDoctor)?.specialty}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <Button type="submit" className="w-full h-12 text-base font-semibold">
-                  <Save className="mr-2 h-5 w-5" />
-                  Save Changes
-                </Button>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-11"
-                    onClick={() => navigate("/task-manager")}
+                <div className="space-y-1">
+                  <Label required>Priority</Label>
+                  <Select
+                    value={formData.priority}
+                    onValueChange={(v) => handleChange("priority", v)}
                   >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-11 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                    onClick={handleDelete}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </Button>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PRIORITIES.map((priority) => (
+                        <SelectItem key={priority.value} value={priority.value}>
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "h-2 w-2 rounded-full",
+                              priority.value === 'high' ? 'bg-red-500' :
+                                priority.value === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                            )} />
+                            {priority.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              {/* Activity Log */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {[
-                    { action: "Task created", user: "Admin User", time: "2 hours ago" },
-                    { action: "Assigned to Dr. Sarah Johnson", user: "Admin User", time: "1 hour ago" },
-                    { action: "Priority changed to High", user: "System", time: "45 minutes ago" },
-                  ].map((activity, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div className="h-2 w-2 rounded-full bg-primary mt-2"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{activity.action}</p>
-                        <p className="text-xs text-slate-500">
-                          by {activity.user} • {activity.time}
-                        </p>
-                      </div>
+              {/* Referring Doctor */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <Label>Referring Hospital</Label>
+                  <div className="relative">
+                    <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      value={selectedPatient?.referringHospital || formData.referringHospital}
+                      onChange={(e) => handleChange("referringHospital", e.target.value)}
+                      className="pl-10 bg-muted/50"
+                      disabled={!!selectedPatient?.referringHospital}
+                      readOnly={!!selectedPatient?.referringHospital}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label>Referring Doctor</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      value={selectedPatient?.referringDoctor || formData.referringDoctor}
+                      onChange={(e) => handleChange("referringDoctor", e.target.value)}
+                      className="pl-10 bg-muted/50"
+                      disabled={!!selectedPatient?.referringDoctor}
+                      readOnly={!!selectedPatient?.referringDoctor}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Assign Doctor */}
+              <div className="space-y-1">
+                <Label>Assign to Doctor</Label>
+                <Select
+                  value={formData.assignedDoctor}
+                  onValueChange={(v) => handleChange("assignedDoctor", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select doctor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MOCK_DOCTORS.map((doctor) => (
+                      <SelectItem key={doctor.id} value={doctor.id}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "h-2 w-2 rounded-full",
+                              doctor.available ? 'bg-green-500' : 'bg-red-500'
+                            )} />
+                            <div>
+                              <div className="font-medium">{doctor.name}</div>
+                            </div>
+                          </div>
+                          {!doctor.available && (
+                            <Badge variant="outline" className="text-xs">
+                              Busy
+                            </Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedDoctor && (
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    Selected: <span className="font-medium">{selectedDoctor.name}</span> ({selectedDoctor.specialty})
+                  </div>
+                )}
+              </div>
+
+              {/* Clinical Notes */}
+              <div className="space-y-1">
+                <Label>Clinical Notes</Label>
+                <Textarea
+                  placeholder="Enter relevant clinical information, history, or specific instructions..."
+                  value={formData.clinicalNotes}
+                  onChange={(e) => handleChange("clinicalNotes", e.target.value)}
+                  rows={3}
+                />
+              </div>
+
+              {/* Flags */}
+              <div className="space-y-1">
+                <Label>Flags</Label>
+                <div className="grid md:grid-cols-2 gap-4 pb-3">
+                  <div className="flex items-center justify-between p-3 rounded-lg border">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                      <Label htmlFor="emergency" className="cursor-pointer">
+                        Emergency Case
+                      </Label>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
+                    <Switch
+                      id="emergency"
+                      checked={formData.isEmergency}
+                      onCheckedChange={(checked) => handleChange("isEmergency", checked)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-lg border">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-blue-500" />
+                      <Label htmlFor="comparison" className="cursor-pointer">
+                        Comparison
+                      </Label>
+                    </div>
+                    <Switch
+                      id="comparison"
+                      checked={formData.isComparison || shouldAutoSetComparison}
+                      onCheckedChange={(checked) => handleChange("isComparison", checked)}
+                      disabled={shouldAutoSetComparison}
+                    />
+                  </div>
+                </div>
+
+                {shouldAutoSetComparison && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm text-primary">
+                        Comparison study auto-selected for returning patient
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </form>
+        </div>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="pt-6 border-t">
+        <div className="flex items-center justify-between">
+          <Button variant="outline" onClick={() => navigate("/task-manager")}>
+            Cancel
+          </Button>
+
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              className="text-red-500 hover:text-red-600 hover:bg-red-50 gap-2"
+              onClick={handleDelete}
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Task
+            </Button>
+            <Button
+              className="gap-2 min-w-[140px]"
+              onClick={handleSubmit}
+              disabled={isSubmitting || !isFormValid}
+            >
+              {isSubmitting ? (
+                <>Updating Task...</>
+              ) : (
+                <>Update Task <Save className="h-4 w-4" /></>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

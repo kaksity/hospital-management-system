@@ -47,10 +47,18 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import ViewTaskModal from "@/components/Modals/ViewTaskModal";
 
 type PatientType = "regular" | "private" | "hmo";
 type TaskStatus = "pending" | "draft" | "completed" | "assigned" | "unassigned";
@@ -243,6 +251,9 @@ export default function TaskManager() {
 
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
   const [selectedTaskForAssignment, setSelectedTaskForAssignment] = useState<Task | null>(null);
+
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedTaskForView, setSelectedTaskForView] = useState<Task | null>(null);
 
   const toggleCard = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -845,11 +856,10 @@ export default function TaskManager() {
                         <Card
                           key={task.id}
                           className={cn(
-                            "transition-all duration-200 cursor-pointer border-l-4",
+                            "transition-all duration-200 border-l-4",
                             isCollapsed ? "py-1" : "py-0"
                           )}
                           style={{ borderLeftColor: getStatusBorderColor(task) }}
-                          onClick={() => setCollapsedCards(prev => ({ ...prev, [task.id]: !prev[task.id] }))}
                         >
                           <CardContent className={cn("p-4", isCollapsed && "py-3")}>
                             <div className="flex justify-between items-start">
@@ -897,7 +907,10 @@ export default function TaskManager() {
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-[220px]">
                                     <DropdownMenuItem
-                                      onClick={() => navigate(`/task-manager/${task.id}`)}
+                                      onClick={() => {
+                                        setSelectedTaskForView(task);
+                                        setViewModalOpen(true);
+                                      }}
                                     >
                                       <Eye className="h-4 w-4 text-muted-foreground" />
                                       View Task
@@ -918,7 +931,7 @@ export default function TaskManager() {
                                         setSelectedTaskForAssignment(task);
                                         setAssignmentModalOpen(true);
                                       }}>
-                                        <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <User className="h-4 w-4 text-muted-foreground" />
                                         Reassign Task
                                       </DropdownMenuItem>
                                     ) : (
@@ -1116,7 +1129,17 @@ export default function TaskManager() {
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-[200px]">
-                                    <DropdownMenuItem><Edit className="h-4 w-4 mr-2" /> Edit Task</DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setSelectedTaskForView(task);
+                                        setViewModalOpen(true);
+                                      }}
+                                    >
+                                      <Eye className="h-4 w-4 mr-2" /> View Task
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => navigate(`/task-manager/edit/${task.id}`)}>
+                                      <Edit className="h-4 w-4 mr-2" /> Edit Task
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem><FileText className="h-4 w-4 mr-2" /> Write Report</DropdownMenuItem>
                                     {task.assignedDoctor ? (
                                       <>
@@ -1170,132 +1193,147 @@ export default function TaskManager() {
       </div>
 
       {/* Assignment Modal */}
-      {assignmentModalOpen && selectedTaskForAssignment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800">
-                    {selectedTaskForAssignment.assignedDoctor ? 'Reassign' : 'Assign'} Task
-                  </h3>
-                  <p className="text-sm text-slate-600 mt-1">
-                    Task: {selectedTaskForAssignment.id}
-                  </p>
+      <Dialog
+        open={assignmentModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAssignmentModalOpen(false);
+            setSelectedTaskForAssignment(null);
+            setDoctorSearch("");
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedTaskForAssignment?.assignedDoctor ? 'Reassign' : 'Assign'} Task
+            </DialogTitle>
+            <DialogDescription asChild>
+              <div className="mt-1">
+                <code className="text-xs font-mono font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                  {selectedTaskForAssignment?.id}
+                </code>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedTaskForAssignment && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-slate-700 mb-2">
+                  Select a doctor to {selectedTaskForAssignment.assignedDoctor ? 'reassign' : 'assign'} this task:
+                </p>
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    placeholder="Search doctors"
+                    className="pl-10"
+                    value={doctorSearch}
+                    onChange={(e) => setDoctorSearch(e.target.value)}
+                  />
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setAssignmentModalOpen(false);
-                    setSelectedTaskForAssignment(null);
-                    setDoctorSearch("");
-                  }}
-                >
-                  <X className="h-5 w-5" />
-                </Button>
+
+                <div className="space-y-2 max-h-70 overflow-y-auto custom-scrollbar pr-1">
+                  {filteredDoctors.map((doctor) => (
+                    <div
+                      key={doctor.id}
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all hover:bg-slate-50",
+                        selectedTaskForAssignment.assignedDoctor === doctor.name && "bg-blue-50 border-[#006bff]"
+                      )}
+                      onClick={() => {
+                        if (selectedTaskForAssignment.assignedDoctor) {
+                          handleReassignTask(selectedTaskForAssignment, doctor.id);
+                        } else {
+                          handleAssignTask(selectedTaskForAssignment.id, doctor.id);
+                        }
+                      }}
+                    >
+                      <div className="h-6 w-6 bg-primary/10 text-xs text-primary font-semibold rounded-full flex items-center justify-center">
+                        <Stethoscope className="h-3 w-3" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm text-slate-800">{doctor.name}</div>
+                      </div>
+                      {selectedTaskForAssignment.assignedDoctor === doctor.name && (
+                        <Badge className="bg-[#EBFFF6] text-[#008037] text-[11px] border-[#58BF85]">
+                          Currently Assigned
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+
+                  {filteredDoctors.length === 0 && (
+                    <div className="text-center py-6 text-slate-500">
+                      <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>No doctors found matching "{doctorSearch}"</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-slate-700 mb-2">
-                    Select a doctor to {selectedTaskForAssignment.assignedDoctor ? 'reassign' : 'assign'} this task:
-                  </p>
-                  <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input
-                      placeholder="Search doctors by name or specialty..."
-                      className="pl-10"
-                      value={doctorSearch}
-                      onChange={(e) => setDoctorSearch(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {filteredDoctors.map((doctor) => (
-                      <div
-                        key={doctor.id}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all hover:bg-slate-50",
-                          selectedTaskForAssignment.assignedDoctor === doctor.name && "bg-blue-50 border-blue-200"
-                        )}
-                        onClick={() => {
-                          if (selectedTaskForAssignment.assignedDoctor) {
-                            handleReassignTask(selectedTaskForAssignment, doctor.id);
-                          } else {
-                            handleAssignTask(selectedTaskForAssignment.id, doctor.id);
-                          }
-                        }}
-                      >
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                            {doctor.avatar}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="font-semibold text-slate-800">{doctor.name}</div>
-                          <div className="text-sm text-slate-600">{doctor.specialty}</div>
-                        </div>
-                        {selectedTaskForAssignment.assignedDoctor === doctor.name && (
-                          <Badge className="bg-green-100 text-green-700 border-green-200">
-                            Currently Assigned
-                          </Badge>
-                        )}
-                      </div>
-                    ))}
-
-                    {filteredDoctors.length === 0 && (
-                      <div className="text-center py-6 text-slate-500">
-                        <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>No doctors found matching "{doctorSearch}"</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {selectedTaskForAssignment.assignedDoctor && (
-                  <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-amber-800">
-                          Reassignment Note
-                        </p>
-                        <p className="text-sm text-amber-700 mt-1">
-                          Currently assigned to {selectedTaskForAssignment.assignedDoctor}.
-                          Reassigning will notify both the current and new doctor.
-                        </p>
-                      </div>
+              {selectedTaskForAssignment.assignedDoctor && (
+                <div className="mt-4 p-4 py-3 bg-amber-50 rounded-lg border border-amber-200">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-5 w-5 min-w-5 text-amber-600 mt-0.5" />
+                    <div>
+                      <p className="text-[13px] text-amber-700">
+                        This task is currently assigned to {selectedTaskForAssignment.assignedDoctor}.
+                        Reassigning will notify both the current and new doctor.
+                      </p>
                     </div>
                   </div>
-                )}
-              </div>
-
-              <div className="mt-6 flex justify-end gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setAssignmentModalOpen(false);
-                    setSelectedTaskForAssignment(null);
-                    setDoctorSearch("");
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    // You can add a default assignment here or just close
-                    setAssignmentModalOpen(false);
-                    setSelectedTaskForAssignment(null);
-                    setDoctorSearch("");
-                  }}
-                >
-                  {selectedTaskForAssignment.assignedDoctor ? 'Reassign' : 'Assign'}
-                </Button>
-              </div>
+                </div>
+              )}
             </div>
+          )}
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAssignmentModalOpen(false);
+                setSelectedTaskForAssignment(null);
+                setDoctorSearch("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedTaskForAssignment) {
+                  setAssignmentModalOpen(false);
+                  setSelectedTaskForAssignment(null);
+                  setDoctorSearch("");
+                }
+              }}
+              disabled={!selectedTaskForAssignment}
+            >
+              {selectedTaskForAssignment?.assignedDoctor ? 'Reassign' : 'Assign'}
+            </Button>
           </div>
-        </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Task Modal */}
+      {selectedTaskForView && (
+        <ViewTaskModal
+          isOpen={viewModalOpen}
+          onClose={() => {
+            setViewModalOpen(false);
+            setSelectedTaskForView(null);
+          }}
+          task={selectedTaskForView}
+          onEdit={() => {
+            navigate(`/task-manager/edit/${selectedTaskForView.id}`);
+            setViewModalOpen(false);
+          }}
+          onDelete={() => {
+            // Add delete logic if needed
+            console.log("Delete task", selectedTaskForView.id);
+            setViewModalOpen(false);
+          }}
+        />
       )}
     </div>
   );
