@@ -4,19 +4,13 @@ import { useState, useMemo } from "react";
 import {
   Plus,
   Search,
-  Filter,
   MoreHorizontal,
-  ClipboardCheck,
-  Clock,
   CheckCircle2,
   AlertCircle,
   Stethoscope,
   Scan,
   User,
-  Grid,
   List,
-  AlertTriangle,
-  FileIcon,
   Edit,
   FileText,
   ChevronRight,
@@ -24,11 +18,13 @@ import {
   ListFilter,
   UserMinus,
   UserPlus,
-  Calendar,
   X,
   UserCheck,
   UserX,
-  Users
+  Users,
+  LayoutGrid,
+  Calendar as CalendarIcon,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +46,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type PatientType = "regular" | "private" | "hmo";
 type TaskStatus = "pending" | "draft" | "completed" | "assigned" | "unassigned";
@@ -92,7 +93,7 @@ const tasks: Task[] = [
     status: "pending",
     priority: "high",
     time: "10:30 AM",
-    date: "2024-11-20",
+    date: "20 Jan 2026",
     service: "MRI",
     subService: "Brain with Contrast",
     isEmergency: true,
@@ -100,8 +101,8 @@ const tasks: Task[] = [
     tags: ["neuro", "urgent"],
     assignmentStatus: "assigned",
     assignedTo: "Dr. Sarah Johnson",
-    createdDate: "2024-11-19",
-    dueDate: "2024-11-20",
+    createdDate: "19 Jan 2026",
+    dueDate: "20 Jan 2026",
     referralNotes: "Rule out metastases, known lung cancer",
     isWalkIn: false,
     paymentStatus: "insurance"
@@ -116,15 +117,15 @@ const tasks: Task[] = [
     status: "draft",
     priority: "medium",
     time: "11:15 AM",
-    date: "2024-11-20",
+    date: "20 Jan 2026",
     service: "CT Scan",
     subService: "Chest CT",
     isEmergency: false,
     isComparison: true,
     tags: ["pulmonary", "follow-up"],
     assignmentStatus: "unassigned",
-    createdDate: "2024-11-19",
-    dueDate: "2024-11-20",
+    createdDate: "19 Jan 2026",
+    dueDate: "20 Jan 2026",
     isWalkIn: true,
     paymentStatus: "paid"
   },
@@ -138,7 +139,7 @@ const tasks: Task[] = [
     status: "completed",
     priority: "low",
     time: "09:00 AM",
-    date: "2024-11-19",
+    date: "20 Jan 2026",
     service: "CT Scan",
     subService: "Abdomen & Pelvis",
     isEmergency: false,
@@ -146,8 +147,8 @@ const tasks: Task[] = [
     tags: ["abdominal", "routine"],
     assignmentStatus: "assigned",
     assignedTo: "Dr. Sarah Johnson",
-    createdDate: "2024-11-19",
-    dueDate: "2024-11-20",
+    createdDate: "20 Jan 2026",
+    dueDate: "20 Jan 2026",
     referralNotes: "",
     isWalkIn: false,
     paymentStatus: "insurance"
@@ -162,7 +163,7 @@ const tasks: Task[] = [
     status: "pending",
     priority: "high",
     time: "02:45 PM",
-    date: "2024-11-20",
+    date: "20 Jan 2026",
     service: "Ultrasound",
     subService: "Pelvic",
     isEmergency: true,
@@ -170,8 +171,8 @@ const tasks: Task[] = [
     tags: ["gynae", "urgent"],
     assignmentStatus: "assigned",
     assignedTo: "Dr. Sarah Johnson",
-    createdDate: "2024-11-19",
-    dueDate: "2024-11-20",
+    createdDate: "19 Jan 2026",
+    dueDate: "20 Jan 2026",
     referralNotes: "",
     isWalkIn: false,
     paymentStatus: "insurance"
@@ -186,7 +187,7 @@ const tasks: Task[] = [
     status: "pending",
     priority: "medium",
     time: "03:30 PM",
-    date: "2024-11-20",
+    date: "20 Jan 2026",
     service: "X-Ray",
     subService: "Wrist",
     isEmergency: false,
@@ -194,8 +195,8 @@ const tasks: Task[] = [
     tags: ["ortho", "trauma"],
     assignmentStatus: "assigned",
     assignedTo: "Dr. Sarah Johnson",
-    createdDate: "2024-11-19",
-    dueDate: "2024-11-20",
+    createdDate: "19 Jan 2026",
+    dueDate: "20 Jan 2026",
     referralNotes: "",
     isWalkIn: false,
     paymentStatus: "insurance"
@@ -210,7 +211,7 @@ const tasks: Task[] = [
     status: "draft",
     priority: "medium",
     time: "01:15 PM",
-    date: "2024-11-20",
+    date: "20 Jan 2026",
     service: "MRI",
     subService: "Lumbar Spine",
     isEmergency: false,
@@ -218,8 +219,8 @@ const tasks: Task[] = [
     tags: ["spinal", "routine"],
     assignmentStatus: "assigned",
     assignedTo: "Dr. Sarah Johnson",
-    createdDate: "2024-11-19",
-    dueDate: "2024-11-20",
+    createdDate: "19 Jan 2026",
+    dueDate: "20 Jan 2026",
     referralNotes: "",
     isWalkIn: false,
     paymentStatus: "insurance"
@@ -229,6 +230,7 @@ const tasks: Task[] = [
 const services = ["All Services", "CT Scan", "MRI", "X-Ray", "Ultrasound"];
 
 export default function TaskManager() {
+  const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
@@ -238,6 +240,9 @@ export default function TaskManager() {
   const [assignmentFilter, setAssignmentFilter] = useState("all");
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [activeFilterTab, setActiveFilterTab] = useState<"status" | "service" | "assignment" | "date">("status");
+
+  const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
+  const [selectedTaskForAssignment, setSelectedTaskForAssignment] = useState<Task | null>(null);
 
   const toggleCard = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -294,11 +299,11 @@ export default function TaskManager() {
 
   const getStatusBadge = (status: TaskStatus) => {
     const variants = {
-      pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      draft: "bg-blue-100 text-blue-800 border-blue-200",
-      completed: "bg-green-100 text-green-800 border-green-200",
-      assigned: "bg-purple-100 text-purple-800 border-purple-200",
-      unassigned: "bg-gray-100 text-gray-800 border-gray-200",
+      pending: "bg-yellow-100 text-yellow-800",
+      draft: "bg-blue-100 text-blue-800",
+      completed: "bg-green-100 text-green-800",
+      assigned: "bg-purple-100 text-purple-800",
+      unassigned: "bg-gray-100 text-gray-800",
     };
     return variants[status] || "bg-gray-100 text-gray-800";
   };
@@ -313,26 +318,26 @@ export default function TaskManager() {
 
   const getAssignmentBadge = (status: AssignmentStatus) => {
     const variants = {
-      assigned: "bg-green-100 text-green-800 border-green-200",
-      unassigned: "bg-gray-100 text-gray-800 border-gray-200",
+      assigned: "bg-green-100 text-green-800",
+      unassigned: "bg-gray-100 text-gray-800",
     };
     return variants[status] || "bg-gray-100 text-gray-800";
   };
 
   const getPriorityBadge = (priority: Priority) => {
     const variants = {
-      high: "border-red-200 text-red-700 bg-red-50",
-      medium: "border-yellow-200 text-yellow-700 bg-yellow-50",
-      low: "border-green-200 text-green-700 bg-green-50",
+      high: "text-red-800 bg-red-100",
+      medium: "text-yellow-800 bg-yellow-100",
+      low: "text-green-800 bg-green-100",
     };
     return variants[priority] || "bg-gray-100 text-gray-800";
   };
 
   const getPatientTypeBadge = (type: PatientType) => {
     const variants = {
-      regular: "bg-blue-100 text-blue-700 border-blue-200",
-      private: "bg-purple-100 text-purple-700 border-purple-200",
-      hmo: "bg-green-100 text-green-700 border-green-200",
+      regular: "bg-blue-100 text-blue-800",
+      private: "bg-purple-100 text-purple-800",
+      hmo: "bg-green-100 text-green-800",
     };
     return variants[type];
   };
@@ -365,6 +370,39 @@ export default function TaskManager() {
 
   const serviceGroups = groupTasksByService();
 
+  const [doctors] = useState([
+    { id: "1", name: "Dr. Sarah Johnson", specialty: "Radiologist", avatar: "SJ" },
+    { id: "2", name: "Dr. Michael Chen", specialty: "Radiologist", avatar: "MC" },
+    { id: "3", name: "Dr. Ope Adeyemi", specialty: "Neurologist", avatar: "OA" },
+    { id: "4", name: "Dr. David Lee", specialty: "Orthopedist", avatar: "DL" },
+    { id: "5", name: "Dr. Emily Brown", specialty: "Cardiologist", avatar: "EB" },
+  ]);
+  const [doctorSearch, setDoctorSearch] = useState("");
+
+  // Filter doctors based on search
+  const filteredDoctors = useMemo(() => {
+    return doctors.filter(doctor =>
+      doctor.name.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+      doctor.specialty.toLowerCase().includes(doctorSearch.toLowerCase())
+    );
+  }, [doctorSearch, doctors]);
+
+  // Function to handle assignment
+  const handleAssignTask = (taskId: string, doctorId: string) => {
+    console.log(`Assigning task ${taskId} to doctor ${doctorId}`);
+    // Here you would typically make an API call
+    setAssignmentModalOpen(false);
+    setSelectedTaskForAssignment(null);
+  };
+
+  // Function to handle reassignment
+  const handleReassignTask = (task: Task, doctorId: string) => {
+    console.log(`Reassigning task ${task.id} from ${task.assignedDoctor} to doctor ${doctorId}`);
+    // Here you would typically make an API call
+    setAssignmentModalOpen(false);
+    setSelectedTaskForAssignment(null);
+  };
+
   return (
     <div className="flex flex-col h-full overflow-x-hidden bg-[#fafafa]">
       {/* Header section fixed */}
@@ -374,7 +412,10 @@ export default function TaskManager() {
             <h1 className="text-xl font-semibold tracking-light">Tasks</h1>
             <p className="text-muted-foreground text-sm">Monitor and assign reporting tasks to radiologists</p>
           </div>
-          <Button className="gap-2 shadow-sm font-semibold">
+          <Button
+            className="gap-2 shadow-sm font-semibold"
+            onClick={() => navigate("/task-manager/create")}
+          >
             <Plus className="h-4 w-4" />
             <span>New Task</span>
           </Button>
@@ -506,7 +547,7 @@ export default function TaskManager() {
                               )} />
                               {s}
                             </div>
-                            {statusFilter === s && <CheckCircle2 className="h-3.5 w-3.5 ml-auto" />}
+                            {statusFilter === s && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-[#006bff]" />}
                           </Button>
                         ))}
                       </div>
@@ -559,7 +600,7 @@ export default function TaskManager() {
                   {activeFilterTab === "assignment" && (
                     <div className="space-y-3">
                       <p className="text-xs font-bold text-slate-700">Filter by Assignment</p>
-                      <div className="space-y-1">
+                      <div>
                         {["all", "assigned", "unassigned"].map((a) => (
                           <Button
                             key={a}
@@ -582,7 +623,7 @@ export default function TaskManager() {
                               )}
                               {a}
                             </div>
-                            {assignmentFilter === a && <CheckCircle2 className="h-3.5 w-3.5 ml-auto" />}
+                            {assignmentFilter === a && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-[#006bff]" />}
                           </Button>
                         ))}
                       </div>
@@ -591,33 +632,132 @@ export default function TaskManager() {
 
                   {activeFilterTab === "date" && (
                     <div className="space-y-3">
-                      <p className="text-xs font-bold text-slate-700">Filter by Date Range</p>
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-xs text-slate-600 mb-2 font-medium">From Date</p>
-                          <div className="flex items-center gap-2">
-                            <div className="relative flex-1">
-                              <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                              <Input
-                                type="date"
-                                className="h-9 text-sm pl-8"
-                                onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value ? new Date(e.target.value) : undefined }))}
-                              />
-                            </div>
+                      <p className="text-xs font-bold text-slate-700 mb-3">Filter by Date Range</p>
+
+                      <div className="flex items-center gap-0 border border-slate-200 rounded-md overflow-hidden bg-white h-9">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className={cn(
+                                "h-full px-3 justify-start text-left font-normal gap-2 rounded-none border-none text-xs",
+                                !dateRange.from && "text-slate-400"
+                              )}
+                            >
+                              <CalendarIcon className="h-3.5 w-3.5" />
+                              {dateRange.from ? format(dateRange.from, "MMM dd") : "Start date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={dateRange.from}
+                              onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+
+                        <div className="w-px h-4 bg-slate-200 shrink-0" />
+
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className={cn(
+                                "h-full px-3 justify-start text-left font-normal gap-2 rounded-none border-none text-xs",
+                                !dateRange.to && "text-slate-400"
+                              )}
+                            >
+                              <CalendarIcon className="h-3.5 w-3.5" />
+                              {dateRange.to ? format(dateRange.to, "MMM dd") : "End date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={dateRange.to}
+                              onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+
+                        {(dateRange.from || dateRange.to) && (
+                          <>
+                            <div className="w-px h-4 bg-slate-200 shrink-0" />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-full w-8 text-slate-400 hover:text-slate-600 rounded-none"
+                              onClick={() => { setDateRange({ from: undefined, to: undefined }); }}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Display selected date range */}
+                      {(dateRange.from || dateRange.to) && (
+                        <div className="text-[10px] text-slate-500 bg-slate-50 p-2 rounded border border-slate-100">
+                          <div className="flex items-center gap-1">
+                            <CalendarIcon className="h-2.5 w-2.5" />
+                            <span className="font-medium">
+                              {dateRange.from ? format(dateRange.from, "MMM dd, yyyy") : "Any start"}
+                              {" → "}
+                              {dateRange.to ? format(dateRange.to, "MMM dd, yyyy") : "Any end"}
+                            </span>
                           </div>
                         </div>
-                        <div>
-                          <p className="text-xs text-slate-600 mb-2 font-medium">To Date</p>
-                          <div className="flex items-center gap-2">
-                            <div className="relative flex-1">
-                              <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                              <Input
-                                type="date"
-                                className="h-9 text-sm pl-8"
-                                onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value ? new Date(e.target.value) : undefined }))}
-                              />
-                            </div>
-                          </div>
+                      )}
+
+                      {/* Quick date presets */}
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Quick filters</p>
+                        <div className="flex flex-wrap gap-1">
+                          {[
+                            {
+                              label: "Today", getDates: () => {
+                                const today = new Date();
+                                return { from: today, to: today };
+                              }
+                            },
+                            {
+                              label: "Yesterday", getDates: () => {
+                                const yesterday = new Date();
+                                yesterday.setDate(yesterday.getDate() - 1);
+                                return { from: yesterday, to: yesterday };
+                              }
+                            },
+                            {
+                              label: "Last 7 days", getDates: () => {
+                                const end = new Date();
+                                const start = new Date();
+                                start.setDate(start.getDate() - 6);
+                                return { from: start, to: end };
+                              }
+                            },
+                            {
+                              label: "This month", getDates: () => {
+                                const now = new Date();
+                                const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                                const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                                return { from: start, to: end };
+                              }
+                            },
+                            { label: "Clear", getDates: () => ({ from: undefined, to: undefined }) }
+                          ].map((preset) => (
+                            <Button
+                              key={preset.label}
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-[10px] px-2 border-slate-200 hover:bg-slate-50 hover:text-slate-700"
+                              onClick={() => setDateRange(preset.getDates())}
+                            >
+                              {preset.label}
+                            </Button>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -636,7 +776,7 @@ export default function TaskManager() {
                         setDateRange({});
                       }}
                     >
-                      <X className="h-3.5 w-3.5 mr-2" />
+                      <X className="h-3.5 w-3.5" />
                       Clear all filters
                     </Button>
                   </div>
@@ -646,21 +786,31 @@ export default function TaskManager() {
 
             <div className="h-4 w-[1px] bg-slate-200 mx-2" />
 
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border">
+            <div className="flex items-center gap-1 bg-[#fafafa] p-1 rounded-lg border">
               <Button
-                variant={viewMode === "board" ? "secondary" : "ghost"}
+                variant="ghost"
                 size="sm"
                 onClick={() => setViewMode("board")}
-                className={cn("h-8 gap-2 px-3", viewMode === "board" && "bg-background text-primary font-bold")}
+                className={cn(
+                  "h-8 gap-2 px-3 transition-all duration-200 font-medium",
+                  viewMode === "board"
+                    ? "bg-white text-[#004eba] !font-semibold"
+                    : "text-slate-600 hover:bg-white/80 hover:text-[#004eba]"
+                )}
               >
-                <Grid className="h-3.5 w-3.5" />
-                <span className="text-xs">Board</span>
+                <LayoutGrid className="h-3.5 w-3.5" />
+                <span className="text-xs ">Board</span>
               </Button>
               <Button
-                variant={viewMode === "list" ? "secondary" : "ghost"}
+                variant="ghost"
                 size="sm"
                 onClick={() => setViewMode("list")}
-                className={cn("h-8 gap-2 px-3", viewMode === "list" && "bg-background text-primary font-bold")}
+                className={cn(
+                  "h-8 gap-2 px-3 transition-all duration-200 font-medium",
+                  viewMode === "list"
+                    ? "bg-white text-[#004eba] !font-semibold"
+                    : "text-slate-600 hover:bg-white/80 hover:text-[#004eba]"
+                )}
               >
                 <List className="h-3.5 w-3.5" />
                 <span className="text-xs">List</span>
@@ -729,7 +879,6 @@ export default function TaskManager() {
                                       {task.isEmergency && <div className="h-1.5 w-1.5 rounded-full bg-red-500" />}
                                       {task.isComparison && <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
                                     </div>
-                                    <span className="text-[10px] text-slate-500 ml-auto">{task.date}</span>
                                   </div>
                                 </div>
                               )}
@@ -747,40 +896,44 @@ export default function TaskManager() {
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-[220px]">
-                                    <DropdownMenuItem>
-                                      <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
-                                      Edit Task Details
+                                    <DropdownMenuItem
+                                      onClick={() => navigate(`/task-manager/${task.id}`)}
+                                    >
+                                      <Eye className="h-4 w-4 text-muted-foreground" />
+                                      View Task
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => navigate(`/task-manager/edit/${task.id}`)}
+                                    >
+                                      <Edit className="h-4 w-4 text-muted-foreground" />
+                                      Edit Task
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
-                                      <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                                      <FileText className="h-4 w-4 text-muted-foreground" />
                                       Start Report
                                     </DropdownMenuItem>
                                     {/* Assignment actions */}
                                     {task.assignedDoctor ? (
-                                      <>
-                                        <DropdownMenuItem>
-                                          <User className="h-4 w-4 mr-2" />
-                                          Reassign Task...
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                          <UserMinus className="h-4 w-4 mr-2" />
-                                          Unassign
-                                        </DropdownMenuItem>
-                                      </>
+                                      <DropdownMenuItem onClick={() => {
+                                        setSelectedTaskForAssignment(task);
+                                        setAssignmentModalOpen(true);
+                                      }}>
+                                        <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        Reassign Task
+                                      </DropdownMenuItem>
                                     ) : (
-                                      <DropdownMenuItem>
-                                        <UserPlus className="h-4 w-4 mr-2" />
-                                        Assign to Radiologist...
+                                      <DropdownMenuItem onClick={() => {
+                                        setSelectedTaskForAssignment(task);
+                                        setAssignmentModalOpen(true);
+                                      }}>
+                                        <UserPlus className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        Assign to Doctor
                                       </DropdownMenuItem>
                                     )}
-                                    <DropdownMenuItem>
-                                      <CheckCircle2 className="h-4 w-4 mr-2 text-muted-foreground" />
-                                      Mark as Completed
-                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="text-red-600">
-                                      <AlertCircle className="h-4 w-4 mr-2" />
-                                      Flag Issue
+                                    <DropdownMenuItem>
+                                      <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                                      Mark as Completed
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -810,43 +963,31 @@ export default function TaskManager() {
 
                                 <div className="flex flex-wrap gap-1.5">
                                   {task.isEmergency && (
-                                    <Badge variant="default" className="bg-red-100 text-red-700 border-red-200 text-[10px] font-bold py-0">
-                                      EMERGENCY
+                                    <Badge variant="default" className="bg-red-100 text-red-800 uppercase text-[10px] font-bold py-0">
+                                      Emergency
                                     </Badge>
                                   )}
                                   {task.isComparison && (
-                                    <Badge variant="default" className="bg-blue-100 text-blue-700 border-blue-200 text-[10px] font-bold py-0">
-                                      COMPARISON
+                                    <Badge variant="default" className="bg-blue-100 text-blue-800 uppercase text-[10px] font-bold py-0">
+                                      Comparison
                                     </Badge>
                                   )}
                                 </div>
 
-                                <div className="flex items-center justify-between pt-3 border-t">
-                                  <div className="space-y-2">
-                                    {task.referringDoctor && (
-                                      <div className="flex items-center gap-1.5">
-                                        <div className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm">
-                                          <Stethoscope className="h-3 w-3 text-primary" />
-                                        </div>
-                                        <span className="text-[11px] font-bold text-slate-700">{task.referringDoctor}</span>
+                                <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-bold">
+                                  <CalendarIcon className="h-3 w-3" />
+                                  {task.date} {task.time}
+                                </div>
+
+                                <div className="pt-3 border-t space-y-2">
+                                  {task.assignedDoctor && (
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center">
+                                        <Stethoscope className="h-3 w-3 text-primary" />
                                       </div>
-                                    )}
-                                    {task.assignedDoctor && (
-                                      <div className="flex items-center gap-1.5">
-                                        <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center border border-green-200">
-                                          <User className="h-2.5 w-2.5 text-green-600" />
-                                        </div>
-                                        <span className="text-[10px] text-slate-600">Assigned to <span className="font-bold">{task.assignedDoctor}</span></span>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex flex-col items-end gap-1">
-                                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-bold">
-                                      <Clock className="h-3 w-3" />
-                                      {task.time}
+                                      <span className="text-[11px] font-semibold text-slate-600">{task.assignedDoctor}</span>
                                     </div>
-                                    <div className="text-[10px] text-slate-400">{task.date}</div>
-                                  </div>
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -1027,6 +1168,135 @@ export default function TaskManager() {
           </div>
         )}
       </div>
+
+      {/* Assignment Modal */}
+      {assignmentModalOpen && selectedTaskForAssignment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">
+                    {selectedTaskForAssignment.assignedDoctor ? 'Reassign' : 'Assign'} Task
+                  </h3>
+                  <p className="text-sm text-slate-600 mt-1">
+                    Task: {selectedTaskForAssignment.id}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setAssignmentModalOpen(false);
+                    setSelectedTaskForAssignment(null);
+                    setDoctorSearch("");
+                  }}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-700 mb-2">
+                    Select a doctor to {selectedTaskForAssignment.assignedDoctor ? 'reassign' : 'assign'} this task:
+                  </p>
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      placeholder="Search doctors by name or specialty..."
+                      className="pl-10"
+                      value={doctorSearch}
+                      onChange={(e) => setDoctorSearch(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {filteredDoctors.map((doctor) => (
+                      <div
+                        key={doctor.id}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all hover:bg-slate-50",
+                          selectedTaskForAssignment.assignedDoctor === doctor.name && "bg-blue-50 border-blue-200"
+                        )}
+                        onClick={() => {
+                          if (selectedTaskForAssignment.assignedDoctor) {
+                            handleReassignTask(selectedTaskForAssignment, doctor.id);
+                          } else {
+                            handleAssignTask(selectedTaskForAssignment.id, doctor.id);
+                          }
+                        }}
+                      >
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                            {doctor.avatar}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="font-semibold text-slate-800">{doctor.name}</div>
+                          <div className="text-sm text-slate-600">{doctor.specialty}</div>
+                        </div>
+                        {selectedTaskForAssignment.assignedDoctor === doctor.name && (
+                          <Badge className="bg-green-100 text-green-700 border-green-200">
+                            Currently Assigned
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+
+                    {filteredDoctors.length === 0 && (
+                      <div className="text-center py-6 text-slate-500">
+                        <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>No doctors found matching "{doctorSearch}"</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {selectedTaskForAssignment.assignedDoctor && (
+                  <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-amber-800">
+                          Reassignment Note
+                        </p>
+                        <p className="text-sm text-amber-700 mt-1">
+                          Currently assigned to {selectedTaskForAssignment.assignedDoctor}.
+                          Reassigning will notify both the current and new doctor.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setAssignmentModalOpen(false);
+                    setSelectedTaskForAssignment(null);
+                    setDoctorSearch("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    // You can add a default assignment here or just close
+                    setAssignmentModalOpen(false);
+                    setSelectedTaskForAssignment(null);
+                    setDoctorSearch("");
+                  }}
+                >
+                  {selectedTaskForAssignment.assignedDoctor ? 'Reassign' : 'Assign'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

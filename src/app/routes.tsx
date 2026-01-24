@@ -6,7 +6,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "@/pages/dashboard";
 import TaskManager from "@/pages/task-manager";
 import CreateTask from "@/pages/task-manager/create";
-import TaskDetail from "@/pages/task-manager/[id]";
+import EditTask from "@/pages/task-manager/edit";
 import DiagnosticReports from "@/pages/diagnostic-reports";
 import CreateDiagnosticReport from "@/pages/diagnostic-reports/create";
 import ReportDetail from "@/pages/diagnostic-reports/[id]";
@@ -85,11 +85,11 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/task-manager/:id"
+        path="/task-manager/edit/:id"
         element={
           <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
             <DashboardLayout>
-              <TaskDetail />
+              <EditTask />
             </DashboardLayout>
           </ProtectedRoute>
         }
