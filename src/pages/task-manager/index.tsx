@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Plus,
   Search,
@@ -57,8 +57,9 @@ import {
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ViewTaskModal from "@/components/Modals/ViewTaskModal";
+import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 
 type PatientType = "regular" | "private" | "hmo";
 type TaskStatus = "pending" | "draft" | "completed" | "assigned" | "unassigned";
@@ -873,21 +874,29 @@ export default function TaskManager() {
                                   <span className="text-[11px] text-muted-foreground truncate opacity-70">• {task.subService}</span>
                                 </div>
                               ) : (
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex gap-2 items-center mb-1">
-                                    <h4 className="font-bold text-sm tracking-tight text-slate-800 truncate">{task.patient}</h4>
-                                    <Badge
-                                      variant="default"
-                                      className={cn("text-[9px] font-extrabold capitalize border", getPatientTypeBadge(task.patientType))}
-                                    >
-                                      {task.patientType}
-                                    </Badge>
-                                  </div>
-                                  <div className="flex items-center gap-2 h-4">
-                                    <code className="text-[10px] font-semibold text-muted-foreground bg-muted px-1 rounded">{task.id}</code>
-                                    <div className="flex gap-1">
-                                      {task.isEmergency && <div className="h-1.5 w-1.5 rounded-full bg-red-500" />}
-                                      {task.isComparison && <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <Avatar className="h-8 w-8 border border-muted shadow-sm shrink-0">
+                                    <AvatarImage src={getPatientAvatarPath(task.id, "Male")} alt={task.patient} />
+                                    <AvatarFallback className={cn("text-[10px] font-bold", getAvatarBg(task.patient))}>
+                                      {getAvatarInitials(task.patient)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex gap-2 items-center mb-1">
+                                      <h4 className="font-bold text-sm tracking-tight text-slate-800 truncate">{task.patient}</h4>
+                                      <Badge
+                                        variant="default"
+                                        className={cn("text-[9px] font-extrabold capitalize border", getPatientTypeBadge(task.patientType))}
+                                      >
+                                        {task.patientType}
+                                      </Badge>
+                                    </div>
+                                    <div className="flex items-center gap-2 h-4">
+                                      <code className="text-[10px] font-semibold text-muted-foreground bg-muted px-1 rounded">{task.id}</code>
+                                      <div className="flex gap-1">
+                                        {task.isEmergency && <div className="h-1.5 w-1.5 rounded-full bg-red-500" />}
+                                        {task.isComparison && <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
@@ -921,7 +930,9 @@ export default function TaskManager() {
                                       <Edit className="h-4 w-4 text-muted-foreground" />
                                       Edit Task
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => navigate("/diagnostic-reports/create", { state: { task } })}
+                                    >
                                       <FileText className="h-4 w-4 text-muted-foreground" />
                                       Start Report
                                     </DropdownMenuItem>
@@ -939,7 +950,7 @@ export default function TaskManager() {
                                         setSelectedTaskForAssignment(task);
                                         setAssignmentModalOpen(true);
                                       }}>
-                                        <UserPlus className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <UserPlus className="h-4 w-4 text-muted-foreground" />
                                         Assign to Doctor
                                       </DropdownMenuItem>
                                     )}
@@ -1040,13 +1051,6 @@ export default function TaskManager() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="font-semibold text-[11px] h-8 hover:bg-white hover:text-primary transition-all">
-                          <Plus className="h-3.5 w-3.5" />
-                          New Task
-                        </Button>
-                      </div>
-                      <div className="h-6 w-[1px] bg-slate-200 mx-1" />
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
                         {isServiceCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                       </Button>
@@ -1057,10 +1061,10 @@ export default function TaskManager() {
                     <Table>
                       <TableHeader className="bg-slate-50/50">
                         <TableRow className="hover:bg-transparent border-slate-200">
-                          <TableHead className="w-[40px] px-6"></TableHead>
-                          <TableHead className="w-[120px] font-bold text-slate-500 uppercase text-[10px] tracking-wider">Task ID</TableHead>
+                          <TableHead className="font-semibold text-slate-500 uppercase text-[10px] tracking-wider px-6">Task ID</TableHead>
                           <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Patient Details</TableHead>
                           <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Task</TableHead>
+                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Reporting Doctor</TableHead>
                           <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Status</TableHead>
                           <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Priority</TableHead>
                           <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider text-right">Date/Time</TableHead>
@@ -1068,96 +1072,129 @@ export default function TaskManager() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {serviceTasks.map((task) => {
-                          const isCollapsed = collapsedCards[task.id] !== false;
-                          return (
-                            <TableRow
-                              key={task.id}
-                              className={cn(
-                                "cursor-pointer transition-colors border-slate-100",
-                                !isCollapsed ? "bg-slate-50/50" : "hover:bg-slate-50/30"
-                              )}
-                              onClick={() => setCollapsedCards(prev => ({ ...prev, [task.id]: !prev[task.id] }))}
-                            >
-                              <TableCell className="px-6">
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400">
-                                  {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                                </Button>
-                              </TableCell>
-                              <TableCell>
-                                <code className="text-[10px] font-bold font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                                  {task.id}
-                                </code>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-bold text-sm text-slate-700">{task.patient}</span>
-                                  <Badge
-                                    variant="outline"
-                                    className={cn("text-[9px] font-extrabold capitalize border", getPatientTypeBadge(task.patientType))}
-                                  >
-                                    {task.patientType}
-                                  </Badge>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                                  <Scan className="h-3.5 w-3.5 opacity-60" />
-                                  {task.subService}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Badge className={cn("text-[9px] px-2 py-0 font-bold capitalize", getStatusBadge(task.status))}>
-                                  {task.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-1.5">
-                                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f59e0b' : '#10b981' }} />
-                                  <span className="text-xs font-bold capitalize text-slate-600">{task.priority}</span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="text-xs font-bold text-slate-500">{task.time}</div>
-                                <div className="text-[10px] text-slate-400">{task.date}</div>
-                              </TableCell>
-                              <TableCell onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100">
-                                      <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="w-[200px]">
-                                    <DropdownMenuItem
-                                      onClick={() => {
-                                        setSelectedTaskForView(task);
-                                        setViewModalOpen(true);
-                                      }}
+                        {serviceTasks.map((task) => (
+                          <TableRow
+                            key={task.id}
+                            className="transition-colors border-slate-100 hover:bg-slate-50/30"
+                          >
+                            <TableCell className="px-6">
+                              <code className="text-[10px] font-bold font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+                                {task.id}
+                              </code>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-7 w-7 border border-muted shadow-sm shrink-0">
+                                  <AvatarImage src={getPatientAvatarPath(task.id, "Male")} alt={task.patient} />
+                                  <AvatarFallback className={cn("text-[10px] font-bold", getAvatarBg(task.patient))}>
+                                    {getAvatarInitials(task.patient)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex flex-col">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-sm text-slate-700 leading-none">{task.patient}</span>
+                                    <Badge
+                                      variant="outline"
+                                      className={cn("text-[9px] font-extrabold capitalize border h-4 px-1.5", getPatientTypeBadge(task.patientType))}
                                     >
-                                      <Eye className="h-4 w-4 mr-2" /> View Task
+                                      {task.patientType}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                                <Scan className="h-3.5 w-3.5 opacity-60" />
+                                {task.subService}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {task.assignedDoctor ? (
+                                  <>
+                                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                                      <Stethoscope className="h-3.5 w-3.5 text-green-600" />
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-700">{task.assignedDoctor}</span>
+                                  </>
+                                ) : (
+                                  <span className="text-xs font-medium text-slate-400 italic">Unassigned</span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={cn("text-[9px] px-2 py-0 font-bold capitalize", getStatusBadge(task.status))}>
+                                {task.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1.5">
+                                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f59e0b' : '#10b981' }} />
+                                <span className="text-xs font-bold capitalize text-slate-600">{task.priority}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="text-xs font-bold text-slate-500">{task.time}</div>
+                              <div className="text-[10px] text-slate-400">{task.date}</div>
+                            </TableCell>
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-[220px]">
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelectedTaskForView(task);
+                                      setViewModalOpen(true);
+                                    }}
+                                  >
+                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                    View Task
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => navigate(`/task-manager/edit/${task.id}`)}
+                                  >
+                                    <Edit className="h-4 w-4 text-muted-foreground" />
+                                    Edit Task
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => navigate("/diagnostic-reports/create", { state: { task } })}
+                                  >
+                                    <FileText className="h-4 w-4 text-muted-foreground" />
+                                    Start Report
+                                  </DropdownMenuItem>
+                                  {/* Assignment actions */}
+                                  {task.assignedDoctor ? (
+                                    <DropdownMenuItem onClick={() => {
+                                      setSelectedTaskForAssignment(task);
+                                      setAssignmentModalOpen(true);
+                                    }}>
+                                      <User className="h-4 w-4 text-muted-foreground" />
+                                      Reassign Task
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => navigate(`/task-manager/edit/${task.id}`)}>
-                                      <Edit className="h-4 w-4 mr-2" /> Edit Task
+                                  ) : (
+                                    <DropdownMenuItem onClick={() => {
+                                      setSelectedTaskForAssignment(task);
+                                      setAssignmentModalOpen(true);
+                                    }}>
+                                      <UserPlus className="h-4 w-4 text-muted-foreground" />
+                                      Assign to Doctor
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem><FileText className="h-4 w-4 mr-2" /> Write Report</DropdownMenuItem>
-                                    {task.assignedDoctor ? (
-                                      <>
-                                        <DropdownMenuItem><User className="h-4 w-4 mr-2" /> Reassign</DropdownMenuItem>
-                                        <DropdownMenuItem><UserMinus className="h-4 w-4 mr-2" /> Unassign</DropdownMenuItem>
-                                      </>
-                                    ) : (
-                                      <DropdownMenuItem><UserPlus className="h-4 w-4 mr-2" /> Assign</DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem><CheckCircle2 className="h-4 w-4 mr-2" /> Mark Completed</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-red-600"><AlertCircle className="h-4 w-4 mr-2" /> Flag Issue</DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
+                                  )}
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem>
+                                    <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                                    Mark as Completed
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   )}

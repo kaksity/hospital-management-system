@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Clock,
   AlertCircle,
@@ -165,7 +165,33 @@ const templates = [
 
 export default function CreateDiagnosticReport() {
   const navigate = useNavigate();
-  const [reportData] = useState(mockPendingRequest);
+  const location = useLocation();
+  const taskData = location.state?.task;
+
+  // Map task data if available, otherwise use mock
+  const initialData = useMemo(() => {
+    if (taskData) {
+      return {
+        requestNo: taskData.id,
+        requestDate: taskData.date || "2024-11-20",
+        patientName: taskData.patient,
+        patientType: taskData.patientType,
+        gender: taskData.gender || "Male",
+        email: taskData.email || "patient@example.com",
+        hospital: taskData.hospital || "Evercare Hospital",
+        physician: taskData.referringDoctor || "N/A",
+        dispatchStatus: "pending",
+        totalCost: 150000,
+        amountPaid: 150000,
+        balance: 0,
+        examType: taskData.service,
+        examName: taskData.subService,
+      };
+    }
+    return mockPendingRequest;
+  }, [taskData]);
+
+  const [reportData] = useState(initialData);
   const [editorContent, setEditorContent] = useState("<p>Start typing your report here...</p>");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeMode, setActiveMode] = useState<'template' | 'voice' | 'manual'>('manual');

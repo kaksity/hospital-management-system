@@ -59,9 +59,22 @@ const getBreadcrumbs = (pathname: string) => {
     ];
   }
 
-  // Handle dynamic task-manager pages (e.g., /task-manager/123)
+  // Handle dynamic task-manager pages (e.g., /task-manager/123 or /task-manager/edit/123)
   if (pathname.startsWith('/task-manager/') && pathname !== '/task-manager/create') {
-    const taskId = pathname.split('/')[2];
+    const segments = pathname.split('/');
+
+    // Handle edit route: /task-manager/edit/:id
+    if (segments[2] === 'edit') {
+      const taskId = segments[3];
+      return [
+        { label: "Dashboard", href: "/" },
+        { label: "Tasks", href: "/task-manager" },
+        { label: `Edit Task ${taskId || ''}`.trim(), href: pathname }
+      ];
+    }
+
+    // Handle view route: /task-manager/:id
+    const taskId = segments[2];
     return [
       { label: "Dashboard", href: "/" },
       { label: "Tasks", href: "/task-manager" },
