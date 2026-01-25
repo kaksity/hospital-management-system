@@ -7,13 +7,12 @@ import {
   AlertCircle,
   Mic,
   FileText,
-  Check,
   Volume2,
   Square,
   Pause,
   MicOff,
   Edit,
-  Send,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,11 +28,8 @@ import {
 } from "@/components/ui/select";
 import { RichEditor } from "@/components/ui/rich-editor";
 import { cn } from "@/lib/utils";
-import { formatDateOnly } from "@/utils/dateFormatter";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
-import { pdfService } from "@/services/pdfService";
-import { EmailPreviewModal } from "@/components/diagnostic-reports/EmailPreviewModal";
 
 // Mock Pre-filled Request Data (Simulating creating a report for a pending request)
 const mockPendingRequest = {
@@ -201,8 +197,6 @@ export default function CreateDiagnosticReport() {
   const [activeMode, setActiveMode] = useState<'template' | 'manual'>('manual');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
-  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-  const [pdfBase64, setPdfBase64] = useState("");
 
   const {
     isListening,
@@ -281,36 +275,34 @@ export default function CreateDiagnosticReport() {
     if (isListening) stopRecording();
   };
 
-  const handleCreate = () => {
+  const handleSaveDraft = () => {
     setIsSubmitting(true);
     // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
-      toast.success("Report created successfully");
+      toast.success("Report saved as draft", {
+        description: "Your diagnostic report has been saved as a draft.",
+      });
       navigate("/diagnostic-reports");
     }, 1500);
   };
 
-  const handleCreateAndSend = async () => {
-    try {
-      setIsSubmitting(true);
-      toast.info("Saving and preparing report...");
-
-      // 1. Simulate saving (In a real app, this would be an API call)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 2. Generate PDF for the preview
-      const base64 = await pdfService.generateFromElement('report-pdf-content', {
-        filename: `Report_${reportData.requestNo}.pdf`
-      });
-
-      setPdfBase64(base64);
-      setIsPreviewModalOpen(true);
-    } catch (error: any) {
-      toast.error("Failed to prepare report", { description: error.message });
-    } finally {
+  const handleCreateReport = () => {
+    setIsSubmitting(true);
+    // Simulate API call
+    setTimeout(() => {
       setIsSubmitting(false);
-    }
+      toast.success("Report created successfully", {
+        description: "The diagnostic report has been finalized.",
+      });
+      navigate("/diagnostic-reports");
+    }, 1500);
+  };
+
+  // Helper function to format date
+  const formatDateOnly = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
@@ -335,28 +327,29 @@ export default function CreateDiagnosticReport() {
             Cancel
           </Button>
           <Button
-            onClick={handleCreateAndSend}
-            disabled={isSubmitting}
             variant="outline"
-            className="gap-2 border-primary text-primary hover:bg-primary/5"
+            onClick={handleSaveDraft}
+            disabled={isSubmitting}
+            className="gap-2 bg-white font-semibold"
           >
-            {isSubmitting ? "Processing..." : (
-              <>
-                <Send className="h-4 w-4" />
-                Save & Send Email
-              </>
+            {isSubmitting ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            ) : (
+              <FileText className="h-4 w-4 text-slate-500" />
             )}
+            Save as Draft
           </Button>
           <Button
-            onClick={handleCreate}
+            onClick={handleCreateReport}
             disabled={isSubmitting}
+            className="font-bold h-9 gap-2"
           >
-            {isSubmitting ? "Creating..." : (
-              <>
-                <Check className="h-4 w-4" />
-                Create Report
-              </>
+            {isSubmitting ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <Check className="h-4 w-4" />
             )}
+            {isSubmitting ? "Creating..." : "Create Report"}
           </Button>
         </div>
       </div>
@@ -373,17 +366,17 @@ export default function CreateDiagnosticReport() {
             <CardContent className="p-6 pt-4 grid grid-cols-3 gap-4">
               <div className="space-y-1">
                 <Label>Exam Type</Label>
-                <Input value={reportData.examType} readOnly className="bg-slate-50" />
+                <Input value={reportData.examType} disabled className="bg-slate-50 opacity-100" />
               </div>
               <div className="space-y-1">
                 <Label>Exam Name</Label>
-                <Input value={reportData.examName} readOnly className="bg-slate-50" />
+                <Input value={reportData.examName} disabled className="bg-slate-50 opacity-100" />
               </div>
               <div className="space-y-1">
                 <Label>Exam Cost</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₦</span>
-                  <Input value={reportData.totalCost.toLocaleString()} readOnly className="pl-7 bg-slate-50 font-semibold" />
+                  <Input value={reportData.totalCost.toLocaleString()} disabled className="pl-7 bg-slate-50 font-semibold opacity-100" />
                 </div>
               </div>
             </CardContent>
@@ -642,19 +635,7 @@ export default function CreateDiagnosticReport() {
           </Card>
         </div>
       </div>
-      <EmailPreviewModal
-        isOpen={isPreviewModalOpen}
-        onClose={() => {
-          setIsPreviewModalOpen(false);
-          navigate("/diagnostic-reports");
-        }}
-        reportData={{
-          ...reportData,
-          reportNo: reportData.requestNo, // Use requestNo as placeholder for new report
-          reportContent: editorContent
-        }}
-        pdfBase64={pdfBase64}
-      />
+
     </div>
   );
 }

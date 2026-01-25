@@ -57,6 +57,9 @@ import {
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatDateOnly } from "@/utils/dateFormatter";
+import { pdfService } from "@/services/pdfService";
+import { EmailPreviewModal } from "@/components/diagnostic-reports/EmailPreviewModal";
+import { toast } from "sonner";
 
 type PatientType = "regular" | "private" | "hmo";
 type ApprovalStatus = "approved" | "draft" | "pending_review";
@@ -165,6 +168,64 @@ export default function DiagnosticReports() {
   const [consultantSearch, setConsultantSearch] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+
+  // Modal States
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [pdfBase64, setPdfBase64] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handlePrint = async (report: any) => {
+    try {
+      toast.info("Generating PDF for " + report.reportNo);
+      setIsGenerating(true);
+
+      // Since we don't have the full report content in the table, 
+      // we generate a clean professional version using simple PDF for now 
+      // or a mock HTML template.
+      const mockFullContent = `<p><strong>${report.request} REPORT</strong></p><p>Patient: ${report.patientName}</p><p>Status: ${report.approvalStatus}</p><p>Technique: Standard protocol was followed for ${report.request}.</p><p>Findings: Clinical findings are consistent with ${report.request} results.</p>`;
+
+      const base64 = await pdfService.generateSimplePDF(mockFullContent, {
+        ...report,
+        physicianName: report.consultant
+      });
+
+      const blob = await fetch(`data:application/pdf;base64,${base64}`).then(r => r.blob());
+      const url = URL.createObjectURL(blob);
+      window.open(url);
+    } catch (error: any) {
+      toast.error("Failed to generate PDF", { description: error.message });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleSendEmail = async (report: any) => {
+    try {
+      setIsGenerating(true);
+      toast.info("Preparing dispatch...");
+
+      const mockFullContent = `<h3><strong>${report.request}</strong></h3><p>Dear ${report.patientName}, your diagnostic report is ready for your review. Please find the attached PDF document for full details.</p>`;
+
+      const base64 = await pdfService.generateSimplePDF(mockFullContent, {
+        ...report,
+        physicianName: report.consultant
+      });
+
+      setSelectedReport({
+        ...report,
+        reportContent: mockFullContent,
+        physician: report.consultant,
+        email: report.email || "patient@example.com" // Placeholder email
+      });
+      setPdfBase64(base64);
+      setIsPreviewModalOpen(true);
+    } catch (error: any) {
+      toast.error("Failed to prepare email", { description: error.message });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const filteredReports = useMemo(() => {
     return mockReports.filter(report => {
@@ -552,11 +613,19 @@ export default function DiagnosticReports() {
                               Edit Report
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="gap-2 font-medium text-sm" disabled={isPartial}>
+                            <DropdownMenuItem
+                              onClick={() => handlePrint(report)}
+                              className="gap-2 font-medium text-sm"
+                              disabled={isPartial || isGenerating}
+                            >
                               <Printer className="h-3.5 w-3.5 text-slate-500" />
                               Print Report
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2 font-medium text-sm">
+                            <DropdownMenuItem
+                              onClick={() => handleSendEmail(report)}
+                              className="gap-2 font-medium text-sm"
+                              disabled={isGenerating}
+                            >
                               <Mail className="h-3.5 w-3.5 text-slate-500" />
                               Send via Email
                             </DropdownMenuItem>
@@ -702,6 +771,12 @@ export default function DiagnosticReports() {
           )}
         </div>
       </div>
+      <EmailPreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        reportData={selectedReport}
+        pdfBase64={pdfBase64}
+      />
     </div>
   );
 }
