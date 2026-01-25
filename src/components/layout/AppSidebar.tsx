@@ -137,7 +137,7 @@ export function AppSidebar() {
               {!collapsed && (
                 <div className="flex flex-1 items-center justify-between min-w-0">
                   <div className="text-left flex-1 min-w-0">
-                    <p className="text-sm font-medium text-sidebar-foreground truncate">
+                    <p className="text-sm font-semibold text-sidebar-foreground truncate">
                       {user?.name || "Loading..."}
                     </p>
                     <p className="text-xs text-sidebar-foreground/60 truncate">
@@ -160,7 +160,7 @@ export function AppSidebar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <p className="text-sm font-medium">{user?.name}</p>
+                  <p className="text-sm font-semibold">{user?.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {user?.email}
                   </p>

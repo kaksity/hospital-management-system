@@ -24,7 +24,8 @@ import {
   Users,
   LayoutGrid,
   Calendar as CalendarIcon,
-  Eye
+  Eye,
+  Hospital
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,6 +90,7 @@ interface Task {
   referralNotes?: string;
   isWalkIn: boolean;
   paymentStatus?: "paid" | "pending" | "insurance";
+  referringHospital?: string;
 }
 
 const tasks: Task[] = [
@@ -114,7 +116,8 @@ const tasks: Task[] = [
     dueDate: "20 Jan 2026",
     referralNotes: "Rule out metastases, known lung cancer",
     isWalkIn: false,
-    paymentStatus: "insurance"
+    paymentStatus: "insurance",
+    referringHospital: "Evercare Hospital"
   },
   {
     id: "TSK-2024-002",
@@ -136,7 +139,8 @@ const tasks: Task[] = [
     createdDate: "19 Jan 2026",
     dueDate: "20 Jan 2026",
     isWalkIn: true,
-    paymentStatus: "paid"
+    paymentStatus: "paid",
+    referringHospital: "Evercare Hospital"
   },
   {
     id: "TSK-2024-003",
@@ -160,7 +164,8 @@ const tasks: Task[] = [
     dueDate: "20 Jan 2026",
     referralNotes: "",
     isWalkIn: false,
-    paymentStatus: "insurance"
+    paymentStatus: "insurance",
+    referringHospital: "St. Nicholas Hospital"
   },
   {
     id: "TSK-2024-004",
@@ -184,7 +189,8 @@ const tasks: Task[] = [
     dueDate: "20 Jan 2026",
     referralNotes: "",
     isWalkIn: false,
-    paymentStatus: "insurance"
+    paymentStatus: "insurance",
+    referringHospital: "Lagos University Teaching Hospital"
   },
   {
     id: "TSK-2024-005",
@@ -208,7 +214,8 @@ const tasks: Task[] = [
     dueDate: "20 Jan 2026",
     referralNotes: "",
     isWalkIn: false,
-    paymentStatus: "insurance"
+    paymentStatus: "insurance",
+    referringHospital: "Reddington Hospital"
   },
   {
     id: "TSK-2024-006",
@@ -232,7 +239,8 @@ const tasks: Task[] = [
     dueDate: "20 Jan 2026",
     referralNotes: "",
     isWalkIn: false,
-    paymentStatus: "insurance"
+    paymentStatus: "insurance",
+    referringHospital: "Evercare Hospital"
   }
 ];
 
@@ -244,7 +252,8 @@ export default function TaskManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [selectedService, setSelectedService] = useState("All Services");
-  const [collapsedCards, setCollapsedCards] = useState<Record<string, boolean>>({});
+  const [boardCollapsedCards, setBoardCollapsedCards] = useState<Record<string, boolean>>({});
+  const [listCollapsedCards, setListCollapsedCards] = useState<Record<string, boolean>>({});
   const [collapsedServices, setCollapsedServices] = useState<Record<string, boolean>>({});
   const [assignmentFilter, setAssignmentFilter] = useState("all");
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
@@ -258,7 +267,11 @@ export default function TaskManager() {
 
   const toggleCard = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setCollapsedCards(prev => ({ ...prev, [id]: !prev[id] }));
+    setBoardCollapsedCards(prev => {
+      // Board view defaults to expanded (false), so we toggle what's there or default to true (to collapse it)
+      const isCurrentlyCollapsed = prev[id] === true;
+      return { ...prev, [id]: !isCurrentlyCollapsed };
+    });
   };
 
   const filteredTasks = useMemo(() => {
@@ -838,21 +851,18 @@ export default function TaskManager() {
             <div className="flex gap-6 min-w-max p-6 pb-4">
               {Object.entries(serviceGroups).map(([service, serviceTasks]) => (
                 <div key={service} className="w-[320px] bg-background border rounded-lg flex flex-col gap-4 px-3 py-2">
-                  <div className="flex items-center justify-between flex-none pb-2 border-b-2">
+                  <div className="flex items-center justify-between flex-none pb-3 pt-2 border-b-2">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-sm tracking-tight text-slate-700">{service}</h3>
                       <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-semibold bg-slate-100 text-slate-600">
                         {serviceTasks.length}
                       </Badge>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
                   </div>
 
                   <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
                     {serviceTasks.map((task) => {
-                      const isCollapsed = collapsedCards[task.id];
+                      const isCollapsed = boardCollapsedCards[task.id] === true;
                       return (
                         <Card
                           key={task.id}
@@ -1061,140 +1071,206 @@ export default function TaskManager() {
                     <Table>
                       <TableHeader className="bg-slate-50/50">
                         <TableRow className="hover:bg-transparent border-slate-200">
-                          <TableHead className="font-semibold text-slate-500 uppercase text-[10px] tracking-wider px-6">Task ID</TableHead>
-                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Patient Details</TableHead>
-                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Task</TableHead>
-                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Reporting Doctor</TableHead>
-                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Status</TableHead>
-                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Priority</TableHead>
-                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider text-right">Date/Time</TableHead>
+                          <TableHead className="w-[40px] px-6"></TableHead>
+                          <TableHead className="font-semibold text-slate-500 uppercase text-[11px] tracking-wider">Task ID</TableHead>
+                          <TableHead className="font-bold text-slate-500 uppercase text-[11px] tracking-wider">Patient Details</TableHead>
+                          <TableHead className="font-bold text-slate-500 uppercase text-[11px] tracking-wider">Task</TableHead>
+                          <TableHead className="font-bold text-slate-500 uppercase text-[11px] tracking-wider">Reporting Doctor</TableHead>
+                          <TableHead className="font-bold text-slate-500 uppercase text-[11px] tracking-wider">Status</TableHead>
+                          <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Date</TableHead>
                           <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {serviceTasks.map((task) => (
-                          <TableRow
-                            key={task.id}
-                            className="transition-colors border-slate-100 hover:bg-slate-50/30"
-                          >
-                            <TableCell className="px-6">
-                              <code className="text-[10px] font-bold font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                                {task.id}
-                              </code>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <Avatar className="h-7 w-7 border border-muted shadow-sm shrink-0">
-                                  <AvatarImage src={getPatientAvatarPath(task.id, "Male")} alt={task.patient} />
-                                  <AvatarFallback className={cn("text-[10px] font-bold", getAvatarBg(task.patient))}>
-                                    {getAvatarInitials(task.patient)}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex flex-col">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm text-slate-700 leading-none">{task.patient}</span>
-                                    <Badge
-                                      variant="outline"
-                                      className={cn("text-[9px] font-extrabold capitalize border h-4 px-1.5", getPatientTypeBadge(task.patientType))}
-                                    >
-                                      {task.patientType}
-                                    </Badge>
-                                  </div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                                <Scan className="h-3.5 w-3.5 opacity-60" />
-                                {task.subService}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                {task.assignedDoctor ? (
-                                  <>
-                                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                                      <Stethoscope className="h-3.5 w-3.5 text-green-600" />
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-700">{task.assignedDoctor}</span>
-                                  </>
-                                ) : (
-                                  <span className="text-xs font-medium text-slate-400 italic">Unassigned</span>
+                        {serviceTasks.map((task) => {
+                          const isCollapsed = listCollapsedCards[task.id] !== false;
+                          return (
+                            <React.Fragment key={task.id}>
+                              <TableRow
+                                className={cn(
+                                  "cursor-pointer transition-colors border",
+                                  !isCollapsed ? "bg-slate-50/50" : "hover:bg-slate-50/30"
                                 )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={cn("text-[9px] px-2 py-0 font-bold capitalize", getStatusBadge(task.status))}>
-                                {task.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-1.5">
-                                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f59e0b' : '#10b981' }} />
-                                <span className="text-xs font-bold capitalize text-slate-600">{task.priority}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="text-xs font-bold text-slate-500">{task.time}</div>
-                              <div className="text-[10px] text-slate-400">{task.date}</div>
-                            </TableCell>
-                            <TableCell onClick={(e) => e.stopPropagation()}>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100">
-                                    <MoreHorizontal className="h-4 w-4" />
+                                onClick={() => setListCollapsedCards(prev => ({ ...prev, [task.id]: !isCollapsed }))}
+                              >
+                                <TableCell className="px-6">
+                                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400">
+                                    {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                                   </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-[220px]">
-                                  <DropdownMenuItem
-                                    onClick={() => {
-                                      setSelectedTaskForView(task);
-                                      setViewModalOpen(true);
-                                    }}
-                                  >
-                                    <Eye className="h-4 w-4 text-muted-foreground" />
-                                    View Task
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() => navigate(`/task-manager/edit/${task.id}`)}
-                                  >
-                                    <Edit className="h-4 w-4 text-muted-foreground" />
-                                    Edit Task
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() => navigate("/diagnostic-reports/create", { state: { task } })}
-                                  >
-                                    <FileText className="h-4 w-4 text-muted-foreground" />
-                                    Start Report
-                                  </DropdownMenuItem>
-                                  {/* Assignment actions */}
-                                  {task.assignedDoctor ? (
-                                    <DropdownMenuItem onClick={() => {
-                                      setSelectedTaskForAssignment(task);
-                                      setAssignmentModalOpen(true);
-                                    }}>
-                                      <User className="h-4 w-4 text-muted-foreground" />
-                                      Reassign Task
-                                    </DropdownMenuItem>
-                                  ) : (
-                                    <DropdownMenuItem onClick={() => {
-                                      setSelectedTaskForAssignment(task);
-                                      setAssignmentModalOpen(true);
-                                    }}>
-                                      <UserPlus className="h-4 w-4 text-muted-foreground" />
-                                      Assign to Doctor
-                                    </DropdownMenuItem>
-                                  )}
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem>
-                                    <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-                                    Mark as Completed
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <code className="text-[10px] font-semibold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded">
+                                      {task.id}
+                                    </code>
+                                    <div className="flex gap-1">
+                                      {task.isEmergency && <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" title="Emergency" />}
+                                      {task.isComparison && <div className="h-1.5 w-1.5 rounded-full bg-blue-500" title="Comparison" />}
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Avatar className="h-7 w-7 border border-muted shadow-sm shrink-0">
+                                      <AvatarImage src={getPatientAvatarPath(task.id, "Male")} alt={task.patient} />
+                                      <AvatarFallback className={cn("text-[10px] font-bold", getAvatarBg(task.patient))}>
+                                        {getAvatarInitials(task.patient)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-semibold text-sm text-slate-700">{task.patient}</span>
+                                        <Badge
+                                          variant="default"
+                                          className={cn("text-[10px] font-extrabold capitalize border h-4 px-1.5", getPatientTypeBadge(task.patientType))}
+                                        >
+                                          {task.patientType}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2 text-sm text-slate-600 font-semibold">
+                                    <Scan className="h-3.5 w-3.5 opacity-60" />
+                                    {task.subService}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    {task.assignedDoctor ? (
+                                      <>
+                                        <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                                          <Stethoscope className="h-3.5 w-3.5 text-green-600" />
+                                        </div>
+                                        <span className="text-[13px] font-semibold text-slate-700">{task.assignedDoctor}</span>
+                                      </>
+                                    ) : (
+                                      <span className="text-[13px] font-semibold text-slate-500">Unassigned</span>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge className={cn("text-[10px] px-2 py-0 font-semibold capitalize", getStatusBadge(task.status))}>
+                                    {task.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="text-[13px] font-semibold text-slate-700">{task.date} {task.time}</div>
+                                </TableCell>
+                                <TableCell onClick={(e) => e.stopPropagation()}>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-[220px]">
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          setSelectedTaskForView(task);
+                                          setViewModalOpen(true);
+                                        }}
+                                      >
+                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                        View Task
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={() => navigate(`/task-manager/edit/${task.id}`)}
+                                      >
+                                        <Edit className="h-4 w-4 text-muted-foreground" />
+                                        Edit Task
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={() => navigate("/diagnostic-reports/create", { state: { task } })}
+                                      >
+                                        <FileText className="h-4 w-4 text-muted-foreground" />
+                                        Start Report
+                                      </DropdownMenuItem>
+                                      {/* Assignment actions */}
+                                      {task.assignedDoctor ? (
+                                        <DropdownMenuItem onClick={() => {
+                                          setSelectedTaskForAssignment(task);
+                                          setAssignmentModalOpen(true);
+                                        }}>
+                                          <User className="h-4 w-4 text-muted-foreground" />
+                                          Reassign Task
+                                        </DropdownMenuItem>
+                                      ) : (
+                                        <DropdownMenuItem onClick={() => {
+                                          setSelectedTaskForAssignment(task);
+                                          setAssignmentModalOpen(true);
+                                        }}>
+                                          <UserPlus className="h-4 w-4 text-muted-foreground" />
+                                          Assign to Doctor
+                                        </DropdownMenuItem>
+                                      )}
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem>
+                                        <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                                        Mark as Completed
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
+                              </TableRow>
+
+                              {!isCollapsed && (
+                                <TableRow className="bg-slate-50/30 hover:bg-slate-50/40 transition-colors border">
+                                  <TableCell colSpan={8} className="p-0">
+                                    <div className="px-16 py-4 flex flex-col gap-4 border-l-[3px] border-[#006bff] bg-slate-50/20">
+                                      <div className="grid grid-cols-4 gap-8">
+                                        <div className="space-y-1">
+                                          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest leading-none">Priority</p>
+                                          <div className="flex items-center gap-1.5 pt-1">
+                                            <div className="h-2 w-2 rounded-full" style={{ backgroundColor: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f0a421ff' : '#10b981' }} />
+                                            <span className="text-[13px] font-semibold capitalize text-slate-700">{task.priority}</span>
+                                          </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest leading-none">Referring Hospital</p>
+                                          <div className="flex items-center gap-2 pt-1">
+                                            <div className="h-6 w-6 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                              <Hospital className="h-3.5 w-3.5 text-primary" />
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-700">{task.referringHospital || "N/A"}</span>
+                                          </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest leading-none">Referring Doctor</p>
+                                          <div className="flex items-center gap-2 pt-1">
+                                            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                                              <Stethoscope className="h-3.5 w-3.5 text-blue-600" />
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-700">{task.referringDoctor || "N/A"}</span>
+                                          </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest leading-none">Flags</p>
+                                          <div className="flex items-center gap-2 pt-1">
+                                            {task.isEmergency && (
+                                              <Badge className="text-[10px] font-semibold uppercase bg-red-100 text-red-800 h-5">
+                                                Emergency
+                                              </Badge>
+                                            )}
+                                            {task.isComparison && (
+                                              <Badge className="text-[10px] font-semibold uppercase bg-blue-100 text-blue-800 h-5">
+                                                Comparison
+                                              </Badge>
+                                            )}
+                                            {!task.isEmergency && !task.isComparison && (
+                                              <span className="text-[11px] font-medium text-slate-400">None</span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   )}
