@@ -36,7 +36,8 @@ import {
   UserPlus,
   Activity,
   CalendarCheck,
-  ArrowUpRight
+  ArrowUpRight,
+  ListFilter
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
 import { ScheduleAppointmentModal } from "@/components/Modals/ScheduleAppointmentModal";
 import { SendMessageModal } from "@/components/Modals/SendMessageModal";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
+import { patients as initialPatients } from "@/data/patients";
 
 
 const formatDate = (dateString: string) => {
@@ -57,11 +59,12 @@ const formatDate = (dateString: string) => {
 
 export default function Patients() {
   const navigate = useNavigate();
+  const [patients] = useState(initialPatients);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(16);
 
   // Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -70,89 +73,7 @@ export default function Patients() {
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
-  // Mock patients data
-  const patients = [
-    {
-      id: "CP120456A",
-      name: "Alex Turner",
-      dob: "1997-05-15",
-      email: "alex.turner@email.com",
-      phone: "+234 801 234 5678",
-      country: "Nigeria",
-      status: "active",
-      gender: "Male",
-      age: 28,
-      cases: 2,
-      totalValue: 27000,
-      lastActivity: "2025-01-15",
-      joinedDate: "2024-10-15",
-      avatar: ""
-    },
-    {
-      id: "CP238122C",
-      name: "Maria Garcia",
-      dob: "1991-08-22",
-      email: "maria.garcia@email.com",
-      phone: "+234 802 345 6789",
-      country: "Nigeria",
-      status: "active",
-      gender: "Female",
-      age: 34,
-      cases: 1,
-      totalValue: 18000,
-      lastActivity: "2025-01-10",
-      joinedDate: "2024-11-20",
-      avatar: ""
-    },
-    {
-      id: "CP349011B",
-      name: "James Wilson",
-      dob: "1983-11-05",
-      email: "james.wilson@email.com",
-      phone: "+234 803 456 7890",
-      country: "Nigeria",
-      status: "inactive",
-      gender: "Male",
-      age: 42,
-      cases: 1,
-      totalValue: 12000,
-      lastActivity: "2024-12-05",
-      joinedDate: "2024-09-10",
-      avatar: ""
-    },
-    {
-      id: "CP456789D",
-      name: "Lisa Wang",
-      dob: "1999-12-01",
-      email: "lisa.wang@email.com",
-      phone: "+234 804 567 8901",
-      country: "Nigeria",
-      status: "active",
-      gender: "Female",
-      age: 25,
-      cases: 1,
-      totalValue: 14000,
-      lastActivity: "2025-01-08",
-      joinedDate: "2024-12-01",
-      avatar: ""
-    },
-    {
-      id: "CP567890E",
-      name: "David Rodriguez",
-      dob: "1994-10-01",
-      email: "david.rodriguez@email.com",
-      phone: "+234 805 678 9012",
-      country: "Nigeria",
-      status: "archived",
-      gender: "Male",
-      age: 31,
-      cases: 0,
-      totalValue: 0,
-      lastActivity: "2024-11-15",
-      joinedDate: "2024-10-01",
-      avatar: ""
-    }
-  ];
+
 
   // Filter patients based on search and status
   const filteredPatients = patients.filter(patient => {
@@ -205,6 +126,15 @@ export default function Patients() {
     return variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800";
   };
 
+  const getPatientStatusColor = (status: string) => {
+    const colors = {
+      active: "#10b981",
+      archived: "#ef4444",
+      inactive: "#94a3b8"
+    };
+    return colors[status as keyof typeof colors] || "#94a3b8";
+  };
+
   const handleAddPatient = () => {
     navigate("/patients/create");
   };
@@ -233,421 +163,310 @@ export default function Patients() {
     navigate(`/patients/${patientId}`);
   };
 
+  const totalPatients = patients.length;
+  const activePatientsCount = patients.filter(p => p.status === 'active').length;
+  const newPatientsCount = 24;
+
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-[#fafafa]">
+      {/* Header Section with White Background */}
+      <div className="bg-white border-b">
+        <div className="p-6 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold text-slate-900">Patients</h1>
+                <Badge variant="secondary" className="h-6 px-2 text-[12px] font-bold bg-slate-100 text-slate-600 border-none rounded-md">
+                  {totalPatients}
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-sm">Manage the list of patients in the network.</p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Status Summary Cards with Gray Badges */}
+              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-emerald-50/70 border border-[#8bd5af]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">New Patients</span>
+                <div className="h-5 px-1.5 min-w-[20px] bg-emerald-700 text-white rounded-full flex items-center justify-center text-[10px] font-bold leading-none">
+                  {newPatientsCount}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-violet-50/70 border border-[#c4b8f5]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#6d30cd]">Active Patients</span>
+                <div className="h-5 px-1.5 min-w-[20px] bg-[#934eff] text-white rounded-full flex items-center justify-center text-[10px] font-bold leading-none">
+                  {activePatientsCount}
+                </div>
+              </div>
+
+              <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
+
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2 h-9 font-semibold text-slate-600 bg-white">
+                      <Download className="h-3.5 w-3.5" />
+                      Import/Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[180px]">
+                    <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting CSV...")}>
+                      <FileDown className="h-4 w-4 text-muted-foreground" />
+                      Export to CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting PDF...")}>
+                      <FileDown className="h-4 w-4 text-muted-foreground" />
+                      Export to PDF
+                    </DropdownMenuItem>
+                    <div className="h-px bg-muted my-1" />
+                    <DropdownMenuItem className="gap-2" onClick={() => navigate("/patients/import")}>
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      Import from CSV
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button onClick={handleAddPatient} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+                  <Plus className="h-4 w-4" />
+                  Add New Patient
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Search + Filters Bar */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search patients by name, ID or email..."
+                value={globalFilter}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+                className="pl-9 h-10 border shadow-none bg-slate-50/50 focus-visible:ring-primary/20 transition-all hover:border-slate-300 rounded-lg placeholder:text-slate-400 text-sm font-medium"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-auto h-10 px-3 text-sm font-medium bg-white border gap-2 shadow-none rounded-lg">
+                  <div className="flex items-center gap-2 text-slate-700 border-r border-border pr-2 mr-1">
+                    <ListFilter className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Filter by</span>
+                  </div>
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={timeFilter} onValueChange={setTimeFilter}>
+                <SelectTrigger className="w-auto h-10 px-3 text-sm font-medium bg-white border gap-2 shadow-none rounded-lg">
+                  <div className="flex items-center gap-2 text-slate-700 border-r border-border pr-2 mr-1">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Time</span>
+                  </div>
+                  <SelectValue placeholder="All Time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
+                  <SelectItem value="this-week">This Week</SelectItem>
+                  <SelectItem value="last-7-days">Last 7 Days</SelectItem>
+                  <SelectItem value="last-30-days">Last 30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="p-6">
         <div>
-          <h1 className="text-xl font-semibold tracking-light">Patients</h1>
-          <p className="text-muted-foreground">Manage your patient records and clinical information</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Download className="h-4 w-4" />
-                Import/Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[180px]">
-              <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting CSV...")}>
-                <FileDown className="h-4 w-4 text-muted-foreground" />
-                Export to CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting PDF...")}>
-                <FileDown className="h-4 w-4 text-muted-foreground" />
-                Export to PDF
-              </DropdownMenuItem>
-              <div className="h-px bg-muted my-1" />
-              <DropdownMenuItem className="gap-2" onClick={() => navigate("/patients/import")}>
-                <Upload className="h-4 w-4 text-muted-foreground" />
-                Import from CSV
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button onClick={handleAddPatient}>
-            <Plus className="h-4 w-4" />
-            Add New Patient
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pb-6">
-        {/* Total Patients */}
-        <Card className="bg-card overflow-hidden rounded-xl">
-          <div className="p-5 flex flex-col h-full justify-between">
-            <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-7 h-7 rounded-lg border flex items-center justify-center bg-background">
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">Patients</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-3xl font-semibold tracking-tight">{patients.length}</span>
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFFF6] text-[#008037] text-[11px] font-medium border border-[#58BF85]">
-                <ArrowUpRight className="h-3 w-3" />
-                12%
-              </div>
-            </div>
-
-            <p className="text-[13px] text-muted-foreground mt-2 line-clamp-1">
-              Displays live updates of patient numbers.
-            </p>
-          </div>
-        </Card>
-
-        {/* New Patients */}
-        <Card className="bg-card overflow-hidden rounded-xl">
-          <div className="p-5 flex flex-col h-full justify-between">
-            <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-7 h-7 rounded-lg border flex items-center justify-center bg-background">
-                <UserPlus className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">New Patients</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-3xl font-semibold tracking-tight">24</span>
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFFF6] text-[#008037] text-[11px] font-medium border border-[#58BF85]">
-                <ArrowUpRight className="h-3 w-3" />
-                8%
-              </div>
-            </div>
-
-            <p className="text-[13px] text-muted-foreground mt-2 line-clamp-1">
-              New registrations in the last 30 days.
-            </p>
-          </div>
-        </Card>
-
-        {/* Active Patients */}
-        <Card className="bg-card overflow-hidden rounded-xl">
-          <div className="p-5 flex flex-col h-full justify-between">
-            <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-7 h-7 rounded-lg border flex items-center justify-center bg-background">
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">Active Patients</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-3xl font-semibold tracking-tight">
-                {patients.filter(p => p.status === 'active').length}
-              </span>
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFFF6] text-[#008037] text-[11px] font-medium border border-[#58BF85]">
-                Steady
-              </div>
-            </div>
-
-            <p className="text-[13px] text-muted-foreground mt-2 line-clamp-1">
-              Patients with ongoing treatments.
-            </p>
-          </div>
-        </Card>
-
-        {/* Today's Appointments */}
-        <Card className="bg-card overflow-hidden rounded-xl">
-          <div className="p-5 flex flex-col h-full justify-between">
-            <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-7 h-7 rounded-lg border flex items-center justify-center bg-background">
-                <CalendarCheck className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">Today's Appointments</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-3xl font-semibold tracking-tight">12</span>
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFFF6] text-[#008037] text-[11px] font-medium border border-[#58BF85]">
-                <ArrowUpRight className="h-3 w-3" />
-                18%
-              </div>
-            </div>
-
-            <p className="text-[13px] text-muted-foreground mt-2 line-clamp-1">
-              Scheduled clinical visits for today.
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      {/* Patients Table Section */}
-      <div>
-        {patients.length > 0 ? (
-          <>
-            {/* Search + Filters */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-              <div className="relative w-full max-w-sm">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search patients..."
-                  value={globalFilter}
-                  onChange={(e) => setGlobalFilter(e.target.value)}
-                  className="pl-9 h-10 border-muted-foreground/20 focus-visible:ring-primary/20"
-                />
-              </div>
-
-              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-auto h-10 px-3 text-sm font-medium bg-background border-muted-foreground/20 gap-2">
-                    <div className="flex items-center gap-2 text-muted-foreground border-r pr-2 mr-1">
-                      <Filter className="h-3.5 w-3.5" />
-                      <span className="text-sm font-medium tracking-light">Sort by</span>
-                    </div>
-                    <SelectValue placeholder="All" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="archived">Archived</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={timeFilter} onValueChange={setTimeFilter}>
-                  <SelectTrigger className="w-auto h-10 px-3 text-sm font-medium bg-background border-muted-foreground/20 gap-2">
-                    <div className="flex items-center gap-2 text-muted-foreground border-r pr-2 mr-1">
-                      <Calendar className="h-3.5 w-3.5" />
-                    </div>
-                    <SelectValue placeholder="All Time" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="this-week">This Week</SelectItem>
-                    <SelectItem value="last-7-days">Last 7 Days</SelectItem>
-                    <SelectItem value="last-30-days">Last 30 Days</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[120px]">Patient ID</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Gender</TableHead>
-                  <TableHead>Last Visit</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          {patients.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {paginatedPatients.map((patient) => (
-                  <TableRow
+                  <Card
                     key={patient.id}
-                    className="hover:bg-muted/50 cursor-pointer transition-colors"
+                    className="group transition-all duration-300 border border-l-4 cursor-pointer overflow-hidden flex flex-col hover:shadow-lg hover:shadow-slate-200/50 hover:-translate-y-0.5 bg-white"
+                    style={{ borderLeftColor: getPatientStatusColor(patient.status) }}
                     onClick={() => handleRowClick(patient.id)}
                   >
-                    <TableCell>
-                      <code className="text-xs font-semibold bg-muted px-2 py-1 rounded">
-                        {patient.id}
-                      </code>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 border border-muted shadow-sm">
+                    <CardHeader className="p-4 pb-4">
+                      <div className="flex justify-between items-start">
+                        <Avatar className="h-10 w-10 border border-slate-100 shadow-sm ring-2 ring-white ring-offset-0">
                           <AvatarImage src={getPatientAvatarPath(patient.id, patient.gender)} alt={patient.name} />
-                          <AvatarFallback className={cn("text-sm font-semibold", getAvatarBg(patient.name))}>
+                          <AvatarFallback className={cn("text-[13px] font-bold", getAvatarBg(patient.name))}>
                             {getAvatarInitials(patient.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <div className="font-medium">{patient.name}</div>
-                          <div className="text-xs text-muted-foreground">{patient.age} years old</div>
+
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-[200px]">
+                              <DropdownMenuItem asChild>
+                                <Link to={`/patients/${patient.id}`} className="flex items-center gap-2">
+                                  <Eye className="h-4 w-4 text-muted-foreground" />
+                                  View Details
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEditPatient(patient)} className="flex items-center gap-2">
+                                <Edit className="h-4 w-4 text-muted-foreground" />
+                                Edit Patient
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleSendInvoice(patient)} className="flex items-center gap-2">
+                                <ReceiptText className="h-4 w-4 text-muted-foreground" />
+                                Send Invoice
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleScheduleAppointment(patient)} className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                Schedule Appointment
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleSendMessage(patient)} className="flex items-center gap-2">
+                                <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                                Send Message
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {patient.status === 'archived' ? (
+                                <DropdownMenuItem onClick={() => console.log("Unarchiving...")} className="flex items-center gap-2 text-primary">
+                                  <RotateCcw className="h-4 w-4" />
+                                  Unarchive Patient
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem onClick={() => console.log("Archiving...")} className="flex items-center gap-2 text-destructive">
+                                  <Archive className="h-4 w-4" />
+                                  Archive Patient
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="h-3 w-3 text-muted-foreground" />
-                          {patient.email}
+
+                      <div className="mt-4">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-[15px] font-semibold text-slate-800 truncate leading-tight transition-colors">
+                            {patient.name}
+                          </h3>
+                          <code className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded leading-none ring-1 ring-slate-200/50 uppercase tracking-tighter">
+                            {patient.id}
+                          </code>
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Phone className="h-3 w-3 text-muted-foreground" />
-                          {patient.phone}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase tracking-wide font-bold text-slate-600">
+                            {patient.gender === 'Male' ? 'M' : 'F'}
+                          </span>
+                          <div className="h-1 w-1 rounded-full bg-slate-400" />
+                          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                            {patient.age} Y/O
+                          </span>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">{patient.gender}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">{formatDate(patient.lastActivity)}</div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusBadge(patient.status)}>
-                        {patient.status.charAt(0).toUpperCase() + patient.status.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell
-                      className="text-right"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-[200px]">
-                          <DropdownMenuItem asChild>
-                            <Link to={`/patients/${patient.id}`} className="flex items-center gap-2">
-                              <Eye className="h-4 w-4 text-muted-foreground" />
-                              View Details
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditPatient(patient)} className="flex items-center gap-2">
-                            <Edit className="h-4 w-4 text-muted-foreground" />
-                            Edit Patient
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleSendInvoice(patient)} className="flex items-center gap-2">
-                            <ReceiptText className="h-4 w-4 text-muted-foreground" />
-                            Send Invoice
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleScheduleAppointment(patient)} className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            Schedule Appointment
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleSendMessage(patient)} className="flex items-center gap-2">
-                            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                            Send Message
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {patient.status === 'archived' ? (
-                            <DropdownMenuItem onClick={() => console.log("Unarchiving...")} className="flex items-center gap-2 text-primary">
-                              <RotateCcw className="h-4 w-4" />
-                              Unarchive Patient
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem onClick={() => console.log("Archiving...")} className="flex items-center gap-2 text-destructive">
-                              <Archive className="h-4 w-4" />
-                              Archive Patient
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                    </CardHeader>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
-
-            {/* Pagination */}
-            {filteredPatients.length > 0 && (
-              <div className="flex items-center border-t justify-between px-2 py-3">
-                <div className="text-sm text-muted-foreground">
-                  {filteredPatients.length} results
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="hidden lg:flex"
-                    onClick={() => setCurrentPage(1)}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronsLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="text-sm font-medium">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="hidden lg:flex"
-                    onClick={() => setCurrentPage(totalPages)}
-                    disabled={currentPage === totalPages}
-                  >
-                    <ChevronsRight className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Rows per page:</span>
-                  <Select
-                    value={`${itemsPerPage}`}
-                    onValueChange={(v) => {
-                      setItemsPerPage(Number(v));
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-[70px] h-8 text-sm font-medium">
-                      <SelectValue placeholder={itemsPerPage} />
-                    </SelectTrigger>
-                    <SelectContent side="top">
-                      {[10, 20, 30, 50].map((pageSize) => (
-                        <SelectItem key={pageSize} value={`${pageSize}`}>
-                          {pageSize}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
-            )}
 
-            {/* No Patients Found during Search */}
-            {filteredPatients.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4 text-muted-foreground">
-                  <Search className="h-6 w-6" />
+              {/* Pagination */}
+              {filteredPatients.length > itemsPerPage && (
+                <div className="flex items-center border-t border-slate-200 justify-between px-2 py-6">
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 hidden lg:flex bg-white shadow-sm border-slate-200"
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 bg-white shadow-sm border-slate-200"
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-[13px] font-bold text-slate-700 px-3">
+                      Page {currentPage} / {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 bg-white shadow-sm border-slate-200"
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 hidden lg:flex bg-white shadow-sm border-slate-200"
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="text-[12px] font-bold text-slate-500 uppercase tracking-wider bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                    Showing <span className="text-slate-800">{startIndex + 1}</span> - <span className="text-slate-800">{Math.min(startIndex + itemsPerPage, filteredPatients.length)}</span> of <span className="text-slate-800">{filteredPatients.length}</span> Entries
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium">No patients found</h3>
-                <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                  Try adjusting your search or filters to find what you're looking for.
-                </p>
-                <Button variant="outline" onClick={() => { setGlobalFilter(""); setStatusFilter("all"); setTimeFilter("all"); }}>
-                  Clear all filters
+              )}
+
+              {/* No Patients Found during Search */}
+              {filteredPatients.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 text-slate-400 border border-slate-200 shadow-inner">
+                    <Search className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800">No patients found</h3>
+                  <p className="text-sm text-slate-500 max-w-sm mb-8 font-medium">
+                    Try adjusting your search or filters to find what you're looking for.
+                  </p>
+                  <Button variant="outline" className="shadow-sm font-bold" onClick={() => { setGlobalFilter(""); setStatusFilter("all"); setTimeFilter("all"); }}>
+                    Clear all filters
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            /* System-wide Empty State */
+            <div className="flex flex-col items-center justify-center py-24 text-center bg-card rounded-2xl border-2 border-dashed border-slate-200 shadow-sm">
+              <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 text-primary ring-8 ring-primary/5">
+                <Users className="h-10 w-10" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">No patients in the system</h2>
+              <p className="text-[15px] font-medium text-slate-500 max-w-lg mb-10 text-balance leading-relaxed">
+                It appears there are no patient records in the system at the moment.
+                Start by adding your first patient or importing existing records.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Button size="lg" variant="outline" className="min-w-[180px] gap-2 font-bold h-12 shadow-sm" onClick={() => navigate("/patients/import")}>
+                  <Upload className="h-5 w-5" />
+                  Import Records
+                </Button>
+                <Button size="lg" className="min-w-[180px] gap-2 font-bold h-12 shadow-lg" onClick={() => navigate("/patients/create")}>
+                  <Plus className="h-5 w-5" />
+                  Add New Patient
                 </Button>
               </div>
-            )}
-          </>
-        ) : (
-          /* System-wide Empty State */
-          <div className="flex flex-col items-center justify-center py-20 text-center bg-card rounded-xl border border-dashed border-muted-foreground/20">
-            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 text-primary">
-              <Users className="h-8 w-8" />
             </div>
-            <h2 className="text-lg font-medium mb-2">No patients in the system</h2>
-            <p className="text-sm text-muted-foreground max-w-lg mb-8 text-balance">
-              It appears there are no patient records in the system at the moment.
-              To get started, you can add a new patient by clicking the 'Add New Patient' button below.
-              If you have existing patient records to import, you can do so using our data import feature.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <Button size="lg" variant="outline" className="min-w-[160px] gap-2" onClick={() => navigate("/patients/import")}>
-                <Upload className="h-4 w-4" />
-                Import Records
-              </Button>
-              <Button size="lg" className="min-w-[160px] gap-2" onClick={() => navigate("/patients/create")}>
-                <Plus className="h-4 w-4" />
-                Add New Patient
-              </Button>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Modals */}

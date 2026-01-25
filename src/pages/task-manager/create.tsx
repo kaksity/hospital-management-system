@@ -45,6 +45,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 import { PatientCollection } from "@/components/PatientCollection";
+import { patients as MOCK_PATIENTS } from "@/data/patients";
 
 
 // Services data
@@ -62,94 +63,7 @@ const PRIORITIES = [
   { value: "high", label: "High", color: "bg-red-100 text-red-700" },
 ];
 
-// Mock patients data with visit history
-const MOCK_PATIENTS = [
-  {
-    id: "CP120456A",
-    name: "Alex Turner",
-    age: 28,
-    gender: "Male",
-    patientType: "private" as const,
-    phone: "+234 801 234 5678",
-    email: "alex.turner@email.com",
-    lastVisit: "2025-01-15",
-    totalVisits: 3,
-    lastService: "MRI Brain",
-    pendingTests: ["CT Chest", "X-Ray Wrist"],
-    avatar: "",
-    status: "active" as const,
-    referringHospital: "City General Hospital",
-    referringDoctor: "Dr. Sarah Johnson"
-  },
-  {
-    id: "CP238122C",
-    name: "Maria Garcia",
-    age: 34,
-    gender: "Female",
-    patientType: "hmo" as const,
-    phone: "+234 802 345 6789",
-    email: "maria.garcia@email.com",
-    lastVisit: "2025-01-10",
-    totalVisits: 2,
-    lastService: "Ultrasound Pelvis",
-    pendingTests: ["MRI Spine"],
-    avatar: "",
-    status: "active" as const,
-    referringHospital: "Metropolitan Medical Center",
-    referringDoctor: "Dr. Michael Chen"
-  },
-  {
-    id: "CP349011B",
-    name: "James Wilson",
-    age: 42,
-    gender: "Male",
-    patientType: "regular" as const,
-    phone: "+234 803 456 7890",
-    email: "james.wilson@email.com",
-    lastVisit: "2024-12-05",
-    totalVisits: 5,
-    lastService: "CT Abdomen",
-    pendingTests: ["X-Ray Chest"],
-    avatar: "",
-    status: "active" as const,
-    referringHospital: "St. Jude Specialist Center",
-    referringDoctor: "Dr. Emily Okafor"
-  },
-  {
-    id: "CP456789D",
-    name: "Lisa Wang",
-    age: 25,
-    gender: "Female",
-    patientType: "hmo" as const,
-    phone: "+234 804 567 8901",
-    email: "lisa.wang@email.com",
-    lastVisit: "2025-01-08",
-    totalVisits: 1,
-    lastService: "Mammography",
-    pendingTests: ["Ultrasound Breast"],
-    avatar: "",
-    status: "active" as const,
-    referringHospital: "Redeemer Health Clinic",
-    referringDoctor: "Dr. David Smith"
-  },
-  {
-    id: "CP567890E",
-    name: "David Rodriguez",
-    age: 31,
-    gender: "Male",
-    patientType: "private" as const,
-    phone: "+234 805 678 9012",
-    email: "david.rodriguez@email.com",
-    lastVisit: "2024-11-15",
-    totalVisits: 2,
-    lastService: "X-Ray Knee",
-    pendingTests: ["MRI Knee"],
-    avatar: "",
-    status: "active" as const,
-    referringHospital: "City General Hospital",
-    referringDoctor: "Dr. Sarah Johnson"
-  }
-];
+
 
 // Mock doctors data
 const MOCK_DOCTORS = [

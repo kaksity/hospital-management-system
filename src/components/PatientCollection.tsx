@@ -11,23 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 
-interface Patient {
-  id: string;
-  name: string;
-  age: number;
-  gender: string;
-  patientType: string;
-  phone: string;
-  email: string;
-  lastVisit: string;
-  totalVisits: number;
-  lastService: string;
-  pendingTests: string[];
-  avatar: string;
-  status: string;
-  referringHospital?: string;
-  referringDoctor?: string;
-}
+import { Patient } from "@/data/patients";
 
 interface PatientCollectionProps {
   patients: Patient[];

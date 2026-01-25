@@ -84,7 +84,25 @@ const getBreadcrumbs = (pathname: string) => {
 
   // Handle dynamic diagnostic-reports pages
   if (pathname.startsWith('/diagnostic-reports/')) {
-    const docId = pathname.split('/')[2];
+    const segments = pathname.split('/');
+    const docId = segments[2];
+
+    if (docId === 'create') {
+      return [
+        { label: "Dashboard", href: "/" },
+        { label: "Diagnostic Reports", href: "/diagnostic-reports" },
+        { label: "Create Report", href: pathname }
+      ];
+    }
+
+    if (segments[3] === 'edit') {
+      return [
+        { label: "Dashboard", href: "/" },
+        { label: "Diagnostic Reports", href: "/diagnostic-reports" },
+        { label: `Edit Report ${docId}`, href: pathname }
+      ];
+    }
+
     return [
       { label: "Dashboard", href: "/" },
       { label: "Diagnostic Reports", href: "/diagnostic-reports" },

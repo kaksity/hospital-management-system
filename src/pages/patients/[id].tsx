@@ -48,9 +48,17 @@ import { formatDate } from "@/utils/dateFormatter";
 import { formatCurrency } from "@/utils/formatCurrency";
 
 
+import { patients as initialPatients, Patient } from "@/data/patients";
+
+
 export default function PatientDetail() {
   const { id: routeId } = useParams();
   const [loading, setLoading] = React.useState(true);
+
+  // Find the patient in our central data store
+  const patient = React.useMemo(() => {
+    return initialPatients.find(p => p.id === routeId);
+  }, [routeId]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 500);
@@ -60,111 +68,113 @@ export default function PatientDetail() {
   if (loading) {
     return (
       <div className="p-6 text-center text-muted-foreground">
-        Loading patient details...
+        <div className="flex flex-col items-center gap-4 mt-20">
+          <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <p className="font-medium">Fetching patient records...</p>
+        </div>
       </div>
     );
   }
 
-  // Mock patient data
-  const patientData = {
-    id: routeId || "PT-001",
-    name: "Alex Turner",
-    email: "alex.turner@email.com",
-    phone: "+234 812 345 6789",
-    status: "active",
-    joinedDate: "2024-10-15",
-    lastActivity: "2025-01-15",
-    address: "123 Healthcare Blvd, Lagos, Nigeria",
+  if (!patient) {
+    return (
+      <div className="p-12 text-center">
+        <h2 className="text-xl font-bold text-slate-800">Patient Not Found</h2>
+        <p className="text-slate-500 mt-2">The record for ID {routeId} could not be located in the clinical database.</p>
+        <Button className="mt-6" asChild>
+          <Link to="/patients">Return to Patient List</Link>
+        </Button>
+      </div>
+    );
+  }
 
-    // Clinical Information
+  // Map central patient data to the detailed view structure
+  const patientData = {
+    id: patient.id,
+    name: patient.name,
+    email: patient.email,
+    phone: patient.phone,
+    status: patient.status,
+    joinedDate: patient.joinedDate,
+    lastActivity: patient.lastActivity,
+    address: "123 Healthcare Blvd, Lagos, Nigeria", // This would ideally come from the data store too
+
     clinicalInfo: {
-      patientType: "Private",
-      gender: "Male" as const,
-      dob: "1997-05-15",
-      age: 28,
+      patientType: patient.patientType,
+      gender: patient.gender,
+      dob: patient.dob,
+      age: patient.age,
       maritalStatus: "Single",
       nationality: "Nigerian",
       bloodGroup: "O+",
       genotype: "AA",
       allergies: ["Penicillin"],
       medications: ["None"],
-      history: "Chronic headaches for 3 months.",
+      history: `${patient.name} has a history of ${patient.lastService || "routine checkups"}.`,
       registeredBy: "Adebayo Olusola",
       preferredCommunication: "WhatsApp"
     },
 
-    // Appointments associated with this patient
+    // Clinical and Financial history (Mocking these for now but linking to the patient's ID)
     appointments: [
       {
-        id: "APT-2025-001",
-        type: "MRI Brain",
+        id: `APT-${patient.id}-001`,
+        type: patient.lastService || "General Consultation",
         status: "Completed",
-        date: "2025-01-15",
+        date: patient.lastActivity,
         time: "10:00 AM",
-        doctor: "Dr. Sarah Johnson",
-        facility: "Main Radiology Wing"
+        doctor: patient.referringDoctor || "Dr. Sarah Johnson",
+        facility: patient.referringHospital || "Main Radiology Wing"
       },
-      {
-        id: "APT-2025-012",
-        type: "CT Chest",
-        status: "Schedule",
-        date: "2025-02-10",
-        time: "02:30 PM",
-        doctor: "Dr. Michael Chen",
-        facility: "Emergency Radiology"
-      },
-      {
-        id: "APT-2024-118",
-        type: "X-Ray Leg",
-        status: "Completed",
-        date: "2024-12-05",
-        time: "09:15 AM",
-        doctor: "Dr. Emily Okafor",
-        facility: "Outpatient Clinic"
-      }
+      ... (patient.totalVisits > 1 ? [
+        {
+          id: `APT-${patient.id}-012`,
+          type: "Follow-up Consultation",
+          status: "Schedule",
+          date: "2025-02-10",
+          time: "02:30 PM",
+          doctor: "Dr. Michael Chen",
+          facility: "Emergency Radiology"
+        }
+      ] : [])
     ],
 
-    // Medical Reports
-    reports: [
+    reports: patient.pendingTests.length > 0 ? [
       {
-        id: "REP-9921",
-        title: "Brain MRI Analysis",
-        type: "MRI Report",
-        date: "2025-01-16",
+        id: `REP-${patient.id}-9921`,
+        title: `${patient.lastService} Analysis`,
+        type: "Radiology Report",
+        date: patient.lastActivity,
         status: "Finalized",
-        doctor: "Dr. Sarah Johnson"
-      },
-      {
-        id: "REP-9844",
-        title: "Lower Limb X-Ray Findings",
-        type: "X-Ray Report",
-        date: "2024-12-06",
-        status: "Finalized",
-        doctor: "Dr. Emily Okafor"
+        doctor: patient.referringDoctor || "Dr. Sarah Johnson"
       }
-    ],
+    ] : [],
 
-    // Payment information
     paymentSummary: {
-      totalValue: 185000,
-      paid: 150000,
-      balance: 35000,
+      totalValue: patient.totalValue,
+      paid: patient.totalValue * 0.8,
+      balance: patient.totalValue * 0.2,
       nextPaymentDue: "2025-02-15",
       invoices: [
-        { id: "INV-1001", name: "MRI Brain Scanning", amount: 120000, status: "paid", date: "2025-01-15" },
-        { id: "INV-1002", name: "CT Chest Consultation", amount: 30000, status: "paid", date: "2025-01-20" },
-        { id: "INV-1003", name: "Follow-up Preparation", amount: 35000, status: "pending", dueDate: "2025-02-15" }
+        {
+          id: `INV-${patient.id}-1001`,
+          name: `${patient.lastService || "Medical Service"} Fee`,
+          amount: patient.totalValue,
+          status: patient.totalValue > 0 ? "paid" : "pending",
+          date: patient.lastActivity
+        }
       ]
     }
   };
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      active: "bg-green-100 text-green-800",
-      completed: "bg-blue-100 text-blue-800",
-      inactive: "bg-gray-100 text-gray-800"
+      active: "bg-green-100 text-green-800 border-green-200",
+      completed: "bg-blue-100 text-blue-800 border-blue-200",
+      inactive: "bg-gray-100 text-gray-800 border-gray-200",
+      archived: "bg-red-100 text-red-800 border-red-200"
     };
-    return variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800";
+    return cn("capitalize font-semibold", variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800");
   };
 
   const getAppointmentStatusBadge = (status: string) => {
@@ -474,7 +484,7 @@ export default function PatientDetail() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm">
-                          {inv.status === 'paid' ? formatDate(inv.date!) : formatDate(inv.dueDate!)}
+                          {formatDate(inv.date)}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button variant="ghost" size="sm">Download</Button>

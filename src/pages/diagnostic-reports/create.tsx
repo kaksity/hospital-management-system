@@ -12,6 +12,7 @@ import {
   Square,
   Pause,
   MicOff,
+  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -194,13 +195,14 @@ export default function CreateDiagnosticReport() {
   const [reportData] = useState(initialData);
   const [editorContent, setEditorContent] = useState("<p>Start typing your report here...</p>");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeMode, setActiveMode] = useState<'template' | 'voice' | 'manual'>('manual');
+  const [activeMode, setActiveMode] = useState<'template' | 'manual'>('manual');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
 
   const {
     isListening,
     isPaused,
+    isTranscribing,
     transcript,
     recordingTime,
     audioLevel,
@@ -210,19 +212,27 @@ export default function CreateDiagnosticReport() {
     clearTranscript,
   } = useSpeechRecognition({
     onResult: (newTranscript) => {
-      if (activeMode === 'voice') {
+      // Live preview - standard recognition
+      setLivePreview(newTranscript);
+    },
+    onEnd: (finalTranscript) => {
+      const processedText = finalTranscript.trim();
+      if (processedText) {
         setEditorContent(prev => {
-          // Remove the placeholder if it exists
-          if (prev === "<p>Start typing your report here...</p>") {
-            return `<p>${newTranscript}</p>`;
+          const base = prev === "<p>Start typing your report here...</p>" ? "" : prev;
+          if (base.endsWith('</p>')) {
+            return base.replace(/<\/p>$/, ` ${processedText}</p>`);
           }
-          // Append new transcript
-          const withoutClosingTag = prev.replace('</p>', '');
-          return `${withoutClosingTag} ${newTranscript}</p>`;
+          return `${base}<p>${processedText}</p>`;
+        });
+        toast.success("Transcription complete", {
+          description: "Advanced AI has processed your audio for maximum accuracy.",
         });
       }
     },
   });
+
+  const [livePreview, setLivePreview] = useState("");
 
   // Check browser support on mount
   useEffect(() => {
@@ -232,8 +242,8 @@ export default function CreateDiagnosticReport() {
 
   useEffect(() => {
     if (!isBrowserSupported) {
-      toast.warning("Voice dictation not supported", {
-        description: "Please use Chrome or Edge for voice dictation features.",
+      toast.warning("Audio recording not supported", {
+        description: "Please use Chrome or Edge for record and transcribe features.",
         duration: 8000,
       });
     }
@@ -249,22 +259,18 @@ export default function CreateDiagnosticReport() {
   };
 
   const handleVoiceMode = () => {
-    if (activeMode === 'voice' && isListening) {
+    if (isListening) {
       stopRecording();
-      setActiveMode('manual');
     } else {
-      setActiveMode('voice');
       setSelectedTemplate('');
       startRecording();
     }
   };
 
-  const handleManualMode = () => {
-    if (isListening) {
-      stopRecording();
-    }
-    setActiveMode('manual');
-    setSelectedTemplate('');
+  const toggleMode = () => {
+    const nextMode = activeMode === 'manual' ? 'template' : 'manual';
+    setActiveMode(nextMode);
+    if (isListening) stopRecording();
   };
 
   const handleCreate = () => {
@@ -344,40 +350,45 @@ export default function CreateDiagnosticReport() {
               <CardTitle className="text-sm font-semibold tracking-normal text-[#476788]">
                 Report Editor
               </CardTitle>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={activeMode === 'template' ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setActiveMode('template')}
-                    className="h-8"
-                  >
-                    <FileText className="h-3.5 w-3.5" />
-                    Template
-                  </Button>
-                  <Button
-                    variant={activeMode === 'voice' ? "default" : "outline"}
-                    size="sm"
-                    onClick={handleVoiceMode}
-                    disabled={!isBrowserSupported}
-                    className={cn("h-8 gap-2", activeMode === 'voice' && isListening && "animate-pulse")}
-                  >
-                    {activeMode === 'voice' && isListening ? (
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleMode}
+                  className="h-8 gap-2 font-semibold"
+                >
+                  {activeMode === 'manual' ? (
+                    <>
+                      <FileText className="h-3.5 w-3.5 text-primary" />
+                      Use Template
+                    </>
+                  ) : (
+                    <>
+                      <Edit className="h-3.5 w-3.5 text-primary" />
+                      Use Manual Mode
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  variant={isListening ? "destructive" : "outline"}
+                  size="sm"
+                  onClick={handleVoiceMode}
+                  disabled={!isBrowserSupported || isTranscribing}
+                  className={cn("h-8 gap-2 font-semibold", isListening && "animate-pulse")}
+                >
+                  {isListening ? (
+                    <>
                       <Square className="h-3.5 w-3.5" />
-                    ) : (
-                      <Mic className="h-3.5 w-3.5" />
-                    )}
-                    Voice
-                  </Button>
-                  <Button
-                    variant={activeMode === 'manual' ? "default" : "outline"}
-                    size="sm"
-                    onClick={handleManualMode}
-                    className="h-8"
-                  >
-                    ✏️ Manual
-                  </Button>
-                </div>
+                      Stop Recording
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-3.5 w-3.5 text-primary" />
+                      Record Audio
+                    </>
+                  )}
+                </Button>
               </div>
             </CardHeader>
 
@@ -404,138 +415,93 @@ export default function CreateDiagnosticReport() {
                 </div>
               )}
 
-              {activeMode === 'voice' && (
-                <Card className="border bg-slate-50/50">
-                  <CardContent className="p-4">
-                    {!isBrowserSupported ? (
-                      <div className="p-3 border border-amber-200 bg-amber-50 rounded-md">
-                        <div className="flex items-center gap-2 text-amber-800 text-sm">
-                          <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                          <span>Voice dictation requires Chrome or Edge. Manual typing is available.</span>
-                        </div>
+              {(isListening || isTranscribing) && (
+                <div className="p-3 bg-[#fafafa] rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "h-8 w-8 rounded-full flex items-center justify-center",
+                        isListening
+                          ? isPaused
+                            ? "bg-amber-100 text-amber-600"
+                            : "bg-red-100 text-red-600 animate-pulse"
+                          : "bg-primary/10 text-primary"
+                      )}>
+                        {isListening ? (
+                          isPaused ? <Pause className="h-4 w-4" /> : <Mic className="h-4 w-4" />
+                        ) : (
+                          <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                        )}
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "h-10 w-10 rounded-full flex items-center justify-center",
-                              isListening
-                                ? isPaused
-                                  ? "bg-amber-100 text-amber-600"
-                                  : "bg-red-100 text-red-600 animate-pulse"
-                                : "bg-slate-100 text-slate-600"
-                            )}>
-                              {isListening ? (
-                                isPaused ? <Pause className="h-5 w-5" /> : <Mic className="h-5 w-5" />
-                              ) : (
-                                <MicOff className="h-5 w-5" />
-                              )}
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium">
-                                {isListening ? (isPaused ? "Paused" : "Recording...") : "Ready to record"}
-                              </div>
-                              <div className="text-xs text-muted-foreground flex items-center gap-2">
-                                <Clock className="h-3 w-3" />
-                                {isListening ? recordingTime : "00:00"}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            {isListening ? (
-                              <>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={pauseRecording}
-                                >
-                                  {isPaused ? (
-                                    <>
-                                      <Mic className="h-3.5 w-3.5 mr-1" />
-                                      Resume
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Pause className="h-3.5 w-3.5 mr-1" />
-                                      Pause
-                                    </>
-                                  )}
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={handleVoiceMode}
-                                >
-                                  <Square className="h-3.5 w-3.5 mr-1" />
-                                  Stop
-                                </Button>
-                              </>
-                            ) : (
-                              <Button
-                                onClick={handleVoiceMode}
-                                className="gap-2"
-                              >
-                                <Mic className="h-4 w-4" />
-                                Start Recording
-                              </Button>
-                            )}
-                          </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-700 leading-none">
+                          {isListening ? (isPaused ? "Paused" : "Recording...") : "AI Transcribing..."}
                         </div>
-
-                        {/* Audio Level Visualization */}
-                        {isListening && !isPaused && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>Audio Level</span>
-                              <span>{Math.round(audioLevel)}%</span>
-                            </div>
-                            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-green-500 transition-all duration-150"
-                                style={{ width: `${audioLevel}%` }}
-                              />
-                            </div>
+                        {isListening && (
+                          <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1 mt-1">
+                            <Clock className="h-3 w-3" />
+                            {recordingTime}
                           </div>
                         )}
+                      </div>
+                    </div>
 
-                        {/* Live Transcript Preview */}
-                        {transcript && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-xs">Live Transcript</Label>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={clearTranscript}
-                                className="h-6 text-xs"
-                              >
-                                Clear
-                              </Button>
-                            </div>
-                            <div className="p-3 bg-white border rounded-md text-sm max-h-32 overflow-y-auto">
-                              {transcript}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              💡 Speak clearly. Say "comma", "period", "new paragraph" for punctuation.
-                            </p>
-                          </div>
-                        )}
+                    {isListening && !isPaused && (
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-[2px] h-4 w-12 pt-1">
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <div
+                              key={i}
+                              className="w-1 bg-primary rounded-full transition-all duration-150"
+                              style={{
+                                height: `${Math.max(15, Math.min(100, (audioLevel * (0.4 + (i * 0.15)))))}%`,
+                                opacity: 0.3 + (audioLevel / 100)
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-[10px] font-bold text-primary tabular-nums">
+                          Live
+                        </span>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+
+                  {livePreview && isListening && (
+                    <div className="p-3 bg-[#e6f0ff] border border-[#006bff] rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Live Preview</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={clearTranscript}
+                          className="h-5 text-[10px] font-bold hover:bg-[#d9e8ff] text-[#006bff] px-2"
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                      <p className="text-sm text-slate-800 leading-relaxed font-medium">
+                        {livePreview}
+                      </p>
+                    </div>
+                  )}
+                </div>
               )}
 
               {/* Editor */}
               <div className="flex-1 flex flex-col">
                 <div className="mb-2 flex items-center justify-between">
                   <Label>Report Content</Label>
-                  {activeMode === 'voice' && isListening && (
-                    <Badge variant="outline" className="text-xs animate-pulse bg-red-50 text-red-700 border-red-200">
-                      <Volume2 className="h-3 w-3 mr-1" />
-                      Live Dictation Active
+                  {isListening && (
+                    <Badge variant="outline" className="text-[10px] animate-pulse bg-red-50 text-red-700 border-red-200 font-bold uppercase tracking-wider">
+                      <Volume2 className="h-3 w-3 mr-1.5" />
+                      Recording Audio...
+                    </Badge>
+                  )}
+                  {isTranscribing && (
+                    <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20 font-bold uppercase tracking-wider">
+                      <div className="h-2 w-2 rounded-full border border-primary border-t-transparent animate-spin mr-1.5" />
+                      AI Transcribing...
                     </Badge>
                   )}
                 </div>

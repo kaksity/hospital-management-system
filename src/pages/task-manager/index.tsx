@@ -434,7 +434,7 @@ export default function TaskManager() {
       <div className="flex-none space-y-6 p-6 pb-4 bg-background border-b">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-light">Tasks</h1>
+            <h1 className="text-xl font-semibold">Tasks</h1>
             <p className="text-muted-foreground text-sm">Monitor and assign reporting tasks to radiologists</p>
           </div>
           <Button
