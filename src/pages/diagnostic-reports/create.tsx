@@ -13,6 +13,7 @@ import {
   Pause,
   MicOff,
   Edit,
+  Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,8 @@ import { cn } from "@/lib/utils";
 import { formatDateOnly } from "@/utils/dateFormatter";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
+import { pdfService } from "@/services/pdfService";
+import { EmailPreviewModal } from "@/components/diagnostic-reports/EmailPreviewModal";
 
 // Mock Pre-filled Request Data (Simulating creating a report for a pending request)
 const mockPendingRequest = {
@@ -198,6 +201,8 @@ export default function CreateDiagnosticReport() {
   const [activeMode, setActiveMode] = useState<'template' | 'manual'>('manual');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState("");
 
   const {
     isListening,
@@ -206,13 +211,16 @@ export default function CreateDiagnosticReport() {
     transcript,
     recordingTime,
     audioLevel,
+    error,
     startRecording,
     stopRecording,
     pauseRecording,
     clearTranscript,
+    clearError,
   } = useSpeechRecognition({
+    language: 'en-US',
+    medicalContext: true,
     onResult: (newTranscript) => {
-      // Live preview - standard recognition
       setLivePreview(newTranscript);
     },
     onEnd: (finalTranscript) => {
@@ -278,8 +286,31 @@ export default function CreateDiagnosticReport() {
     // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
+      toast.success("Report created successfully");
       navigate("/diagnostic-reports");
     }, 1500);
+  };
+
+  const handleCreateAndSend = async () => {
+    try {
+      setIsSubmitting(true);
+      toast.info("Saving and preparing report...");
+
+      // 1. Simulate saving (In a real app, this would be an API call)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 2. Generate PDF for the preview
+      const base64 = await pdfService.generateFromElement('report-pdf-content', {
+        filename: `Report_${reportData.requestNo}.pdf`
+      });
+
+      setPdfBase64(base64);
+      setIsPreviewModalOpen(true);
+    } catch (error: any) {
+      toast.error("Failed to prepare report", { description: error.message });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -302,6 +333,19 @@ export default function CreateDiagnosticReport() {
         <div className="flex items-center gap-3">
           <Button variant="outline" className="gap-2 bg-white" onClick={() => navigate("/diagnostic-reports")}>
             Cancel
+          </Button>
+          <Button
+            onClick={handleCreateAndSend}
+            disabled={isSubmitting}
+            variant="outline"
+            className="gap-2 border-primary text-primary hover:bg-primary/5"
+          >
+            {isSubmitting ? "Processing..." : (
+              <>
+                <Send className="h-4 w-4" />
+                Save & Send Email
+              </>
+            )}
           </Button>
           <Button
             onClick={handleCreate}
@@ -345,7 +389,7 @@ export default function CreateDiagnosticReport() {
             </CardContent>
           </Card>
 
-          <Card className="border overflow-hidden bg-white flex-1 flex flex-col">
+          <Card id="report-pdf-content" className="border overflow-hidden bg-white flex-1 flex flex-col">
             <CardHeader className="border-b bg-slate-50/50 py-4 flex flex-row items-center justify-between">
               <CardTitle className="text-sm font-semibold tracking-normal text-[#476788]">
                 Report Editor
@@ -598,6 +642,19 @@ export default function CreateDiagnosticReport() {
           </Card>
         </div>
       </div>
+      <EmailPreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => {
+          setIsPreviewModalOpen(false);
+          navigate("/diagnostic-reports");
+        }}
+        reportData={{
+          ...reportData,
+          reportNo: reportData.requestNo, // Use requestNo as placeholder for new report
+          reportContent: editorContent
+        }}
+        pdfBase64={pdfBase64}
+      />
     </div>
   );
 }

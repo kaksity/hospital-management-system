@@ -1,6 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { emailService } from "@/services/emailService";
+import { pdfService } from "@/services/pdfService";
+import { EmailPreviewModal } from "@/components/diagnostic-reports/EmailPreviewModal";
 import {
   ChevronLeft,
   User,
@@ -16,12 +21,14 @@ import {
   Send,
   Paperclip,
   FileImage,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatDateOnly, formatDateTime } from "@/utils/dateFormatter";
+import { cn } from "@/lib/utils";
 
 // Mock Report Data
 const mockReport = {
@@ -87,127 +94,172 @@ export default function ViewReport() {
   const { id } = useParams();
   const navigate = useNavigate();
   const reportData = mockReport;
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState("");
+
+  const handleSendReport = async () => {
+    try {
+      setIsSendingEmail(true);
+
+      // Generate PDF first to attach to the preview
+      const base64 = await pdfService.generateFromElement('report-pdf-content', {
+        filename: `Report_${reportData.reportNo}.pdf`
+      });
+      setPdfBase64(base64);
+      setIsPreviewModalOpen(true);
+    } catch (error: any) {
+      console.error('PDF Gen Error:', error);
+      toast.error("Failed to prepare report for sending", {
+        description: error.message
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  const handlePrint = async () => {
+    try {
+      toast.info("Preparing PDF for printing...");
+      const base64 = await pdfService.generateFromElement('report-pdf-content', {
+        filename: `Report_${reportData.reportNo}.pdf`
+      });
+
+      // Option 1: Trigger browser print
+      const blob = await fetch(`data:application/pdf;base64,${base64}`).then(r => r.blob());
+      const url = URL.createObjectURL(blob);
+      const printWindow = window.open(url);
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      } else {
+        // Fallback: Download
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Report_${reportData.reportNo}.pdf`;
+        link.click();
+      }
+    } catch (error: any) {
+      toast.error("Failed to generate print version", {
+        description: error.message
+      });
+    }
+  };
 
   const handleEditReport = () => {
     navigate(`/diagnostic-reports/${id}/edit`);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
 
   const handleDownload = (fileName: string) => {
-    alert(`Would download: ${fileName}`);
+    // simulate download
   };
 
   const handleViewImage = (imageName: string) => {
-    alert(`Would open image viewer for: ${imageName}`);
+    // simulate view
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/50 p-6 space-y-6 overflow-y-auto">
+    <div className="flex flex-col h-full bg-slate-50/50 p-6 space-y-6 overflow-y-auto custom-scrollbar">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/diagnostic-reports")}
-            className="gap-2"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back to Reports
-          </Button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">
-              Diagnostic Report: {reportData.reportNo}
-            </h1>
-            <div className="flex items-center gap-3 mt-1">
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                {reportData.status.toUpperCase()}
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-semibold tracking-tight text-slate-800">
+                Diagnostic Report: {reportData.reportNo}
+              </h1>
+              <Badge className={cn(
+                "capitalize",
+                reportData.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+              )}>
+                {reportData.status}
               </Badge>
-              <span className="text-sm text-muted-foreground">
-                Created: {formatDateOnly(reportData.reportDate)}
+            </div>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xs font-medium text-muted-foreground">
+                Request ID: {reportData.requestNo}
+              </span>
+              <span className="text-xs text-muted-foreground">•</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                Created on {formatDateOnly(reportData.reportDate)}
               </span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2" onClick={handlePrint}>
-            <Printer className="h-4 w-4" />
+          <Button variant="outline" size="sm" className="gap-2 h-9 bg-white border-slate-200" onClick={handlePrint}>
+            <Printer className="h-3.5 w-3.5" />
             Print
           </Button>
-          <Button variant="outline" className="gap-2">
-            <Send className="h-4 w-4" />
-            Send to Patient
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 h-9 bg-white border-slate-200"
+            onClick={handleSendReport}
+            disabled={isSendingEmail}
+          >
+            {isSendingEmail ? (
+              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            ) : (
+              <Send className="h-3.5 w-3.5" />
+            )}
+            {isSendingEmail ? 'Sending...' : 'Send Report'}
           </Button>
-          <Button className="gap-2" onClick={handleEditReport}>
-            <Edit className="h-4 w-4" />
+          <Button size="sm" className="gap-2 h-9 font-semibold" onClick={handleEditReport}>
+            <Edit className="h-3.5 w-3.5" />
             Edit Report
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Report Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
+        {/* Left Side: Report Content & Images */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Report Content Card */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader className="border-b bg-slate-50">
-              <CardTitle className="text-lg font-semibold text-slate-800">
+          {/* Report Content */}
+          <Card id="report-pdf-content" className="border overflow-hidden bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50/50 py-4">
+              <CardTitle className="text-sm font-semibold tracking-normal text-[#476788]">
                 Report Content
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-8">
               <div
-                className="prose prose-sm max-w-none"
+                className="prose prose-slate max-w-none text-slate-700 prose-p:leading-relaxed prose-strong:text-slate-900"
                 dangerouslySetInnerHTML={{ __html: reportData.reportContent }}
               />
             </CardContent>
           </Card>
 
-          {/* Images Card */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader className="border-b bg-slate-50">
-              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                <FileImage className="h-5 w-5" />
-                Images
+          {/* Images Grid */}
+          <Card className="border overflow-hidden bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50/50 py-4">
+              <CardTitle className="text-sm font-semibold tracking-normal text-[#476788] flex items-center gap-2">
+                <FileImage className="h-4 w-4" />
+                Clinical Images
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {reportData.images.map((image) => (
-                  <div key={image.id} className="border rounded-lg overflow-hidden bg-slate-50">
-                    <div className="h-32 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-                      <FileImage className="h-12 w-12 text-blue-400" />
-                    </div>
-                    <div className="p-3">
-                      <p className="text-sm font-medium text-slate-800 truncate">
-                        {image.name}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {image.description}
-                      </p>
-                      <div className="flex gap-2 mt-3">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs"
-                          onClick={() => handleViewImage(image.name)}
-                        >
-                          <Eye className="h-3 w-3 mr-1" />
+                  <div key={image.id} className="group border rounded-lg overflow-hidden bg-slate-50 hover:border-primary/50 transition-all">
+                    <div className="h-40 bg-slate-200 flex items-center justify-center relative">
+                      <FileImage className="h-10 w-10 text-slate-400" />
+                      <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <Button size="sm" variant="secondary" className="h-8 gap-1.5" onClick={() => handleViewImage(image.name)}>
+                          <Eye className="h-3.5 w-3.5" />
                           View
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 text-xs"
-                          onClick={() => handleDownload(image.name)}
-                        >
-                          <Download className="h-3 w-3 mr-1" />
-                          Download
-                        </Button>
                       </div>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[13px] font-semibold text-slate-800 truncate">
+                        {image.name}
+                      </p>
+                      <p className="text-[11px] font-medium text-slate-500 mt-0.5">
+                        {image.description}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -216,150 +268,139 @@ export default function ViewReport() {
           </Card>
         </div>
 
-        {/* Right Column: Summary & Attachments */}
+        {/* Right Side: Summary Panels */}
         <div className="space-y-6">
-          {/* Patient Summary Card */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader className="border-b bg-slate-50">
-              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Patient Summary
+          {/* Patient & Request Summary */}
+          <Card className="border overflow-hidden bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50/50 py-4">
+              <CardTitle className="text-sm font-semibold tracking-normal text-[#476788]">
+                Patient & Request Summary
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Patient Name</span>
-                  <span className="text-sm font-semibold text-slate-800">{reportData.patientName}</span>
+              <div className="space-y-4 pb-4 border-b">
+                <div className="flex justify-between items-start">
+                  <span className="text-xs font-semibold text-slate-500">Patient Name</span>
+                  <span className="text-[13px] font-semibold text-slate-800">{reportData.patientName}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Age / Gender</span>
-                  <span className="text-sm font-semibold text-slate-800">{reportData.age} years, {reportData.gender}</span>
+                  <span className="text-xs font-semibold text-slate-500">Gender / Age</span>
+                  <div className="flex gap-2">
+                    <Badge variant="outline" className="text-[10px] bg-slate-50 font-bold">
+                      {reportData.gender}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] bg-slate-50 font-bold">
+                      {reportData.age} Yrs
+                    </Badge>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Email</span>
-                  <span className="text-sm font-semibold text-slate-800 flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
+                  <span className="text-xs font-semibold text-slate-500">Email Address</span>
+                  <span className="text-[13px] font-semibold text-slate-600 truncate max-w-[160px]">
                     {reportData.email}
                   </span>
                 </div>
-                <Separator />
+              </div>
+
+              <div className="space-y-3 pb-4 border-b">
+                <div className="flex justify-between items-start">
+                  <span className="text-xs font-semibold text-slate-500">Exam Type</span>
+                  <span className="text-[13px] font-semibold text-slate-800">{reportData.examType}</span>
+                </div>
+                <div className="flex justify-between items-start">
+                  <span className="text-xs font-semibold text-slate-500">Exam Name</span>
+                  <span className="text-[13px] font-semibold text-slate-800 text-right">{reportData.examName}</span>
+                </div>
+                <div className="flex justify-between items-start">
+                  <span className="text-xs font-semibold text-slate-500">Clinic / Hospital</span>
+                  <span className="text-[13px] font-semibold text-slate-800 text-right">{reportData.hospital}</span>
+                </div>
+                <div className="flex justify-between items-start">
+                  <span className="text-xs font-semibold text-slate-500">Referring Physician</span>
+                  <span className="text-[13px] font-semibold text-slate-800">{reportData.physician}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pb-4 border-b">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Patient Type</span>
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                    {reportData.patientType.toUpperCase()}
+                  <span className="text-xs font-semibold text-slate-500">Dispatch Status</span>
+                  <Badge className="text-[10px] bg-blue-50 text-blue-700 border-blue-100 font-bold">
+                    {reportData.dispatchStatus.replace(/_/g, " ").toUpperCase()}
                   </Badge>
                 </div>
+                <div className="mt-2 p-3 bg-slate-50/80 rounded-lg space-y-1.5 border border-slate-100">
+                  <div className="flex justify-between items-center text-[10px]">
+                    <span className="text-slate-500 font-medium">Dispatched on:</span>
+                    <span className="font-bold text-slate-700">{formatDateTime(reportData.dispatchedDate)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px]">
+                    <span className="text-slate-500 font-medium">Dispatched by:</span>
+                    <span className="font-bold text-slate-700">{reportData.dispatchedBy}</span>
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Exam Details Card */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader className="border-b bg-slate-50">
-              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                <Stethoscope className="h-5 w-5" />
-                Exam Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="space-y-3">
+              <div className="pt-2 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Exam Type</span>
-                  <span className="text-sm font-semibold text-slate-800">{reportData.examType}</span>
+                  <span className="text-xs font-semibold text-slate-500">Total Exam Cost</span>
+                  <span className="text-[13px] font-bold text-slate-800">₦{reportData.totalCost.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Exam Name</span>
-                  <span className="text-sm font-semibold text-slate-800">{reportData.examName}</span>
+                  <span className="text-xs font-semibold text-slate-500">Amount Paid</span>
+                  <span className="text-[13px] font-bold text-green-600">₦{reportData.amountPaid.toLocaleString()}</span>
                 </div>
-                <Separator />
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Hospital</span>
-                  <span className="text-sm font-semibold text-slate-800 flex items-center gap-1">
-                    <Building className="h-3 w-3" />
-                    {reportData.hospital}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Referring Physician</span>
-                  <span className="text-sm font-semibold text-slate-800">{reportData.physician}</span>
+                <div className="flex justify-between items-center pt-1">
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Balance</span>
+                  <span className="text-sm font-extrabold text-slate-800 tracking-tight">₦{reportData.balance.toLocaleString()}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Attachments Card */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader className="border-b bg-slate-50">
-              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                <Paperclip className="h-5 w-5" />
+          {/* Attachments */}
+          <Card className="border overflow-hidden bg-white shadow-sm">
+            <CardHeader className="border-b bg-slate-50/50 py-4">
+              <CardTitle className="text-sm font-semibold tracking-normal text-[#476788] flex items-center gap-2">
+                <Paperclip className="h-4 w-4" />
                 Attachments ({reportData.attachments.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-3">
-                {reportData.attachments.map((file) => (
-                  <div key={file.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                        {file.type === "pdf" ? (
-                          <FileText className="h-5 w-5 text-red-500" />
-                        ) : (
-                          <FileText className="h-5 w-5 text-blue-500" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-800">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          {file.size} • {formatDateTime(file.uploaded)}
-                        </p>
-                      </div>
+            <CardContent className="p-4 space-y-3">
+              {reportData.attachments.map((file) => (
+                <div key={file.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition-colors group">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                      <FileText className="h-5 w-5" />
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDownload(file.name)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
+                    <div>
+                      <p className="text-[13px] font-semibold text-slate-800 truncate max-w-[120px]">
+                        {file.name}
+                      </p>
+                      <p className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase">
+                        {file.size}
+                      </p>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Financial Summary Card */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader className="border-b bg-slate-50">
-              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Financial Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Total Cost</span>
-                  <span className="text-lg font-bold text-slate-800">₦{reportData.totalCost.toLocaleString()}</span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-slate-400 hover:text-primary"
+                    onClick={() => handleDownload(file.name)}
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Amount Paid</span>
-                  <span className="text-lg font-bold text-green-600">₦{reportData.amountPaid.toLocaleString()}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                  <span className="text-sm font-bold text-slate-700">Balance</span>
-                  <span className="text-lg font-extrabold text-slate-800">
-                    ₦{reportData.balance.toLocaleString()}
-                  </span>
-                </div>
-              </div>
+              ))}
             </CardContent>
           </Card>
         </div>
       </div>
+      <EmailPreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        reportData={reportData}
+        pdfBase64={pdfBase64}
+      />
     </div>
   );
 }

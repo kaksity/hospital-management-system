@@ -33,6 +33,8 @@ import { cn } from "@/lib/utils";
 import { formatDateOnly, formatDateTime } from "@/utils/dateFormatter";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
+import { pdfService } from "@/services/pdfService";
+import { EmailPreviewModal } from "@/components/diagnostic-reports/EmailPreviewModal";
 
 // Mock Report Data (In a real app, this would be fetched based on ID)
 const mockReport = {
@@ -138,6 +140,9 @@ export default function EditDiagnosticReport() {
     const [selectedTemplate, setSelectedTemplate] = useState<string>('');
     const [isBrowserSupported, setIsBrowserSupported] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isSendingEmail, setIsSendingEmail] = useState(false);
+    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+    const [pdfBase64, setPdfBase64] = useState("");
 
     const {
         isListening,
@@ -192,13 +197,9 @@ export default function EditDiagnosticReport() {
     const handleVoiceMode = () => {
         if (isListening) {
             stopRecording();
-            toast.info("Recording stopped");
         } else {
             setSelectedTemplate('');
             startRecording();
-            toast.success("Recording started", {
-                description: "Speak clearly into your microphone",
-            });
         }
     };
 
@@ -219,16 +220,37 @@ export default function EditDiagnosticReport() {
         }, 1500);
     };
 
-    const handlePrint = () => {
-        toast.info("Print dialog would open", {
-            description: "In production, this would open print dialog",
-        });
+    const handlePrint = async () => {
+        try {
+            toast.info("Preparing PDF...");
+            const base64 = await pdfService.generateFromElement('report-pdf-content', {
+                filename: `Report_${reportData.reportNo}.pdf`
+            });
+
+            const blob = await fetch(`data:application/pdf;base64,${base64}`).then(r => r.blob());
+            const url = URL.createObjectURL(blob);
+            window.open(url);
+        } catch (error: any) {
+            toast.error("Print failed", { description: error.message });
+        }
     };
 
-    const handleSendReport = () => {
-        toast.info("Report would be sent", {
-            description: "In production, this would send report to physician/patient",
-        });
+    const handleSendReport = async () => {
+        try {
+            setIsSendingEmail(true);
+            toast.info("Preparing dispatch...");
+
+            const base64 = await pdfService.generateFromElement('report-pdf-content', {
+                filename: `Report_${reportData.reportNo}.pdf`
+            });
+
+            setPdfBase64(base64);
+            setIsPreviewModalOpen(true);
+        } catch (error: any) {
+            toast.error("Failed to prepare email", { description: error.message });
+        } finally {
+            setIsSendingEmail(false);
+        }
     };
 
     return (
@@ -256,8 +278,17 @@ export default function EditDiagnosticReport() {
                         <Printer className="h-4 w-4" />
                         Print
                     </Button>
-                    <Button variant="outline" className="gap-2 bg-white" onClick={handleSendReport}>
-                        <Send className="h-4 w-4" />
+                    <Button
+                        variant="outline"
+                        className="gap-2 bg-white"
+                        onClick={handleSendReport}
+                        disabled={isSendingEmail}
+                    >
+                        {isSendingEmail ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        ) : (
+                            <Send className="h-4 w-4" />
+                        )}
                         Send
                     </Button>
                     <Button
@@ -308,7 +339,7 @@ export default function EditDiagnosticReport() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border overflow-hidden bg-white flex-1 flex flex-col">
+                    <Card id="report-pdf-content" className="border overflow-hidden bg-white flex-1 flex flex-col">
                         <CardHeader className="border-b bg-slate-50/50 py-4 flex flex-row items-center justify-between">
                             <CardTitle className="text-sm font-semibold tracking-normal text-[#476788]">
                                 Report Editor
@@ -574,6 +605,15 @@ export default function EditDiagnosticReport() {
                     </Card>
                 </div>
             </div>
+            <EmailPreviewModal
+                isOpen={isPreviewModalOpen}
+                onClose={() => setIsPreviewModalOpen(false)}
+                reportData={{
+                    ...reportData,
+                    reportContent: editorContent // Use current editor content
+                }}
+                pdfBase64={pdfBase64}
+            />
         </div>
     );
 }

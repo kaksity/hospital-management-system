@@ -323,4 +323,10 @@ All colors MUST be HSL.
   div[contenteditable="true"] strong {
     font-weight: 600 !important;
   }
+
+  /* PDF Rendering Overrides */
+  .pdf-rendering {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
 }
