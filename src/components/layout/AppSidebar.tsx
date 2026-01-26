@@ -125,7 +125,7 @@ export function AppSidebar() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex items-center gap-3 w-full justify-start hover:bg-muted transition-colors px-2"
+              className="flex items-center gap-2 w-full justify-start hover:bg-muted transition-colors px-2"
             >
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.avatar} />

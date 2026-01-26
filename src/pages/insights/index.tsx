@@ -177,8 +177,8 @@ export default function Insights() {
                     <div className="text-2xl font-semibold text-slate-800 tabular-nums flex items-baseline gap-2">
                       {formatCurrency(selectedPoint.value)}
                       <div className={cn(
-                        "flex items-center text-[11px] font-bold px-1.5 py-0.5 rounded-full",
-                        selectedPoint.value >= selectedPoint.previousValue ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
+                        "flex items-center text-[11px]",
+                        selectedPoint.value >= selectedPoint.previousValue ? "text-emerald-600" : "text-rose-600"
                       )}>
                         {selectedPoint.value >= selectedPoint.previousValue ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
                         {Math.abs(((selectedPoint.value - selectedPoint.previousValue) / selectedPoint.previousValue) * 100).toFixed(1)}%

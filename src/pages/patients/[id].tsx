@@ -171,10 +171,10 @@ export default function PatientDetail() {
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      active: "bg-green-100 text-green-800 border-green-200",
-      completed: "bg-blue-100 text-blue-800 border-blue-200",
-      inactive: "bg-gray-100 text-gray-800 border-gray-200",
-      archived: "bg-red-100 text-red-800 border-red-200"
+      active: "bg-green-100 text-green-800 border-green-100",
+      completed: "bg-blue-100 text-blue-800 border-blue-100",
+      inactive: "bg-gray-100 text-gray-800 border-gray-100",
+      archived: "bg-red-100 text-red-800 border-red-100"
     };
     return cn("capitalize font-semibold", variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800");
   };
@@ -197,7 +197,7 @@ export default function PatientDetail() {
           <div className="px-6 pt-6 space-y-6 max-w-[1600px] mx-auto w-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-4">
-                <Avatar className="h-16 w-16 border-2 border-white shadow-md ring-1 ring-slate-100">
+                <Avatar className="h-12 w-12">
                   <AvatarImage src={getPatientAvatarPath(patientData.id, patientData.clinicalInfo.gender)} alt={patientData.name} />
                   <AvatarFallback className={cn("text-xl font-bold text-white", getAvatarBg(patientData.name))}>
                     {getAvatarInitials(patientData.name)}
@@ -205,14 +205,14 @@ export default function PatientDetail() {
                 </Avatar>
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-3 flex-wrap">
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 leading-none">{patientData.name}</h1>
+                    <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-none">{patientData.name}</h1>
                     <div className="flex items-center gap-2">
+                      <code className="text-[11px] font-semibold font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/50">
+                        {patientData.id}
+                      </code>
                       <Badge className={getStatusBadge(patientData.status)}>
                         {patientData.status}
                       </Badge>
-                      <code className="text-[11px] font-bold font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/50">
-                        {patientData.id}
-                      </code>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
@@ -244,21 +244,21 @@ export default function PatientDetail() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-[200px]">
-                    <DropdownMenuItem className="gap-2 font-semibold text-sm py-2">
-                      <Edit className="h-4 w-4 text-slate-400" /> Edit Profile
+                    <DropdownMenuItem className="gap-2 text-sm py-2">
+                      <Edit className="h-4 w-4 text-muted-foreground" /> Edit Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="gap-2 font-semibold text-sm py-2">
-                      <CalendarCheck className="h-4 w-4 text-slate-400" /> Schedule Visit
+                    <DropdownMenuItem className="gap-2 text-sm py-2">
+                      <CalendarCheck className="h-4 w-4 text-muted-foreground" /> Schedule Visit
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="gap-2 font-semibold text-sm py-2">
-                      <FileText className="h-4 w-4 text-slate-400" /> Export Records
+                    <DropdownMenuItem className="gap-2 text-sm py-2">
+                      <FileText className="h-4 w-4 text-muted-foreground" /> Export Records
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="gap-2 font-semibold text-sm py-2 text-primary"
+                      className="gap-2 text-sm py-2"
                       onClick={() => navigate(`/invoices/create?patientId=${patientData.id}`)}
                     >
-                      <ReceiptIcon className="h-4 w-4" /> Create Invoice
+                      <ReceiptIcon className="h-4 w-4 text-muted-foreground" /> Create Invoice
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -266,16 +266,16 @@ export default function PatientDetail() {
             </div>
 
             <TabsList variant="line" className="h-auto p-0 bg-transparent gap-8 border-none overflow-x-auto justify-start no-scrollbar">
-              <TabsTrigger variant="line" value="info" className="text-sm font-bold px-0 pb-3 h-auto data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all flex items-center gap-2 uppercase tracking-tight">
+              <TabsTrigger variant="line" value="info" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[#006bff] rounded-none transition-all flex items-center gap-2">
                 <User className="h-4 w-4" /> Patient Bio
               </TabsTrigger>
-              <TabsTrigger variant="line" value="appointments" className="text-sm font-bold px-0 pb-3 h-auto data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all flex items-center gap-2 uppercase tracking-tight">
+              <TabsTrigger variant="line" value="appointments" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[#006bff] rounded-none transition-all flex items-center gap-2">
                 <Calendar className="h-4 w-4" /> Clinical Visits
               </TabsTrigger>
-              <TabsTrigger variant="line" value="payments" className="text-sm font-bold px-0 pb-3 h-auto data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all flex items-center gap-2 uppercase tracking-tight">
+              <TabsTrigger variant="line" value="payments" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[#006bff] rounded-none transition-all flex items-center gap-2">
                 <Receipt className="h-4 w-4" /> Financials
               </TabsTrigger>
-              <TabsTrigger variant="line" value="reports" className="text-sm font-bold px-0 pb-3 h-auto data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all flex items-center gap-2 uppercase tracking-tight">
+              <TabsTrigger variant="line" value="reports" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[#006bff] rounded-none transition-all flex items-center gap-2">
                 <FileSearch className="h-4 w-4" /> Diagnostic Reports
               </TabsTrigger>
             </TabsList>
