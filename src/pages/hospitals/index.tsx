@@ -101,11 +101,7 @@ export default function Hospitals() {
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Manage the list of hospitals and facilities in the network.</p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
-              <Button onClick={handleAddHospital} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+              <Button onClick={handleAddHospital} size="sm" className="h-9 font-medium px-4">
                 <Plus className="h-4 w-4" />
                 Add Hospital
               </Button>

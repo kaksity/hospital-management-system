@@ -351,7 +351,7 @@ export default function DiagnosticReports() {
 
               <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
 
-              <Button onClick={() => navigate("/diagnostic-reports/create")} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+              <Button onClick={() => navigate("/diagnostic-reports/create")} size="sm" className="h-9 font-medium px-4">
                 <Plus className="h-4 w-4" />
                 New Report
               </Button>

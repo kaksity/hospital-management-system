@@ -141,9 +141,9 @@ export default function Communication() {
 
   const getModeBadge = (mode: string) => {
     const variants = {
-      Email: "bg-blue-100 text-blue-700 border-blue-200",
-      SMS: "bg-indigo-100 text-indigo-700 border-indigo-200",
-      WhatsApp: "bg-emerald-100 text-emerald-700 border-emerald-200",
+      Email: "bg-blue-100 text-blue-700 border-none",
+      SMS: "bg-indigo-100 text-indigo-700 border-none",
+      WhatsApp: "bg-emerald-100 text-emerald-700 border-none",
     };
     return (
       <Badge variant="outline" className={cn("gap-1.5 px-2 py-0.5 text-[10px] font-bold border", variants[mode as keyof typeof variants])}>
@@ -184,7 +184,7 @@ export default function Communication() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+              <Button size="sm" className="h-9 font-medium px-4">
                 <Plus className="h-4 w-4" />
                 New Message
               </Button>
@@ -407,9 +407,6 @@ export default function Communication() {
                         </DropdownMenuItem>
                         <DropdownMenuItem className="gap-2 font-medium text-sm">
                           <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" /> Resend
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 font-medium text-sm">
-                          <Download className="h-3.5 w-3.5 text-muted-foreground" /> Download Receipt
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

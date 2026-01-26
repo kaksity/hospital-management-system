@@ -126,11 +126,7 @@ export default function Doctors() {
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Manage medical professionals and their financial preferences.</p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
-              <Button onClick={handleAddDoctor} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+              <Button onClick={handleAddDoctor} size="sm" className="h-9 font-medium px-4">
                 <Plus className="h-4 w-4" />
                 Add New Doctor
               </Button>

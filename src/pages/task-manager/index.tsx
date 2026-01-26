@@ -442,7 +442,7 @@ export default function TaskManager() {
             <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Monitor and assign reporting tasks to radiologists</p>
           </div>
           <Button
-            className="gap-2 shadow-sm font-semibold"
+            className="h-9 font-medium px-4" size="sm"
             onClick={() => navigate("/task-manager/create")}
           >
             <Plus className="h-4 w-4" />

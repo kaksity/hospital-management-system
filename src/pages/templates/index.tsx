@@ -90,7 +90,7 @@ export default function ReportTemplates() {
             </div>
             <Button
               onClick={() => navigate("/templates/create")}
-              className="gap-2 h-9 font-bold shadow-sm px-4"
+              className="h-9 font-medium px-4"
             >
               <Plus className="h-4 w-4" />
               Create Template
