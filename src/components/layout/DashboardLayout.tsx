@@ -244,7 +244,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <Button variant="ghost" className="h-9 gap-2 px-2 hover:bg-muted">
                     <div className="flex items-center gap-2">
                       <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center">
-                        <Building2 className="h-4 w-4 text-primary" />
+                        <Building2 className="h-4 w-4 text-slate-600" />
                       </div>
                       <span className="text-sm font-medium hidden sm:inline-block">Broadplaces Radiology</span>
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -270,7 +270,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <UserPlus className="h-4 w-4" />
-                    <span>Invite a member</span>
+                    <span>Add a new member</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <PlusCircle className="h-4 w-4" />
