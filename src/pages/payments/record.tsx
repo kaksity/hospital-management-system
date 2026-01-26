@@ -131,7 +131,9 @@ export default function RecordPaymentPage() {
             <h1 className="text-lg font-semibold text-slate-900 leading-none">Record New Payment</h1>
             <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-1.5 tabular-nums">TRANS ID: {client.id} • {format(new Date(), "MMM dd, yyyy")}</p>
           </div>
-          <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-3 font-bold capitalize">Pending Balance: {formatCurrency(client.balance)}</Badge>
+          <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200 border-none px-3 font-bold uppercase tracking-wider">
+            Invoice: {client.invoiceNo || "N/A"}
+          </Badge>
         </div>
 
         <div className="grid gap-8">
@@ -159,7 +161,7 @@ export default function RecordPaymentPage() {
                 </div>
                 <div className="flex items-center gap-6 pr-4">
                   <div className="text-right">
-                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Account Balance</p>
+                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Outstanding Balance</p>
                     <p className="text-xl font-black text-rose-600 tabular-nums">{formatCurrency(client.balance)}</p>
                   </div>
                 </div>

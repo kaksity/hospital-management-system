@@ -354,7 +354,14 @@ export default function Invoices() {
                           <Printer className="h-3.5 w-3.5 text-muted-foreground" /> Print PDF
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-2 font-medium text-sm">
+                        <DropdownMenuItem
+                          className="gap-2 font-medium text-sm"
+                          onClick={() => {
+                            // Map INV-xxx to TXN-xxx based on index or simple mapping for demo
+                            const txnId = inv.id.replace('INV-2024-', 'TXN-').replace('INV-2025-', 'TXN-');
+                            navigate(`/payments/record/${txnId}`);
+                          }}
+                        >
                           <CreditCard className="h-3.5 w-3.5 text-muted-foreground" /> Record Payment
                         </DropdownMenuItem>
                       </DropdownMenuContent>

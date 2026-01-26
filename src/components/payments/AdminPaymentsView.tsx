@@ -78,8 +78,7 @@ export function AdminPaymentsView() {
     // Status filtering
     const matchesStatus =
       statusFilter === "all" ||
-      (statusFilter === "unpaid" && payment.status !== "paid") ||
-      (statusFilter === "paid" && payment.status === "paid");
+      payment.status === statusFilter;
 
     return matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
   });
@@ -107,13 +106,22 @@ export function AdminPaymentsView() {
     const variants = {
       paid: "bg-emerald-100 text-emerald-800 border-none",
       partial: "bg-amber-100 text-amber-800 border-none",
-      unpaid: "bg-red-100 text-red-800 border-none",
     };
     return (
       <Badge variant="outline" className={cn("capitalize px-2 py-0.5 text-[10px] font-bold border", variants[status as keyof typeof variants])}>
         {status}
       </Badge>
     );
+  };
+
+  const getPatientTypeBadge = (type: string) => {
+    const t = type.toLowerCase();
+    const variants: Record<string, string> = {
+      regular: "bg-blue-100 text-blue-800",
+      private: "bg-purple-100 text-purple-800",
+      hmo: "bg-green-100 text-green-800",
+    };
+    return variants[t] || "bg-slate-100 text-slate-800";
   };
 
   const handleRecordPayment = (payment: any) => {
@@ -235,7 +243,7 @@ export function AdminPaymentsView() {
                     <div className="space-y-2">
                       <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Payment Status</p>
                       <div className="flex flex-col gap-1">
-                        {["all", "unpaid", "paid"].map((status) => (
+                        {["all", "paid", "partial"].map((status) => (
                           <div
                             key={status}
                             className={cn(
@@ -308,10 +316,10 @@ export function AdminPaymentsView() {
                 {statusFilter === "unpaid" && (
                   <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Invoice No.</TableHead>
                 )}
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Type</TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Account Code</TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Method</TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Total Cost</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Amount Paid</TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Status</TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Date</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
@@ -351,7 +359,12 @@ export function AdminPaymentsView() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col min-w-0">
-                        <span className="font-semibold text-sm text-slate-800 truncate">{payment.patientName}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm text-slate-800 truncate">{payment.patientName}</span>
+                          <Badge className={cn("px-1.5 py-0 h-4 text-[10px] font-semibold capitalize border-none", getPatientTypeBadge(payment.patientType))}>
+                            {payment.patientType}
+                          </Badge>
+                        </div>
                         <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{payment.patientId}</span>
                       </div>
                     </div>
@@ -364,11 +377,6 @@ export function AdminPaymentsView() {
                     </TableCell>
                   )}
                   <TableCell>
-                    <Badge variant="outline" className="text-[10px] font-bold bg-slate-50 text-slate-500 border-slate-200 py-0 h-6">
-                      {payment.patientType}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
                     <code className="text-[11px] font-semibold text-primary bg-blue-50/50 px-2 py-0.5 rounded border border-blue-100">
                       {(payment as any).accountCode || "N/A"}
                     </code>
@@ -377,6 +385,7 @@ export function AdminPaymentsView() {
                     <span className="text-[13px] font-semibold text-slate-700">{(payment as any).method || "N/A"}</span>
                   </TableCell>
                   <TableCell className="font-semibold text-slate-900 tabular-nums">{formatCurrency(payment.totalCost)}</TableCell>
+                  <TableCell className="font-semibold text-emerald-700 tabular-nums">{formatCurrency(payment.amountPaid)}</TableCell>
                   <TableCell>
                     {getStatusBadge(payment.status)}
                   </TableCell>

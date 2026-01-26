@@ -568,11 +568,14 @@ export default function DiagnosticReports() {
                               {getAvatarInitials(report.patientName)}
                             </AvatarFallback>
                           </Avatar>
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="font-bold text-sm text-slate-800 truncate">{report.patientName}</span>
-                            <Badge className={cn("w-fit px-1.5 py-0 h-4 text-[10px] font-semibold capitalize border-none", getPatientTypeBadge(report.patientType))}>
-                              {report.patientType}
-                            </Badge>
+                          <div className="flex flex-col min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm text-slate-800 truncate">{report.patientName}</span>
+                              <Badge className={cn("w-fit px-1.5 py-0 h-4 text-[10px] font-semibold capitalize border-none", getPatientTypeBadge(report.patientType))}>
+                                {report.patientType}
+                              </Badge>
+                            </div>
+                            <span className="text-[10px] text-slate-500 font-mono font-semibold uppercase">{(report as any).patientId || `PAT-${report.id.split('-')[1]}`}</span>
                           </div>
                         </div>
                       </TableCell>

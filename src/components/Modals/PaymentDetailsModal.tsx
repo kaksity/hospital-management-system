@@ -42,7 +42,6 @@ export function PaymentDetailsModal({
       case 'partial':
         return <Clock className="h-4 w-4 text-yellow-600" />;
       case 'overdue':
-      case 'unpaid':
         return <AlertCircle className="h-4 w-4 text-red-600" />;
       default:
         return <Clock className="h-4 w-4 text-gray-600" />;
@@ -56,7 +55,6 @@ export function PaymentDetailsModal({
       pending: "bg-yellow-100 text-yellow-800",
       requested: "bg-yellow-100 text-yellow-800",
       overdue: "bg-red-100 text-red-800",
-      unpaid: "bg-red-100 text-red-800",
     };
     return variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800";
   };

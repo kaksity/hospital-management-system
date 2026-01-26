@@ -51,13 +51,14 @@ export const payments = [
         accountCode: "XRY-01",
         method: "Cash",
         totalCost: 85000,
-        amountPaid: 0,
-        balance: 85000,
-        status: "unpaid",
+        amountPaid: 5000,
+        balance: 80000,
+        status: "partial",
         date: "2025-01-05",
         invoiceNo: "INV-2025-001",
         paymentPlan: [
-            { name: "Registration Fee", amount: 85000, date: "2025-01-05", status: "unpaid" }
+            { name: "Initial Fee", amount: 5000, date: "2025-01-05", status: "paid" },
+            { name: "Outstanding", amount: 80000, date: "2025-01-15", status: "partial" }
         ],
         services: [
             { name: "Emergency Radiology Consult", price: 35000, category: "Consultation" },
