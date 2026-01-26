@@ -3,8 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {  
-  Download, 
+import {
+  Download,
   CreditCard,
   TrendingUp,
   FileText,
@@ -13,8 +13,10 @@ import {
   Clock,
   AlertCircle,
   DollarSign,
-  TriangleAlert
+  TriangleAlert,
+  Eye
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { PaymentDetailsModal } from "../Modals/PaymentDetailsModal";
 import { formatCurrency } from "@/utils/formatCurrency";
@@ -116,224 +118,247 @@ export function ClientPaymentsView() {
     console.log('Processing payment:', payment);
   };
 
-  return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Payments</h1>
-          <p className="text-muted-foreground">View your payment history and outstanding balances</p>
-        </div>
-        {/* <Button>
-          <Download className="h-4 w-4" />
-          Export Statements
-        </Button> */}
-      </div>
+  const totalPaid = paymentHistory.reduce((sum, payment) => sum + payment.amount, 0);
+  const pendingAmount = paymentRequests.reduce((sum, payment) => sum + payment.amount, 0);
 
-      {/* Payment Request Notifications */}
-      {paymentRequests.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-                  <Bell className="h-4 w-4 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-blue-900">New Payment Request</h3>
-                  <p className="text-sm text-blue-700">
-                    You have {paymentRequests.length} new payment request{paymentRequests.length > 1 ? 's' : ''} to review
-                  </p>
-                </div>
+  return (
+    <div className="min-h-screen bg-[#fafafa]">
+      {/* Header Section */}
+      <div className="bg-white border-b">
+        <div className="p-6 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold text-slate-900">Payments & Billing</h1>
+                <Badge variant="secondary" className="h-6 px-2 text-[12px] font-bold bg-slate-100 text-slate-600 border-none rounded-md">
+                  History
+                </Badge>
               </div>
-              <Button variant="outline" size="sm">
-                View Requests
+              <p className="text-muted-foreground text-sm">View your payment history and manage outstanding balances.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
+                <Download className="h-4 w-4" />
+                Export Statements
               </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Payment Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-3 p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <CardDescription>Total Paid</CardDescription>
-            </div>
-            <CardTitle className="text-2xl">
-              {formatCurrency(paymentHistory.reduce((sum, payment) => sum + payment.amount, 0))}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3 p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-              <CardDescription>Pending Payments</CardDescription>
-            </div>
-            <CardTitle className="text-2xl">
-              {formatCurrency(paymentRequests.reduce((sum, payment) => sum + payment.amount, 0))}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3 p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              <CardDescription>Payment Requests</CardDescription>
-            </div>
-            <CardTitle className="text-2xl">
-              {paymentRequests.length}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-
-      {/* Payment Requests Section */}
-      {paymentRequests.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">Payment Requests</h2>
-          <div className="grid gap-4">
-            {paymentRequests.map((payment) => (
-              <Card key={payment.id} className="border-blue-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">{payment.description}</h3>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>Due: {formatDate(payment.dueDate!)}</span>
-                        <span>Invoice: {payment.invoiceNumber}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="font-semibold text-lg">{formatCurrency(payment.amount)}</span>
-                      <Badge className={getStatusBadge(payment.status)}>
-                        Payment Requested
-                      </Badge>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => handlePayNow(payment)}
-                        >
-                          <CreditCard className="h-4 w-4" />
-                          Pay Now
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleViewPaymentDetails(payment)}
-                        >
-                          <FileText className="h-4 w-4" />
-                          Details
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
-        </div>
-      )}
 
-      {overduePayments.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex gap-1 items-center">
-            <TriangleAlert className="w-4 h-4 text-red-600" />
-            <h2 className="text-lg font-semibold text-red-600">Overdue Payments</h2>
-          </div>
-          <div className="grid gap-4">
-            {overduePayments.map((payment) => (
-              <Card key={payment.id} className="border-red-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium text-red-900">{payment.description}</h3>
-                      <div className="flex items-center gap-4 text-sm text-red-700">
-                        <span>Due date: {formatDate(payment.dueDate!)}</span>
-                        <span>Invoice: {payment.invoiceNumber}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="font-semibold text-lg text-red-600">{formatCurrency(payment.amount)}</span>
-                      <Badge className="bg-red-100 text-red-800 border-red-200">
-                        Overdue
-                      </Badge>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm"
-                          className="bg-red-600 hover:bg-red-700"
-                          onClick={() => handlePayNow(payment)}
-                        >
-                          <CreditCard className="h-4 w-4" />
-                          Pay Now
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleViewPaymentDetails(payment)}
-                        >
-                          <FileText className="h-4 w-4" />
-                          Details
-                        </Button>
-                      </div>
-                    </div>
+          {/* Unified Summary Card */}
+          <Card className="border shadow-none bg-white rounded-xl overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-slate-100">
+              {[
+                { label: "Total amount Paid", value: totalPaid, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
+                { label: "Pending Payments", value: pendingAmount, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+                { label: "Active Requests", value: paymentRequests.length, icon: Bell, color: "text-blue-600", bg: "bg-blue-50" },
+              ].map((stat, i) => (
+                <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none pt-1">
+                      {i < 2 ? formatCurrency(stat.value as number) : stat.value}
+                    </h3>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Payment History Section */}
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold">Payment History</h2>
-        <div className="grid gap-4">
-          {paymentHistory.map((payment) => (
-            <Card key={payment.id}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium">{payment.description}</h3>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>Paid: {formatDate(payment.date)}</span>
-                      <span>Method: {payment.method}</span>
-                      <span>Invoice: {payment.invoiceNumber}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="font-semibold">{formatCurrency(payment.amount)}</span>
-                    <Badge className={getStatusBadge(payment.status)}>
-                      Paid
-                    </Badge>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleViewPaymentDetails(payment)}
-                    >
-                      <FileText className="h-4 w-4" />
-                      Details
-                    </Button>
+                  <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
+                    <stat.icon className={cn("h-4 w-4", stat.color)} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
 
-      {/* Payment Details Modal */}
-      <PaymentDetailsModal
-        open={showPaymentDetailsModal}
-        onOpenChange={setShowPaymentDetailsModal}
-        payment={selectedPayment}
-        isClientView={true}
-      />
+      <div className="p-6 space-y-8">
+
+        {/* Payment Request Notifications */}
+        {paymentRequests.length > 0 && (
+          <Card className="border-blue-200 bg-blue-50/50 shadow-none rounded-xl overflow-hidden">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 border border-blue-200 shadow-sm">
+                    <Bell className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-blue-900 italic">Action Required</h3>
+                    <p className="text-xs font-semibold text-blue-700 mt-0.5">
+                      You have {paymentRequests.length} new payment request{paymentRequests.length > 1 ? 's' : ''} to review.
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="h-9 font-bold bg-white text-blue-600 border-blue-200 hover:bg-blue-50">
+                  Review & Pay
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Payment Requests Section */}
+        {paymentRequests.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">Payment Requests</h2>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+            <div className="grid gap-4">
+              {paymentRequests.map((payment) => (
+                <Card key={payment.id} className="border-none shadow-sm rounded-xl overflow-hidden bg-white">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between">
+                      <div className="p-5 flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">
+                          <DollarSign className="h-5 w-5 text-slate-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-800">{payment.description}</h3>
+                          <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">
+                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Due {formatDate(payment.dueDate!)}</span>
+                            <span className="flex items-center gap-1"><FileText className="h-3 w-3" /> {payment.invoiceNumber}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="px-5 py-4 bg-slate-50/50 md:bg-transparent border-t md:border-t-0 flex items-center justify-between md:justify-end gap-6">
+                        <div className="flex flex-col items-end">
+                          <span className="font-black text-slate-900">{formatCurrency(payment.amount)}</span>
+                          <Badge variant="outline" className="bg-amber-100 text-amber-800 border-none text-[10px] font-bold mt-1">Requested</Badge>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="h-9 font-bold px-4 gap-2"
+                            onClick={() => handlePayNow(payment)}
+                          >
+                            <CreditCard className="h-4 w-4" />
+                            Pay Now
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 font-bold px-4 bg-white"
+                            onClick={() => handleViewPaymentDetails(payment)}
+                          >
+                            Details
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {overduePayments.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <TriangleAlert className="w-4 h-4 text-red-600" />
+              <h2 className="text-xs font-bold uppercase tracking-widest text-red-600">Overdue Payments</h2>
+              <div className="h-px flex-1 bg-red-100" />
+            </div>
+            <div className="grid gap-4">
+              {overduePayments.map((payment) => (
+                <Card key={payment.id} className="border-red-100 border-l-4 border-l-red-600 shadow-sm rounded-xl overflow-hidden bg-white">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between">
+                      <div className="p-5 flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center border border-red-100">
+                          <AlertCircle className="h-5 w-5 text-red-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-800">{payment.description}</h3>
+                          <div className="flex items-center gap-4 text-[11px] font-bold text-red-400 uppercase tracking-tighter mt-0.5">
+                            <span>Due {formatDate(payment.dueDate!)}</span>
+                            <span>{payment.invoiceNumber}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="px-5 py-4 bg-red-50/10 md:bg-transparent flex items-center justify-between md:justify-end gap-6">
+                        <div className="flex flex-col items-end">
+                          <span className="font-black text-red-600 underline underline-offset-4 decoration-red-200">{formatCurrency(payment.amount)}</span>
+                          <Badge variant="outline" className="bg-red-100 text-red-800 border-none text-[10px] font-bold mt-1">Overdue</Badge>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="h-9 font-bold px-4 bg-red-600 hover:bg-red-700 shadow-sm"
+                            onClick={() => handlePayNow(payment)}
+                          >
+                            Pay Now
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 font-bold px-4 bg-white border-red-100 text-red-800"
+                            onClick={() => handleViewPaymentDetails(payment)}
+                          >
+                            Details
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Payment History Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">Payment History</h2>
+            <div className="h-px flex-1 bg-slate-200" />
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="divide-y divide-slate-100">
+              {paymentHistory.map((payment) => (
+                <div key={payment.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
+                  <div className="flex items-center gap-4">
+                    <div className="h-9 w-9 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100 group-hover:scale-110 transition-transform">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-800">{payment.description}</h3>
+                      <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400 mt-0.5">
+                        <span>{formatDate(payment.date)}</span>
+                        <span className="opacity-40">•</span>
+                        <span>{payment.method}</span>
+                        <span className="opacity-40">•</span>
+                        <span>{payment.invoiceNumber}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between md:justify-end gap-6 pt-3 md:pt-0">
+                    <span className="font-black text-slate-900 tabular-nums">{formatCurrency(payment.amount)}</span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-none text-[10px] font-bold">Paid</Badge>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
+                        onClick={() => handleViewPaymentDetails(payment)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Details Modal */}
+        <PaymentDetailsModal
+          open={showPaymentDetailsModal}
+          onOpenChange={setShowPaymentDetailsModal}
+          payment={selectedPayment}
+          isClientView={true}
+        />
+      </div>
     </div>
   );
 }

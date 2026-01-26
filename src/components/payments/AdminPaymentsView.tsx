@@ -22,7 +22,13 @@ import {
   User,
   Ticket,
   Archive,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  DollarSign,
+  ListFilter,
+  ChevronDown
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -36,7 +42,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import { PaymentDetailsModal } from "@/components/Modals/PaymentDetailsModal";
 import { RecordPaymentModal } from "@/components/Modals/RecordPaymentModal";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDate } from "@/utils/dateFormatter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -155,13 +160,13 @@ export function AdminPaymentsView() {
     const matchesStartDate = !startDate || paymentDate >= startDate;
     const matchesEndDate = !endDate || paymentDate <= endDate;
 
-    // Tab filtering
-    const matchesTab =
-      activeTab === "all" ||
-      (activeTab === "unpaid" && payment.status !== "paid") ||
-      (activeTab === "paid" && payment.status === "paid");
+    // Status filtering
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "unpaid" && payment.status !== "paid") ||
+      (statusFilter === "paid" && payment.status === "paid");
 
-    return matchesSearch && matchesTab && matchesStartDate && matchesEndDate;
+    return matchesSearch && matchesStatus && matchesStartDate && matchesEndDate;
   });
 
   // Table Logic
@@ -185,15 +190,18 @@ export function AdminPaymentsView() {
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      paid: "bg-green-100 text-green-800",
-      partial: "bg-yellow-100 text-yellow-800",
-      unpaid: "bg-red-100 text-red-800",
+      paid: "bg-emerald-100 text-emerald-800 border-none",
+      partial: "bg-amber-100 text-amber-800 border-none",
+      unpaid: "bg-red-100 text-red-800 border-none",
     };
-    return variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800";
+    return (
+      <Badge variant="outline" className={cn("capitalize px-2 py-0.5 text-[10px] font-bold border", variants[status as keyof typeof variants])}>
+        {status}
+      </Badge>
+    );
   };
 
   const handleRecordPayment = (payment: any) => {
-    // Mapping format for the modal
     setSelectedClient({
       id: payment.id,
       name: payment.patientName,
@@ -204,239 +212,277 @@ export function AdminPaymentsView() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between font-light">
-        <div>
-          <h1 className="text-xl font-semibold tracking-light">Payments</h1>
-          <p className="text-muted-foreground text-sm">Monitor transactions and manage patient billing</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export Data
-          </Button>
-          <Button onClick={() => setShowSendInvoiceModal(true)} className="gap-2">
-            <Send className="h-4 w-4" />
-            Send New Invoice
-          </Button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#fafafa]">
+      {/* Header Section */}
+      <div className="bg-white border-b">
+        <div className="p-6 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold text-slate-900">Payments & Transactions</h1>
+                <Badge variant="secondary" className="h-6 px-2 text-[12px] font-bold bg-slate-100 text-slate-600 border-none rounded-md">
+                  {payments.length}
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-sm">Monitor transactions and manage patient billing across the facility.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
+                <Download className="h-4 w-4" />
+                Export Data
+              </Button>
+              <Button onClick={() => setShowSendInvoiceModal(true)} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+                <Send className="h-4 w-4" />
+                Send New Invoice
+              </Button>
+            </div>
+          </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        {[
-          { label: "Total Revenue", value: stats.totalRevenue, color: "bg-blue-500", trend: "+12%" },
-          { label: "Collected", value: stats.collected, color: "bg-green-500", trend: "74%" },
-          { label: "Pending", value: stats.pending, color: "bg-yellow-500", trend: "26%" },
-          { label: "Overdue", value: stats.overdue, color: "bg-red-500", trend: "4.6%" }
-        ].map((stat, i) => (
-          <Card key={i} className="bg-card/50 rounded-xl">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">{stat.label}</span>
-                <div className={cn("w-1.5 h-1.5 rounded-full", stat.color)} />
-              </div>
-              <CardTitle className="text-2xl font-semibold tracking-tight">{formatCurrency(stat.value)}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span>{stat.trend} from last period</span>
-              </div>
-            </CardContent>
+          {/* Unified Summary Card */}
+          <Card className="border shadow-none bg-white rounded-xl overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x border-slate-100">
+              {[
+                { label: "Total Revenue", value: stats.totalRevenue, trend: "+12%", icon: DollarSign, color: "text-blue-600", bg: "bg-blue-50" },
+                { label: "Collected", value: stats.collected, trend: "74%", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
+                { label: "Pending", value: stats.pending, trend: "26%", icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+                { label: "Overdue", value: stats.overdue, trend: "4.6%", icon: AlertCircle, color: "text-red-600", bg: "bg-red-50" },
+              ].map((stat, i) => (
+                <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <div className="flex items-end gap-2 pt-1">
+                      <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none">{formatCurrency(stat.value)}</h3>
+                      <span className="text-[10px] font-bold text-slate-400 leading-none mb-0.5">{stat.trend}</span>
+                    </div>
+                  </div>
+                  <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
+                    <stat.icon className={cn("h-4 w-4", stat.color)} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </Card>
-        ))}
-      </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-        <div className="space-y-6">
-          <TabsList variant="line" className="justify-start h-auto p-0 bg-transparent w-full gap-8 border-b border-border/50">
-            <TabsTrigger
-              value="all"
-              variant="line"
-              className="px-0 pb-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              All Payments
-            </TabsTrigger>
-            <TabsTrigger
-              value="unpaid"
-              variant="line"
-              className="px-0 pb-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Unpaid
-            </TabsTrigger>
-            <TabsTrigger
-              value="paid"
-              variant="line"
-              className="px-0 pb-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Paid
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="relative w-full sm:max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* Filters Area */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pt-4">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Search transactions, patients..."
-                className="pl-9 h-11 border-muted-foreground/20 focus-visible:ring-primary/20"
+                placeholder="Search patients, TXN ID or invoice..."
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
+                className="pl-9 h-10 border shadow-none bg-slate-50/50 focus-visible:ring-primary/20 transition-all hover:border-slate-300 rounded-lg placeholder:text-slate-400 text-sm font-medium"
               />
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+              <div className="flex items-center gap-0 border border-input rounded-lg overflow-hidden bg-white h-10">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("h-11 px-4 justify-start text-left font-normal gap-2 border-muted-foreground/20", !startDate && "text-muted-foreground")}>
+                    <Button variant="outline" className={cn("h-full px-4 justify-start text-left font-semibold text-[13px] gap-2 rounded-none border-none", !startDate && "text-slate-400")}>
                       <CalendarIcon className="h-4 w-4" />
-                      {startDate ? format(startDate, "MMM dd, yyyy") : "Start Date"}
+                      {startDate ? format(startDate, "MMM dd, yyyy") : "Start"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
                   </PopoverContent>
                 </Popover>
-
-                <span className="text-muted-foreground text-sm font-medium">to</span>
-
+                <div className="w-px h-4 bg-slate-200 shrink-0" />
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("h-11 px-4 justify-start text-left font-normal gap-2 border-muted-foreground/20", !endDate && "text-muted-foreground")}>
+                    <Button variant="outline" className={cn("h-full px-4 justify-start text-left font-semibold text-sm gap-2 bg-white rounded-none border-none", !endDate && "text-slate-400")}>
                       <CalendarIcon className="h-4 w-4" />
-                      {endDate ? format(endDate, "MMM dd, yyyy") : "End Date"}
+                      {endDate ? format(endDate, "MMM dd, yyyy") : "End"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
                   </PopoverContent>
                 </Popover>
-
                 {(startDate || endDate) && (
-                  <Button variant="ghost" size="icon" className="h-11 w-11 text-muted-foreground hover:text-foreground" onClick={() => { setStartDate(undefined); setEndDate(undefined); }}>
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <>
+                    <div className="w-px h-4 bg-slate-200 shrink-0" />
+                    <Button variant="ghost" size="icon" className="h-full w-10 text-slate-400 hover:text-slate-600 rounded-none" onClick={() => { setStartDate(undefined); setEndDate(undefined); }}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </>
                 )}
               </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-10 px-3 text-sm font-medium bg-white border gap-2 rounded-lg">
+                    <div className="flex items-center gap-2 text-slate-700 border-r border-slate-200 pr-2 mr-1">
+                      <ListFilter className="h-4 w-4" />
+                      <span className="text-sm font-semibold">Filter by</span>
+                    </div>
+                    {statusFilter !== "all" && (
+                      <Badge variant="secondary" className="mr-1 h-5 px-1.5 text-[10px] bg-primary/10 text-primary font-bold">
+                        1
+                      </Badge>
+                    )}
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[200px] p-2">
+                  <div className="space-y-4 p-2">
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Payment Status</p>
+                      <div className="flex flex-col gap-1">
+                        {["all", "unpaid", "paid"].map((status) => (
+                          <div
+                            key={status}
+                            className={cn(
+                              "flex items-center justify-between px-2 py-1.5 rounded text-[11px] cursor-pointer hover:bg-slate-50 font-semibold capitalize",
+                              statusFilter === status && "bg-primary/5 text-primary"
+                            )}
+                            onClick={() => setStatusFilter(status)}
+                          >
+                            {status}
+                            {statusFilter === status && <CheckCircle2 className="h-3 w-3" />}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <Button
+                      variant="ghost"
+                      className="w-full h-8 text-xs font-bold text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        setStatusFilter("all");
+                        setStartDate(undefined);
+                        setEndDate(undefined);
+                      }}
+                    >
+                      <X className="h-3.5 w-3.5 mr-2" />
+                      Clear Filters
+                    </Button>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Bulk Actions */}
+      <div className="p-6">
+        {/* Bulk Actions Toolbar */}
         {selectedIds.length > 0 && (
-          <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-4 py-2 animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center gap-3 text-sm font-medium text-primary">
-              <span>{selectedIds.length} items selected</span>
-              <div className="h-4 w-px bg-primary/20" />
-              <Button variant="ghost" size="sm" className="h-8 text-primary hover:bg-primary/10" onClick={() => setSelectedIds([])}>
-                <X className="h-3.5 w-3.5 mr-1" /> Clear
+          <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-xl px-5 py-3 mb-6 animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-4 text-sm font-bold text-primary">
+              <span>{selectedIds.length} payments selected</span>
+              <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold uppercase tracking-wider text-primary hover:text-primary hover:bg-primary/10 gap-2 px-3" onClick={() => setSelectedIds([])}>
+                <X className="h-3.5 w-3.5" /> Clear
               </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" className="h-8 border-primary/20 text-primary">
-                <Send className="h-3.5 w-3.5 mr-1.5" /> Bulk Invoice
+            <div className="flex items-center gap-3">
+              <Button size="sm" variant="outline" className="h-9 gap-2 border-primary/20 text-primary font-bold">
+                <Send className="h-4 w-4" /> Bulk Invoice
               </Button>
-              <Button size="sm" variant="destructive" className="h-8">
-                <Archive className="h-3.5 w-3.5 mr-1.5" /> Archive
+              <Button size="sm" variant="destructive" className="h-9 gap-2 font-bold px-4">
+                <Archive className="h-4 w-4" /> Archive
               </Button>
             </div>
           </div>
         )}
 
-        <Card className="border-none shadow-none bg-transparent">
+        <div className="bg-white rounded-xl border overflow-hidden transition-all duration-300">
           <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent border-b border-border/50">
-                <TableHead className="w-[40px] px-4">
+            <TableHeader className="bg-slate-50/50">
+              <TableRow className="hover:bg-transparent border-none">
+                <TableHead className="w-[48px] pl-6">
                   <Checkbox
                     checked={selectedIds.length === paginatedPayments.length && paginatedPayments.length > 0}
                     onCheckedChange={toggleAll}
+                    className="border-slate-300"
                   />
                 </TableHead>
-                <TableHead>Txn ID</TableHead>
-                <TableHead>Patient Details</TableHead>
-                {activeTab === "unpaid" && (
-                  <TableHead>Invoice No.</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Txn ID</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Patient Details</TableHead>
+                {statusFilter === "unpaid" && (
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Invoice No.</TableHead>
                 )}
-                <TableHead>Type</TableHead>
-                <TableHead>Total Cost</TableHead>
-                <TableHead>Amount Paid</TableHead>
-                <TableHead>Balance</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Type</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Cost</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Paid</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Date</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedPayments.map((payment) => (
                 <TableRow
                   key={payment.id}
-                  className="hover:bg-muted/50 cursor-pointer transition-colors border-b border-border/50 last:border-0"
+                  className={cn(
+                    "hover:bg-slate-50/50 cursor-pointer transition-colors group h-16 border-b border-slate-100 last:border-0",
+                    selectedIds.includes(payment.id) && "bg-primary/[0.02]"
+                  )}
                   onClick={() => {
                     setSelectedClient({ ...payment, name: payment.patientName });
                     setShowPaymentDetailsModal(true);
                   }}
                 >
-                  <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
+                  <TableCell className="pl-6" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                       checked={selectedIds.includes(payment.id)}
                       onCheckedChange={() => toggleOne(payment.id)}
+                      className="border-slate-300"
                     />
                   </TableCell>
                   <TableCell>
-                    <code className="text-xs font-semibold bg-muted px-2 py-1 rounded">
+                    <code className="text-[11px] font-bold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded border border-slate-200/50">
                       {payment.id}
                     </code>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{payment.patientName}</span>
-                      <span className="text-[10px] text-muted-foreground font-mono">{payment.patientId}</span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-bold text-sm text-slate-800 truncate">{payment.patientName}</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{payment.patientId}</span>
                     </div>
                   </TableCell>
-                  {activeTab === "unpaid" && (
+                  {statusFilter === "unpaid" && (
                     <TableCell>
-                      <Badge variant="outline" className="text-[10px] font-mono font-medium border-primary/20 bg-primary/[0.02]">
+                      <Badge variant="outline" className="text-[10px] font-bold font-mono border-slate-100 bg-slate-50 text-slate-600">
                         {payment.invoiceNo}
                       </Badge>
                     </TableCell>
                   )}
                   <TableCell>
-                    <span className="text-xs font-medium text-muted-foreground">{payment.patientType}</span>
+                    <span className="text-[12px] font-bold text-slate-500 uppercase tracking-tight">{payment.patientType}</span>
                   </TableCell>
-                  <TableCell className="font-semibold text-sm">{formatCurrency(payment.totalCost)}</TableCell>
-                  <TableCell className="font-semibold text-sm">{formatCurrency(payment.amountPaid)}</TableCell>
-                  <TableCell className="font-semibold text-sm">{formatCurrency(payment.balance)}</TableCell>
+                  <TableCell className="font-bold text-slate-900 tabular-nums">{formatCurrency(payment.totalCost)}</TableCell>
+                  <TableCell className="font-bold text-emerald-600 tabular-nums">{formatCurrency(payment.amountPaid)}</TableCell>
+                  <TableCell className="font-bold text-rose-600 tabular-nums">{formatCurrency(payment.balance)}</TableCell>
                   <TableCell>
-                    <Badge className={cn("text-[10px] px-2 py-0.5 font-bold capitalize", getStatusBadge(payment.status))}>
-                      {payment.status}
-                    </Badge>
+                    {getStatusBadge(payment.status)}
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground font-medium">{formatDate(payment.date)}</TableCell>
-                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                  <TableCell className="text-[13px] font-medium text-slate-500 whitespace-nowrap">{formatDate(payment.date)}</TableCell>
+                  <TableCell className="pr-6" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-[180px]">
-                        <DropdownMenuItem onClick={() => handleRecordPayment(payment)}>
-                          <CreditCard className="h-4 w-4 mr-2" /> Record Payment
+                        <DropdownMenuItem className="gap-2 font-medium text-sm" onClick={() => handleRecordPayment(payment)}>
+                          <CreditCard className="h-3.5 w-3.5 text-slate-500" /> Record Payment
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {
+                        <DropdownMenuItem className="gap-2 font-medium text-sm" onClick={() => {
                           setSelectedClient({ ...payment, name: payment.patientName });
                           setShowPaymentDetailsModal(true);
                         }}>
-                          <Eye className="h-4 w-4 mr-2" /> View Details
+                          <Eye className="h-3.5 w-3.5 text-slate-500" /> View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Receipt className="h-4 w-4 mr-2" /> View Receipt
+                        <DropdownMenuItem className="gap-2 font-medium text-sm">
+                          <Receipt className="h-3.5 w-3.5 text-slate-500" /> View Receipt
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
-                          <Archive className="h-4 w-4 mr-2" /> Archive Txn
+                        <DropdownMenuItem className="text-red-600 gap-2 font-medium text-sm">
+                          <Archive className="h-3.5 w-3.5" /> Archive Txn
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -447,30 +493,30 @@ export function AdminPaymentsView() {
           </Table>
 
           {paginatedPayments.length === 0 && (
-            <div className="p-12 text-center flex flex-col items-center justify-center">
-              <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4 text-muted-foreground">
-                <Search className="h-6 w-6" />
+            <div className="p-20 text-center flex flex-col items-center justify-center bg-white">
+              <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-100">
+                <Receipt className="h-8 w-8 text-slate-200" />
               </div>
-              <h3 className="text-lg font-semibold">No payments found</h3>
-              <p className="text-sm text-muted-foreground max-w-[300px] mt-1">
-                We couldn't find any transactions for the current filter. Try adjusting your search criteria.
+              <h3 className="text-lg font-bold text-slate-800">No payments found</h3>
+              <p className="text-slate-400 text-sm font-medium mt-1">
+                We couldn't find any transactions for the current filter.
               </p>
             </div>
           )}
-        </Card>
+        </div>
 
-        {/* Pagination Controls - Aligned with patients table */}
+        {/* Pagination Controls */}
         {filteredPayments.length > 0 && (
-          <div className="flex items-center border-t justify-between px-2 py-3">
-            <div className="text-sm text-muted-foreground">
-              {filteredPayments.length} results
+          <div className="flex items-center justify-between px-2 py-6">
+            <div className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">
+              {filteredPayments.length} results found
             </div>
 
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 hidden lg:flex"
+                className="h-8 w-8 hidden lg:flex bg-white border-slate-200"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
               >
@@ -479,19 +525,22 @@ export function AdminPaymentsView() {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 bg-white border-slate-200"
                 onClick={() => setCurrentPage(prev => prev - 1)}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm font-medium">
-                Page {currentPage} of {totalPages}
-              </span>
+              <div className="flex items-center gap-1.5 px-3 h-8 bg-slate-100 rounded-md">
+                <span className="text-xs font-bold text-slate-600">Page</span>
+                <span className="text-xs font-black text-slate-900">{currentPage}</span>
+                <span className="text-xs font-bold text-slate-400">of</span>
+                <span className="text-xs font-black text-slate-900">{totalPages}</span>
+              </div>
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 bg-white border-slate-200"
                 onClick={() => setCurrentPage(prev => prev + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
               >
@@ -500,7 +549,7 @@ export function AdminPaymentsView() {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 hidden lg:flex"
+                className="h-8 w-8 hidden lg:flex bg-white border-slate-200"
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages || totalPages === 0}
               >
@@ -508,8 +557,8 @@ export function AdminPaymentsView() {
               </Button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Rows per page:</span>
+            <div className="flex items-center gap-3 bg-white p-1 pl-3 rounded-lg border border-slate-200">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter text-[10px]">Show</span>
               <Select
                 value={`${itemsPerPage}`}
                 onValueChange={(v) => {
@@ -517,12 +566,12 @@ export function AdminPaymentsView() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-[70px] h-8 text-sm font-medium">
+                <SelectTrigger className="w-[60px] h-7 border-none shadow-none font-bold text-xs ring-0 focus:ring-0">
                   <SelectValue placeholder={itemsPerPage} />
                 </SelectTrigger>
                 <SelectContent side="top">
                   {[10, 20, 30, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                    <SelectItem key={pageSize} value={`${pageSize}`} className="text-xs font-bold">
                       {pageSize}
                     </SelectItem>
                   ))}
@@ -531,7 +580,7 @@ export function AdminPaymentsView() {
             </div>
           </div>
         )}
-      </Tabs>
+      </div>
 
       {/* Modals */}
       <SendInvoiceModal

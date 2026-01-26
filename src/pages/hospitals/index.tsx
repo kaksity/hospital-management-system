@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Plus,
   Edit,
@@ -17,7 +18,10 @@ import {
   Building2,
   MapPin,
   Trash2,
-  X
+  X,
+  CheckCircle2,
+  Clock,
+  Scan,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/dateFormatter";
@@ -112,190 +116,226 @@ export default function Hospitals() {
     setIsAddEditModalOpen(true);
   };
 
+  const activeCount = hospitals.filter(h => h.status === 'active').length;
+  const inactiveCount = hospitals.filter(h => h.status === 'inactive').length;
+
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-semibold tracking-light">Hospitals</h1>
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-bold rounded-full">
-              {hospitals.length}
-            </Badge>
+    <div className="min-h-screen bg-[#fafafa]">
+      {/* Header Section */}
+      <div className="bg-white border-b">
+        <div className="p-6 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold text-slate-900">Hospitals & Facilities</h1>
+                <Badge variant="secondary" className="h-6 px-2 text-[12px] font-bold bg-slate-100 text-slate-600 border-none rounded-md">
+                  {hospitals.length}
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-sm">Manage the list of hospitals and facilities in the network.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+              <Button onClick={handleAddHospital} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+                <Plus className="h-4 w-4" />
+                Add Hospital
+              </Button>
+            </div>
           </div>
-          <p className="text-muted-foreground text-sm">Manage the list of hospitals and facilities in the network.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Button onClick={handleAddHospital}>
-            <Plus className="h-4 w-4" />
-            Add Hospital
-          </Button>
+
+          {/* Unified Summary Card */}
+          <Card className="border shadow-none bg-white rounded-xl overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x border-slate-100">
+              {[
+                { label: "Total Facilities", value: hospitals.length, icon: Building2, color: "text-blue-600", bg: "bg-blue-50" },
+                { label: "Active Nodes", value: activeCount, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
+                { label: "Inactive", value: inactiveCount, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+                { label: "Network Coverage", value: "94%", icon: Scan, color: "text-indigo-600", bg: "bg-indigo-50" },
+              ].map((stat, i) => (
+                <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none pt-1">{stat.value}</h3>
+                  </div>
+                  <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
+                    <stat.icon className={cn("h-4 w-4", stat.color)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Filters Bar */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pt-2">
+            <div className="flex flex-1 items-center gap-3 w-full max-w-2xl">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Search hospitals by name or code..."
+                  value={globalFilter}
+                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  className="pl-9 h-10 border shadow-none bg-slate-50/50 focus-visible:ring-primary/20 transition-all hover:border-slate-300 rounded-lg placeholder:text-slate-400 text-sm font-medium"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[160px] h-10 bg-white border shadow-none font-semibold text-sm">
+                  <SelectValue placeholder="Filter Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active Only</SelectItem>
+                  <SelectItem value="inactive">Inactive Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="flex flex-1 items-center gap-2 w-full max-w-2xl">
-          <div className="relative w-full sm:w-[300px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search hospitals..."
-              className="pl-9 bg-background"
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
+      <div className="p-6">
+        {/* Bulk Actions Toolbar */}
+        {selectedHospitals.length > 0 && (
+          <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-xl px-5 py-3 mb-6 animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-bold text-primary">
+                {selectedHospitals.length} hospital{selectedHospitals.length > 1 ? 's' : ''} selected
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-[11px] font-bold uppercase tracking-wider text-primary hover:text-primary hover:bg-primary/10 gap-2 px-3"
+                onClick={() => setSelectedHospitals([])}
+              >
+                <X className="h-3.5 w-3.5" />
+                Clear
+              </Button>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" className="h-9 gap-2 border-primary/20 text-primary hover:bg-primary/5 font-bold">
+                <Download className="h-4 w-4" />
+                Export Selected
+              </Button>
+              <Button variant="destructive" size="sm" className="h-9 gap-2 font-bold px-4">
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {filteredHospitals.length > 0 ? (
+          <div className="bg-white rounded-xl border overflow-hidden transition-all duration-300">
+            <Table>
+              <TableHeader className="bg-slate-50/50">
+                <TableRow className="hover:bg-transparent border-none">
+                  <TableHead className="w-[48px] pl-6">
+                    <Checkbox
+                      checked={selectedHospitals.length === filteredHospitals.length && filteredHospitals.length > 0}
+                      onCheckedChange={toggleAll}
+                      aria-label="Select all"
+                      className="border-slate-300"
+                    />
+                  </TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Account Code</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Hospital Name</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Location</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Date Registered</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredHospitals.map((hospital) => (
+                  <TableRow
+                    key={hospital.id}
+                    className={cn(
+                      "hover:bg-slate-50/50 transition-colors group h-16 border-b border-slate-100 last:border-0",
+                      selectedHospitals.includes(hospital.id) && "bg-primary/[0.02]"
+                    )}
+                  >
+                    <TableCell className="pl-6">
+                      <Checkbox
+                        checked={selectedHospitals.includes(hospital.id)}
+                        onCheckedChange={() => toggleOne(hospital.id)}
+                        aria-label={`Select ${hospital.name}`}
+                        className="border-slate-300"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <code className="text-[10px] font-bold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded">
+                        {hospital.accountCode}
+                      </code>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
+                          <Building2 className="h-4 w-4 text-slate-400" />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-bold text-sm text-slate-800 truncate">{hospital.name}</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{hospital.id}</span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 truncate max-w-[250px]" title={hospital.location}>
+                        <MapPin className="h-3.5 w-3.5 shrink-0 opacity-40" />
+                        <span className="truncate">{hospital.location}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={cn("capitalize px-2 py-0.5 text-[10px] font-bold border",
+                        hospital.status === 'active' ? "bg-emerald-100 text-emerald-800 border-none" : "bg-slate-100 text-slate-700 border-none"
+                      )}>
+                        {hospital.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-[13px] font-semibold text-slate-700">
+                      {formatDate(hospital.createdAt)}
+                    </TableCell>
+                    <TableCell className="pr-6">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg" onClick={() => handleEditHospital(hospital)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl border p-20">
+            <EmptyState
+              icon={Building2}
+              title={globalFilter ? "No results found" : "No hospitals registered"}
+              description={
+                globalFilter
+                  ? `We couldn't find any hospitals matching "${globalFilter}". Try refining your search.`
+                  : "Start by adding your first hospital facility to the platform."
+              }
+              action={
+                !globalFilter
+                  ? {
+                    label: "Add Hospital",
+                    onClick: handleAddHospital,
+                    icon: Plus,
+                  }
+                  : undefined
+              }
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[150px] bg-background">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        )}
       </div>
 
-      {/* Bulk Actions Toolbar */}
-      {selectedHospitals.length > 0 && (
-        <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-4 py-2 mt-2">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-primary">
-              {selectedHospitals.length} hospital{selectedHospitals.length > 1 ? 's' : ''} selected
-            </span>
-            <div className="h-4 w-px bg-primary/20" />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 text-primary hover:text-primary hover:bg-primary/10 gap-2"
-              onClick={() => setSelectedHospitals([])}
-            >
-              <X className="h-3.5 w-3.5" />
-              Clear Selection
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="h-8 gap-2 border-primary/20 text-primary hover:bg-primary/5">
-              <Download className="h-3.5 w-3.5" />
-              Export Selected
-            </Button>
-            <Button variant="destructive" size="sm" className="h-8 gap-2">
-              <Trash2 className="h-3.5 w-3.5" />
-              Delete
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Table */}
-      {filteredHospitals.length > 0 ? (
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[40px] px-4">
-                <Checkbox
-                  checked={selectedHospitals.length === filteredHospitals.length && filteredHospitals.length > 0}
-                  onCheckedChange={toggleAll}
-                  aria-label="Select all"
-                />
-              </TableHead>
-              <TableHead className="w-[150px]">Account Code</TableHead>
-              <TableHead>Hospital Name</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date Registered</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredHospitals.map((hospital) => (
-              <TableRow
-                key={hospital.id}
-                className={cn(
-                  "hover:bg-muted/50 transition-colors border-b border-border/50 last:border-0",
-                  selectedHospitals.includes(hospital.id) && "bg-primary/[0.02]"
-                )}
-              >
-                <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedHospitals.includes(hospital.id)}
-                    onCheckedChange={() => toggleOne(hospital.id)}
-                    aria-label={`Select ${hospital.name}`}
-                  />
-                </TableCell>
-                <TableCell className="font-mono text-xs font-semibold">{hospital.accountCode}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/5 rounded-lg shrink-0">
-                      <Building2 className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{hospital.name}</span>
-                      <span className="text-[10px] text-muted-foreground font-mono">{hospital.id}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground truncate max-w-[250px]" title={hospital.location}>
-                    <MapPin className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{hospital.location}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={getStatusBadge(hospital.status)}>
-                    {hospital.status.charAt(0).toUpperCase() + hospital.status.slice(1)}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-sm">
-                    {formatDate(hospital.createdAt)}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button variant="link" onClick={() => handleEditHospital(hospital)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
-        <EmptyState
-          icon={Building2}
-          title={globalFilter ? "No results found" : "No hospitals registered"}
-          description={
-            globalFilter
-              ? `We couldn't find any hospitals matching "${globalFilter}". Try refining your search.`
-              : "Start by adding your first hospital facility to the platform."
-          }
-          action={
-            !globalFilter
-              ? {
-                label: "Add Hospital",
-                onClick: handleAddHospital,
-                icon: Plus,
-              }
-              : undefined
-          }
-        />
-      )}
-
-      {/* Add/Edit Hospital Modal */}
       <AddEditHospitalModal
         open={isAddEditModalOpen}
         onOpenChange={setIsAddEditModalOpen}
         hospital={hospitalToEdit}
         onSuccess={(updatedHospital) => {
           console.log("Hospital operation successful:", updatedHospital);
-          // In a real app, this would trigger a refetch or state update
         }}
       />
     </div>

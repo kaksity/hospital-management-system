@@ -23,7 +23,10 @@ import {
   Eye,
   Archive,
   MoreHorizontal,
-  Ticket
+  Ticket,
+  CheckCircle2,
+  Clock,
+  Scan,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -32,6 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/dateFormatter";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -149,219 +153,255 @@ export default function Doctors() {
     setIsDiscountModalOpen(true);
   };
 
+  const activeCount = doctors.filter(d => d.status === 'active').length;
+  const inactiveCount = doctors.filter(d => d.status === 'inactive').length;
+  const totalCodes = doctors.reduce((acc, d) => acc + d.totalCodes, 0);
+
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-semibold tracking-light">Referring Doctors</h1>
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-bold rounded-full">
-              {doctors.length}
-            </Badge>
+    <div className="min-h-screen bg-[#fafafa]">
+      {/* Header Section */}
+      <div className="bg-white border-b">
+        <div className="p-6 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold text-slate-900">Referring Doctors</h1>
+                <Badge variant="secondary" className="h-6 px-2 text-[12px] font-bold bg-slate-100 text-slate-600 border-none rounded-md">
+                  {doctors.length}
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-sm">Manage medical professionals and their financial preferences.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+              <Button onClick={handleAddDoctor} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+                <Plus className="h-4 w-4" />
+                Add New Doctor
+              </Button>
+            </div>
           </div>
-          <p className="text-muted-foreground text-sm">Manage medical professionals and their financial preferences.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Button onClick={handleAddDoctor}>
-            <Plus className="h-4 w-4" />
-            Add New Doctor
-          </Button>
+
+          {/* Unified Summary Card */}
+          <Card className="border shadow-none bg-white rounded-xl overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x border-slate-100">
+              {[
+                { label: "Total Doctors", value: doctors.length, icon: User, color: "text-blue-600", bg: "bg-blue-50" },
+                { label: "Active Referral", value: activeCount, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
+                { label: "Inactive", value: inactiveCount, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+                { label: "Total App Discount", value: totalCodes, icon: Ticket, color: "text-indigo-600", bg: "bg-indigo-50" },
+              ].map((stat, i) => (
+                <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none pt-1">{stat.value}</h3>
+                  </div>
+                  <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
+                    <stat.icon className={cn("h-4 w-4", stat.color)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Filters Bar */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pt-2">
+            <div className="flex flex-1 items-center gap-3 w-full max-w-2xl">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Search doctors by name, hospital or ID..."
+                  value={globalFilter}
+                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  className="pl-9 h-10 border shadow-none bg-slate-50/50 focus-visible:ring-primary/20 transition-all hover:border-slate-300 rounded-lg placeholder:text-slate-400 text-sm font-medium"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[160px] h-10 bg-white border shadow-none font-semibold text-sm">
+                  <SelectValue placeholder="Filter Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active Only</SelectItem>
+                  <SelectItem value="inactive">Inactive Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="flex flex-1 items-center gap-2 w-full max-w-2xl">
-          <div className="relative w-full sm:w-[300px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search doctors..."
-              className="pl-9 bg-background"
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
+      <div className="p-6">
+        {/* Bulk Actions Toolbar */}
+        {selectedDoctors.length > 0 && (
+          <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-xl px-5 py-3 mb-6 animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-bold text-primary">
+                {selectedDoctors.length} doctor{selectedDoctors.length > 1 ? 's' : ''} selected
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-[11px] font-bold uppercase tracking-wider text-primary hover:text-primary hover:bg-primary/10 gap-2 px-3"
+                onClick={() => setSelectedDoctors([])}
+              >
+                <X className="h-3.5 w-3.5" />
+                Clear
+              </Button>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" className="h-9 gap-2 border-primary/20 text-primary hover:bg-primary/5 font-bold">
+                <Download className="h-4 w-4" />
+                Export Selected
+              </Button>
+              <Button variant="destructive" size="sm" className="h-9 gap-2 font-bold px-4">
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {filteredDoctors.length > 0 ? (
+          <div className="bg-white rounded-xl border overflow-hidden transition-all duration-300">
+            <Table>
+              <TableHeader className="bg-slate-50/50">
+                <TableRow className="hover:bg-transparent border-none">
+                  <TableHead className="w-[48px] pl-6">
+                    <Checkbox
+                      checked={selectedDoctors.length === filteredDoctors.length && filteredDoctors.length > 0}
+                      onCheckedChange={toggleAll}
+                      aria-label="Select all"
+                      className="border-slate-300"
+                    />
+                  </TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Doctor Name</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Hospital</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Mobile No.</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Marketer</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Discount Codes</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDoctors.map((doctor) => (
+                  <TableRow
+                    key={doctor.id}
+                    className={cn(
+                      "hover:bg-slate-50/50 transition-colors group h-16 border-b border-slate-100 last:border-0",
+                      selectedDoctors.includes(doctor.id) && "bg-primary/[0.02]"
+                    )}
+                  >
+                    <TableCell className="pl-6">
+                      <Checkbox
+                        checked={selectedDoctors.includes(doctor.id)}
+                        onCheckedChange={() => toggleOne(doctor.id)}
+                        aria-label={`Select ${doctor.name}`}
+                        className="border-slate-300"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
+                          <User className="h-4 w-4 text-slate-400" />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-bold text-sm text-slate-800 truncate">{doctor.name}</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{doctor.id}</span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 truncate max-w-[200px]" title={doctor.hospital}>
+                        <Building2 className="h-3.5 w-3.5 shrink-0 opacity-40" />
+                        <span className="truncate">{doctor.hospital}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                        <Phone className="h-3.5 w-3.5 text-slate-400" />
+                        {doctor.phone}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
+                        <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                        {doctor.marketer}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm font-bold text-slate-700">
+                        <Ticket className="h-3 w-3 text-slate-400" />
+                        <span className="tabular-nums">{doctor.usedCodes} / {doctor.totalCodes}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={cn("capitalize px-2 py-0.5 text-[10px] font-bold border",
+                        doctor.status === 'active' ? "bg-emerald-100 text-emerald-800 border-none" : "bg-slate-100 text-slate-700 border-none"
+                      )}>
+                        {doctor.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="pr-6">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-[180px]">
+                          <DropdownMenuItem onClick={() => handleViewDoctor(doctor)} className="gap-2 font-medium text-sm">
+                            <Eye className="h-3.5 w-3.5 text-slate-500" />
+                            View Profile
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditDoctor(doctor)} className="gap-2 font-medium text-sm">
+                            <Edit className="h-3.5 w-3.5 text-slate-500" />
+                            Edit Doctor
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleGenerateCodes(doctor)} className="gap-2 font-medium text-sm">
+                            <Ticket className="h-3.5 w-3.5 text-slate-500" />
+                            Discount Codes
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-red-600 gap-2 font-medium text-sm">
+                            <Archive className="h-3.5 w-3.5" />
+                            Archive
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl border p-20 text-center">
+            <EmptyState
+              icon={User}
+              title={globalFilter ? "No results found" : "No doctors registered"}
+              description={
+                globalFilter
+                  ? `We couldn't find any doctors matching "${globalFilter}". Try refining your search.`
+                  : "Start by registering your first referring doctor to the platform."
+              }
+              action={
+                !globalFilter
+                  ? {
+                    label: "Add New Doctor",
+                    onClick: handleAddDoctor,
+                    icon: Plus,
+                  }
+                  : undefined
+              }
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[150px] bg-background">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        )}
       </div>
 
-      {/* Bulk Actions Toolbar */}
-      {selectedDoctors.length > 0 && (
-        <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-4 py-2 mt-2">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-primary">
-              {selectedDoctors.length} doctor{selectedDoctors.length > 1 ? 's' : ''} selected
-            </span>
-            <div className="h-4 w-px bg-primary/20" />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 text-primary hover:text-primary hover:bg-primary/10 gap-2"
-              onClick={() => setSelectedDoctors([])}
-            >
-              <X className="h-3.5 w-3.5" />
-              Clear Selection
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="h-8 gap-2 border-primary/20 text-primary hover:bg-primary/5">
-              <Download className="h-3.5 w-3.5" />
-              Export Selected
-            </Button>
-            <Button variant="destructive" size="sm" className="h-8 gap-2">
-              <Trash2 className="h-3.5 w-3.5" />
-              Delete
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Table */}
-      {filteredDoctors.length > 0 ? (
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[40px] px-4">
-                <Checkbox
-                  checked={selectedDoctors.length === filteredDoctors.length && filteredDoctors.length > 0}
-                  onCheckedChange={toggleAll}
-                  aria-label="Select all"
-                />
-              </TableHead>
-              <TableHead>Doctor Name</TableHead>
-              <TableHead>Hospital</TableHead>
-              <TableHead>Mobile No.</TableHead>
-              <TableHead>Marketer</TableHead>
-              <TableHead>Discount Codes</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredDoctors.map((doctor) => (
-              <TableRow
-                key={doctor.id}
-                className={cn(
-                  "hover:bg-muted/50 transition-colors border-b border-border/50 last:border-0",
-                  selectedDoctors.includes(doctor.id) && "bg-primary/[0.02]"
-                )}
-              >
-                <TableCell className="px-4">
-                  <Checkbox
-                    checked={selectedDoctors.includes(doctor.id)}
-                    onCheckedChange={() => toggleOne(doctor.id)}
-                    aria-label={`Select ${doctor.name}`}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/5 rounded-lg shrink-0">
-                      <User className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{doctor.name}</span>
-                      <span className="text-[10px] text-muted-foreground font-mono">{doctor.id}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <Building2 className="h-3.5 w-3.5" />
-                    {doctor.hospital}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                    {doctor.phone}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
-                    {doctor.marketer}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground/80">
-                    <Ticket className="h-3 w-3 text-muted-foreground" />
-                    {doctor.usedCodes} / {doctor.totalCodes}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={getStatusBadge(doctor.status)}>
-                    {doctor.status.charAt(0).toUpperCase() + doctor.status.slice(1)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[160px]">
-                      <DropdownMenuItem onClick={() => handleViewDoctor(doctor)}>
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                        View Profile
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEditDoctor(doctor)}>
-                        <Edit className="h-4 w-4 text-muted-foreground" />
-                        Edit Doctor
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleGenerateCodes(doctor)}>
-                        <Ticket className="h-4 w-4 text-muted-foreground" />
-                        Discount Codes
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">
-                        <Archive className="h-4 w-4" />
-                        Archive
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
-        <EmptyState
-          icon={User}
-          title={globalFilter ? "No results found" : "No doctors registered"}
-          description={
-            globalFilter
-              ? `We couldn't find any doctors matching "${globalFilter}". Try refining your search.`
-              : "Start by registering your first referring doctor to the platform."
-          }
-          action={
-            !globalFilter
-              ? {
-                label: "Add New Doctor",
-                onClick: handleAddDoctor,
-                icon: Plus,
-              }
-              : undefined
-          }
-        />
-      )}
-
-      {/* Modals */}
       <AddEditDoctorModal
         open={isAddEditModalOpen}
         onOpenChange={setIsAddEditModalOpen}
