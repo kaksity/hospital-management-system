@@ -12,6 +12,7 @@ import CreateDiagnosticReport from "@/pages/diagnostic-reports/create";
 import ReportDetail from "@/pages/diagnostic-reports/[id]";
 import Communication from "@/pages/communication";
 import Payments from "@/pages/payments";
+import RecordPayment from "@/pages/payments/record";
 import { Login } from "@/pages/auth/Login";
 import { Signup } from "@/pages/auth/Signup";
 import NotFound from "@/pages/not-found";
@@ -199,6 +200,16 @@ export function AppRoutes() {
           <ProtectedRoute allowedRoles={['admin', 'client']}>
             <DashboardLayout>
               <Payments />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payments/record/:id"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <DashboardLayout>
+              <RecordPayment />
             </DashboardLayout>
           </ProtectedRoute>
         }

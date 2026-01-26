@@ -29,14 +29,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useMemo } from "react";
-import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { PaymentDetailsModal } from "@/components/Modals/PaymentDetailsModal";
-import { RecordPaymentModal } from "@/components/Modals/RecordPaymentModal";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDate } from "@/utils/dateFormatter";
+import { payments } from "@/data/payments";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -44,7 +44,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 
 export function AdminPaymentsView() {
-  const [showSendInvoiceModal, setShowSendInvoiceModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -52,121 +51,11 @@ export function AdminPaymentsView() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showPaymentDetailsModal, setShowPaymentDetailsModal] = useState(false);
-  const [showRecordPaymentModal, setShowRecordPaymentModal] = useState(false);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const navigate = useNavigate();
 
-  // Mock Data
-  const payments = useMemo(() => [
-    {
-      id: "TXN-001",
-      patientId: "PAT-105",
-      patientName: "John Adebayo",
-      patientType: "Regular",
-      gender: "Male",
-      accountCode: "MRI-01",
-      method: "Bank Transfer",
-      totalCost: 150000,
-      amountPaid: 100000,
-      balance: 50000,
-      status: "partial",
-      date: "2024-11-15",
-      invoiceNo: "INV-2024-101",
-      paymentPlan: [
-        { name: "Initial Deposit", amount: 100000, date: "2024-11-15", status: "paid" },
-        { name: "Final Balance", amount: 50000, date: "2024-11-30", status: "partial" }
-      ],
-      services: [
-        { name: "MRI Brain (With Contrast)", price: 150000 }
-      ]
-    },
-    {
-      id: "TXN-002",
-      patientId: "PAT-211",
-      patientName: "Sarah Phillips",
-      patientType: "Regular",
-      gender: "Female",
-      accountCode: "CT-02",
-      method: "Card",
-      totalCost: 45000,
-      amountPaid: 45000,
-      balance: 0,
-      status: "paid",
-      date: "2024-12-01",
-      invoiceNo: "INV-2024-102",
-      paymentPlan: [
-        { name: "Full Payment", amount: 45000, date: "2024-12-01", status: "paid" }
-      ],
-      services: [
-        { name: "CT Scan Head", price: 45000 }
-      ]
-    },
-    {
-      id: "TXN-003",
-      patientId: "PAT-094",
-      patientName: "Michael Chen",
-      patientType: "Regular",
-      gender: "Male",
-      accountCode: "XRY-01",
-      method: "Cash",
-      totalCost: 85000,
-      amountPaid: 0,
-      balance: 85000,
-      status: "unpaid",
-      date: "2025-01-05",
-      invoiceNo: "INV-2025-001",
-      paymentPlan: [
-        { name: "Registration Fee", amount: 85000, date: "2025-01-05", status: "unpaid" }
-      ],
-      services: [
-        { name: "Emergency Radiology Consult", price: 35000 },
-        { name: "Chest X-Ray", price: 50000 }
-      ]
-    },
-    {
-      id: "TXN-004",
-      patientId: "PAT-302",
-      patientName: "Elena Rodriguez",
-      patientType: "Regular",
-      gender: "Female",
-      accountCode: "MRI-02",
-      method: "Bank Transfer",
-      totalCost: 250000,
-      amountPaid: 250000,
-      balance: 0,
-      status: "paid",
-      date: "2025-01-10",
-      invoiceNo: "INV-2025-002",
-      paymentPlan: [
-        { name: "Down Payment", amount: 250000, date: "2025-01-10", status: "paid" }
-      ],
-      services: [
-        { name: "MRI Spine (Lumbar)", price: 250000 }
-      ]
-    },
-    {
-      id: "TXN-005",
-      patientId: "PAT-118",
-      patientName: "David Wilson",
-      patientType: "Regular",
-      gender: "Male",
-      accountCode: "ULS-01",
-      method: "Card",
-      totalCost: 12000,
-      amountPaid: 4000,
-      balance: 8000,
-      status: "partial",
-      date: "2025-01-12",
-      invoiceNo: "INV-2025-003",
-      paymentPlan: [
-        { name: "Part Payment", amount: 4000, date: "2025-01-12", status: "paid" },
-        { name: "Outstanding", amount: 8000, date: "2025-01-20", status: "partial" }
-      ],
-      services: [
-        { name: "Abdominal Ultrasound", price: 12000 }
-      ]
-    }
-  ], []);
+  // Mock Data is now imported from @/data/payments
 
   const stats = {
     totalRevenue: 542000,
@@ -228,13 +117,7 @@ export function AdminPaymentsView() {
   };
 
   const handleRecordPayment = (payment: any) => {
-    setSelectedClient({
-      id: payment.id,
-      name: payment.patientName,
-      balance: payment.balance,
-      case: payment.patientType
-    });
-    setShowRecordPaymentModal(true);
+    navigate(`/payments/record/${payment.id}`);
   };
 
   return (
@@ -256,10 +139,6 @@ export function AdminPaymentsView() {
               <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
                 <Download className="h-4 w-4" />
                 Export Data
-              </Button>
-              <Button onClick={() => setShowSendInvoiceModal(true)} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
-                <Send className="h-4 w-4" />
-                Send New Invoice
               </Button>
             </div>
           </div>
@@ -626,29 +505,13 @@ export function AdminPaymentsView() {
       </div>
 
       {/* Modals */}
-      <SendInvoiceModal
-        open={showSendInvoiceModal}
-        onOpenChange={setShowSendInvoiceModal}
-        patient={selectedClient}
-        onSendInvoice={(invoiceData) => {
-          console.log("Invoice data:", invoiceData);
-          toast.success("Invoice sent successfully");
-        }}
-      />
-
       <PaymentDetailsModal
         open={showPaymentDetailsModal}
         onOpenChange={setShowPaymentDetailsModal}
         client={selectedClient}
-      />
-
-      <RecordPaymentModal
-        open={showRecordPaymentModal}
-        onOpenChange={setShowRecordPaymentModal}
-        client={selectedClient}
-        onRecordPayment={(data) => {
-          console.log("Recorded:", data);
-          toast.success(`Payment recorded successfully`);
+        onRecordPayment={(client) => {
+          setShowPaymentDetailsModal(false);
+          navigate(`/payments/record/${client.id}`);
         }}
       />
     </div>

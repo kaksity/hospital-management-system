@@ -19,6 +19,7 @@ interface PaymentDetailsModalProps {
   payment?: any;
   client?: any;
   isClientView?: boolean;
+  onRecordPayment?: (client: any) => void;
 }
 
 export function PaymentDetailsModal({
@@ -26,7 +27,8 @@ export function PaymentDetailsModal({
   onOpenChange,
   payment,
   client,
-  isClientView = false
+  isClientView = false,
+  onRecordPayment
 }: PaymentDetailsModalProps) {
   const data = isClientView ? payment : client;
   if (!data) return null;
@@ -218,7 +220,7 @@ export function PaymentDetailsModal({
               Cancel
             </Button>
             {client.balance > 0 && (
-              <Button>
+              <Button onClick={() => onRecordPayment?.(client)}>
                 <CreditCard className="h-3.5 w-3.5" /> Record New Payment
               </Button>
             )}
