@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   MoreHorizontal,
   Mail,
@@ -54,6 +54,7 @@ import { patients as initialPatients, Patient } from "@/data/patients";
 
 export default function PatientDetail() {
   const { id: routeId } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = React.useState(true);
 
   // Find the patient in our central data store
@@ -253,7 +254,10 @@ export default function PatientDetail() {
                     <DropdownMenuItem className="gap-2 font-semibold text-sm py-2">
                       <FileText className="h-4 w-4 text-slate-400" /> Export Records
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="gap-2 font-semibold text-sm py-2 text-primary">
+                    <DropdownMenuItem
+                      className="gap-2 font-semibold text-sm py-2 text-primary"
+                      onClick={() => navigate(`/invoices/create?patientId=${patientData.id}`)}
+                    >
                       <ReceiptIcon className="h-4 w-4" /> Create Invoice
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -457,7 +461,12 @@ export default function PatientDetail() {
                     <CardTitle>Invoices</CardTitle>
                     <CardDescription>Billing history and outstanding invoices</CardDescription>
                   </div>
-                  <Button size="sm" variant="outline" className="gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => navigate(`/invoices/create?patientId=${patientData.id}`)}
+                  >
                     <Receipt className="h-4 w-4" /> Create Invoice
                   </Button>
                 </CardHeader>

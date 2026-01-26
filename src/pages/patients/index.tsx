@@ -145,8 +145,7 @@ export default function Patients() {
   };
 
   const handleSendInvoice = (patient: any) => {
-    setSelectedPatient(patient);
-    setIsInvoiceModalOpen(true);
+    navigate(`/invoices/create?patientId=${patient.id}`);
   };
 
   const handleScheduleAppointment = (patient: any) => {

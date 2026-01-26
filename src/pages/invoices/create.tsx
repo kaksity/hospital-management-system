@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   User,
   Plus,
@@ -11,7 +11,8 @@ import {
   Scan,
   HeartPulse,
   Trash2,
-  DollarSign
+  DollarSign,
+  ChevronsUpDown
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -40,11 +41,20 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
+import { patients } from "@/data/patients";
 
 const MOCK_SERVICES = [
   { id: "S-001", name: "MRI Brain (With Contrast)", price: 185000, category: "MRI" },
@@ -54,28 +64,26 @@ const MOCK_SERVICES = [
   { id: "S-005", name: "Abdominal Ultrasound", price: 25000, category: "Ultrasound" },
 ];
 
-const MOCK_PATIENTS = [
-  { id: "PAT-105", name: "John Adebayo", email: "john@example.com", gender: "Male" },
-  { id: "PAT-211", name: "Sarah Phillips", email: "sarah@example.com", gender: "Female" },
-  { id: "PAT-094", name: "Michael Chen", email: "michael@example.com", gender: "Male" },
-];
-
 export default function CreateInvoicePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const patientIdFromQuery = searchParams.get("patientId") || "";
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [isPatientPopoverOpen, setIsPatientPopoverOpen] = useState(false);
   const [serviceSearch, setServiceSearch] = useState("");
   const [modalSelectedServices, setModalSelectedServices] = useState<any[]>([]);
 
   const [formData, setFormData] = useState({
-    patientId: "",
+    patientId: patientIdFromQuery,
     issuedDate: new Date(),
     dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     services: [] as any[]
   });
 
   const selectedPatient = useMemo(() =>
-    MOCK_PATIENTS.find(p => p.id === formData.patientId),
+    patients.find(p => p.id === formData.patientId),
     [formData.patientId]
   );
 
@@ -153,25 +161,64 @@ export default function CreateInvoicePage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <Label>Search Patient</Label>
-                    <Select value={formData.patientId} onValueChange={(v) => setFormData(prev => ({ ...prev, patientId: v }))}>
-                      <SelectTrigger className="h-11">
-                        <SelectValue placeholder="Select a patient..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MOCK_PATIENTS.map(p => (
-                          <SelectItem key={p.id} value={p.id}>
+                    <Popover open={isPatientPopoverOpen} onOpenChange={setIsPatientPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={isPatientPopoverOpen}
+                          className="w-full justify-between h-11 bg-white hover:bg-slate-50 border-input"
+                        >
+                          {formData.patientId ? (
                             <div className="flex items-center gap-2">
                               <Avatar className="h-5 w-5">
-                                <AvatarImage src={getPatientAvatarPath(p.id, p.gender)} />
-                                <AvatarFallback className={cn("text-[8px] text-white", getAvatarBg(p.name))}>{getAvatarInitials(p.name)}</AvatarFallback>
+                                <AvatarImage src={getPatientAvatarPath(selectedPatient?.id || "", selectedPatient?.gender || "Male")} />
+                                <AvatarFallback className={cn("text-[8px] text-white", getAvatarBg(selectedPatient?.name || "P"))}>{getAvatarInitials(selectedPatient?.name || "P")}</AvatarFallback>
                               </Avatar>
-                              <span className="font-semibold text-sm">{p.name}</span>
-                              <span className="text-[10px] text-slate-400 font-mono tracking-tighter">({p.id})</span>
+                              <span className="font-semibold text-sm">{selectedPatient?.name}</span>
                             </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          ) : (
+                            <span className="text-slate-400 font-medium">Select a patient...</span>
+                          )}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0" align="start">
+                        <Command className="border-none">
+                          <CommandInput placeholder="Search patient by name or ID..." className="h-11" />
+                          <CommandList className="max-h-[300px]">
+                            <CommandEmpty className="py-6 text-center text-sm font-medium text-slate-500">No patient record found.</CommandEmpty>
+                            <CommandGroup heading="Clinical Registry">
+                              {patients.map((p) => (
+                                <CommandItem
+                                  key={p.id}
+                                  value={`${p.name} ${p.id}`}
+                                  onSelect={() => {
+                                    setFormData(prev => ({ ...prev, patientId: p.id }));
+                                    setIsPatientPopoverOpen(false);
+                                  }}
+                                  className="py-3 px-4 flex items-center justify-between cursor-pointer group"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-8 w-8 ring-2 ring-white shadow-sm">
+                                      <AvatarImage src={getPatientAvatarPath(p.id, p.gender)} />
+                                      <AvatarFallback className={cn("text-[10px] text-white font-bold", getAvatarBg(p.name))}>{getAvatarInitials(p.name)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col">
+                                      <span className="font-semibold text-sm text-slate-800 leading-none">{p.name}</span>
+                                      <span className="text-[10px] text-slate-500 font-mono text-semibold tracking-tighter group-data-[selected=true]:text-primary/70">{p.id}</span>
+                                    </div>
+                                  </div>
+                                  {formData.patientId === p.id && (
+                                    <Check className="h-4 w-4 text-primary" />
+                                  )}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   <div className="space-y-1">
