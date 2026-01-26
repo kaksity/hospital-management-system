@@ -75,7 +75,7 @@ export default function Insights() {
             <div className="flex items-center gap-2">
               <Select defaultValue="6months">
                 <SelectTrigger className="w-[160px] h-9 bg-white border shadow-none font-semibold text-xs">
-                  <Calendar className="h-3.5 w-3.5 mr-2 text-slate-400" />
+                  <Calendar className="h-3.5 w-3.5 text-slate-400" />
                   <SelectValue placeholder="Timeframe" />
                 </SelectTrigger>
                 <SelectContent>
@@ -102,7 +102,7 @@ export default function Insights() {
               ].map((stat, i) => (
                 <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 leading-none">{stat.label}</p>
                     <div className="flex items-end gap-2 pt-1">
                       <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none">{stat.value}</h3>
                       <div className={cn("flex items-center text-[10px] font-bold leading-none mb-0.5", stat.positive ? "text-emerald-600" : "text-rose-600")}>
@@ -126,10 +126,10 @@ export default function Insights() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Revenue Trend */}
           <Card className="lg:col-span-2 border shadow-none rounded-xl overflow-hidden bg-white">
-            <CardHeader className="border-b bg-slate-50/50 flex flex-row items-center justify-between py-4 px-6">
+            <CardHeader className="border-b bg-slate-50/50 flex flex-row items-center justify-between py-4 px-6 space-y-0">
               <div>
-                <CardTitle className="text-sm font-bold text-slate-700">Revenue & Referral Trends</CardTitle>
-                <CardDescription className="text-xs font-medium">Performance comparison across the last 6 months</CardDescription>
+                <div className="text-[15px] font-semibold text-slate-700">Revenue & Referral Trends</div>
+                <div className="text-[13px] font-medium text-slate-500">Performance comparison across the last 6 months</div>
               </div>
               <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 <div className="flex items-center gap-1.5">
@@ -186,9 +186,9 @@ export default function Insights() {
 
           {/* Modality Distribution */}
           <Card className="border shadow-none rounded-xl overflow-hidden bg-white">
-            <CardHeader className="border-b bg-slate-50/50 py-4 px-6">
-              <CardTitle className="text-sm font-bold text-slate-700">Modality Mix</CardTitle>
-              <CardDescription className="text-xs font-medium">Volume distribution by device type</CardDescription>
+            <CardHeader className="border-b bg-slate-50/50 py-4 px-6 space-y-0">
+              <div className="text-[15px] font-semibold text-slate-700">Category Mix</div>
+              <div className="text-[13px] font-medium text-slate-500">Volume distribution by device type</div>
             </CardHeader>
             <CardContent className="p-6">
               <div className="h-[240px]">
@@ -211,10 +211,10 @@ export default function Insights() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="mt-6 space-y-3">
+              <div className="mt-6 space-y-1">
                 {modalityData.map((item, i) => (
                   <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                       <span className="text-xs font-bold text-slate-600">{item.name}</span>
                     </div>

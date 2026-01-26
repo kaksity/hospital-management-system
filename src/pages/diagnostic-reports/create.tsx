@@ -330,12 +330,12 @@ export default function CreateDiagnosticReport() {
             variant="outline"
             onClick={handleSaveDraft}
             disabled={isSubmitting}
-            className="gap-2 bg-white font-semibold"
+            className="bg-amber-50 border-[#e7c747] text-amber-700 hover:bg-amber-50 hover:text-amber-800"
           >
             {isSubmitting ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             ) : (
-              <FileText className="h-4 w-4 text-slate-500" />
+              <FileText className="h-4 w-4 text-amber-600" />
             )}
             Save as Draft
           </Button>

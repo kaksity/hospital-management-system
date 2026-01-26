@@ -9,6 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,17 +87,21 @@ export function AddEditServiceModal({
     name: "",
     category: "",
     price: "",
-    duration: "",
+    durationValue: "",
+    durationUnit: "mins",
     active: true,
   });
 
   React.useEffect(() => {
     if (service) {
+      // Parse duration like "30 mins" or "2 hours"
+      const durationParts = service.duration?.split(" ") || ["", "mins"];
       setFormData({
         name: service.name || "",
         category: service.category || "",
         price: service.price?.toString() || "",
-        duration: service.duration || "",
+        durationValue: durationParts[0] || "",
+        durationUnit: (durationParts[1]?.toLowerCase() === "hours" || durationParts[1]?.toLowerCase() === "hour") ? "hours" : "mins",
         active: service.active ?? true,
       });
       setIsAddingNewCategory(false);
@@ -99,7 +110,8 @@ export function AddEditServiceModal({
         name: "",
         category: "",
         price: "",
-        duration: "",
+        durationValue: "",
+        durationUnit: "mins",
         active: true,
       });
       setIsAddingNewCategory(false);
@@ -117,6 +129,9 @@ export function AddEditServiceModal({
       return;
     }
 
+    // Combine value and unit for duration
+    const formattedDuration = `${formData.durationValue} ${formData.durationUnit === "hours" ? (parseInt(formData.durationValue) === 1 ? "Hour" : "Hours") : "Mins"}`;
+
     setTimeout(() => {
       setLoading(false);
       onSuccess?.({
@@ -124,6 +139,7 @@ export function AddEditServiceModal({
         ...formData,
         category: finalCategory,
         price: parseFloat(formData.price),
+        duration: formattedDuration,
         id: service?.id || Math.floor(Math.random() * 10000),
         icon: CATEGORY_ICONS[finalCategory] || Activity,
       });
@@ -277,16 +293,31 @@ export function AddEditServiceModal({
               </div>
               <div className="space-y-1">
                 <Label htmlFor="duration" required>Est. Duration</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="duration"
-                    placeholder="e.g. 30 mins"
-                    value={formData.duration}
-                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                    className="pl-9 h-10 font-medium"
-                    required
-                  />
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="duration"
+                      type="number"
+                      placeholder="0"
+                      value={formData.durationValue}
+                      onChange={(e) => setFormData({ ...formData, durationValue: e.target.value })}
+                      className="pl-9 h-10 font-semibold"
+                      required
+                    />
+                  </div>
+                  <Select
+                    value={formData.durationUnit}
+                    onValueChange={(val) => setFormData({ ...formData, durationUnit: val })}
+                  >
+                    <SelectTrigger className="w-[100px] h-10 font-semibold">
+                      <SelectValue placeholder="Unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mins">Mins</SelectItem>
+                      <SelectItem value="hours">Hours</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>

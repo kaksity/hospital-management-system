@@ -143,8 +143,8 @@ export default function CreateInvoicePage() {
     <div className="min-h-full flex flex-col">
       <div className="max-w-3xl mx-auto w-full p-6 pb-20 space-y-8">
         <div>
-          <h1 className="text-lg font-bold tracking-tight text-slate-900 leading-none">Create New Invoice</h1>
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1.5">Billing & Diagnostic Records</p>
+          <h1 className="text-lg font-semibold text-slate-900 leading-none">Create New Invoice</h1>
+          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-1.5">Billing & Diagnostic Records</p>
         </div>
         <div className="grid gap-8">
           {/* Patient Information Section */}

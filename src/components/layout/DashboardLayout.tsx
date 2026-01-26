@@ -49,6 +49,8 @@ const getBreadcrumbs = (pathname: string) => {
     "/admin/users": { label: "User Management", href: "/admin/users" },
     "/invoices": { label: "Invoices", href: "/invoices" },
     "/invoices/create": { label: "Create Invoice", href: "/invoices/create" },
+    "/templates": { label: "Report Templates", href: "/templates" },
+    "/templates/create": { label: "Create Template", href: "/templates/create" },
   };
 
   // Handle dynamic patient detail pages
@@ -110,6 +112,29 @@ const getBreadcrumbs = (pathname: string) => {
       { label: "Diagnostic Reports", href: "/diagnostic-reports" },
       { label: `Report ${docId}`, href: pathname }
     ];
+  }
+
+  // Handle dynamic template pages
+  if (pathname.startsWith('/templates/')) {
+    const segments = pathname.split('/');
+    const subRoute = segments[2];
+
+    if (subRoute === 'create') {
+      return [
+        { label: "Dashboard", href: "/" },
+        { label: "Report Templates", href: "/templates" },
+        { label: "Create Template", href: pathname }
+      ];
+    }
+
+    if (subRoute === 'edit') {
+      const templateId = segments[3];
+      return [
+        { label: "Dashboard", href: "/" },
+        { label: "Report Templates", href: "/templates" },
+        { label: `Edit Template ${templateId || ''}`.trim(), href: pathname }
+      ];
+    }
   }
 
   // Default breadcrumb generation for known paths

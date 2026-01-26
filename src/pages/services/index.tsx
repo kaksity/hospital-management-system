@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useState } from "react";
 import {
   Plus,
@@ -16,7 +17,8 @@ import {
   Stethoscope,
   CheckCircle2,
   Clock,
-  Eye
+  ArrowUpDown,
+  Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,13 +30,13 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +53,7 @@ const services = [
 
 export default function Services() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"none" | "price-asc" | "price-desc">("none");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [servicesData, setServicesData] = useState(services);
@@ -73,10 +76,19 @@ export default function Services() {
     }
   };
 
-  const filteredServices = servicesData.filter(s =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredServices = React.useMemo(() => {
+    let result = servicesData.filter(s =>
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    if (sortOrder === "price-asc") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "price-desc") {
+      result.sort((a, b) => b.price - a.price);
+    }
+    return result;
+  }, [servicesData, searchQuery, sortOrder]);
 
   const activeCount = servicesData.filter(s => s.active).length;
   const inactiveCount = servicesData.filter(s => !s.active).length;
@@ -137,9 +149,26 @@ export default function Services() {
                   className="pl-9 h-10 border shadow-none bg-slate-50/50 focus-visible:ring-primary/20 transition-all hover:border-slate-300 rounded-lg placeholder:text-slate-400 text-sm font-medium"
                 />
               </div>
-              <Button variant="outline" size="icon" className="h-10 w-10 bg-white border shadow-none rounded-lg">
-                <Settings2 className="h-4 w-4 text-slate-400" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-10 w-10 bg-white border shadow-none rounded-lg group hover:border-primary/30 transition-all">
+                    <ArrowUpDown className={cn("h-4 w-4 transition-colors", sortOrder !== "none" ? "text-primary" : "text-slate-400")} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[180px]">
+                  <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">Order by price</div>
+                  <DropdownMenuItem onClick={() => setSortOrder("price-asc")} className="gap-2 font-medium">
+                    Lowest to Highest
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOrder("price-desc")} className="gap-2 font-medium">
+                    Highest to Lowest
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setSortOrder("none")} className="text-red-600 font-medium">
+                    Reset Sorting
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

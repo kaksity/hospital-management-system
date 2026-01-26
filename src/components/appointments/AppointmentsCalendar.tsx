@@ -240,7 +240,7 @@ export function AppointmentsCalendar() {
         <Card className="bg-muted/20">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-primary">
+              <div className="flex items-center gap-2 text-slate-700">
                 <CalendarDays className="h-5 w-5" />
                 <h3 className="font-bold text-sm">Appointments</h3>
               </div>

@@ -556,7 +556,7 @@ export default function DiagnosticReports() {
                         </Button>
                       </TableCell>
                       <TableCell>
-                        <code className="text-[10px] font-semibold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded">
+                        <code className="text-[11px] font-semibold font-mono text-slate-700 bg-slate-100 border border-slate-200/50 px-2 py-1 rounded">
                           {report.reportNo}
                         </code>
                       </TableCell>
@@ -594,7 +594,7 @@ export default function DiagnosticReports() {
                         {getApprovalStatusBadge(report.approvalStatus)}
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm font-semibold text-slate-600">{report.createdBy}</span>
+                        <span className="text-sm font-semibold">{report.createdBy}</span>
                       </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()} className="pr-6">
                         <DropdownMenu>

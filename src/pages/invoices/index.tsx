@@ -345,17 +345,17 @@ export default function Invoices() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-[180px]">
                         <DropdownMenuItem className="gap-2 font-medium text-sm">
-                          <Eye className="h-3.5 w-3.5 text-slate-500" /> View Details
+                          <Eye className="h-3.5 w-3.5 text-muted-foreground" /> View Details
                         </DropdownMenuItem>
                         <DropdownMenuItem className="gap-2 font-medium text-sm">
-                          <Mail className="h-3.5 w-3.5 text-slate-500" /> Email Patient
+                          <Mail className="h-3.5 w-3.5 text-muted-foreground" /> Email Patient
                         </DropdownMenuItem>
                         <DropdownMenuItem className="gap-2 font-medium text-sm">
-                          <Printer className="h-3.5 w-3.5 text-slate-400" /> Print PDF
+                          <Printer className="h-3.5 w-3.5 text-muted-foreground" /> Print PDF
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-2 font-medium text-sm text-primary">
-                          <CreditCard className="h-3.5 w-3.5" /> Record Payment
+                        <DropdownMenuItem className="gap-2 font-medium text-sm">
+                          <CreditCard className="h-3.5 w-3.5 text-muted-foreground" /> Record Payment
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

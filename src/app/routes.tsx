@@ -31,6 +31,8 @@ import Hospitals from "@/pages/hospitals";
 import Doctors from "@/pages/doctors";
 import RadiologyServices from "@/pages/services";
 import ReportTemplates from "@/pages/templates";
+import CreateTemplate from "@/pages/templates/create";
+import EditTemplate from "@/pages/templates/edit";
 import EditDiagnosticReport from "@/pages/diagnostic-reports/edit";
 
 export function AppRoutes() {
@@ -273,6 +275,26 @@ export function AppRoutes() {
           <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
             <DashboardLayout>
               <ReportTemplates />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/templates/create"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+            <DashboardLayout>
+              <CreateTemplate />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/templates/edit/:id"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+            <DashboardLayout>
+              <EditTemplate />
             </DashboardLayout>
           </ProtectedRoute>
         }
