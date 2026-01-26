@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   Clock,
   Scan,
+  Stethoscope,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -268,21 +269,21 @@ export default function Doctors() {
           <div className="bg-white rounded-xl border overflow-hidden transition-all duration-300">
             <Table>
               <TableHeader className="bg-slate-50/50">
-                <TableRow className="hover:bg-transparent border-none">
+                <TableRow className="hover:bg-transparent transition-none">
                   <TableHead className="w-[48px] pl-6">
                     <Checkbox
                       checked={selectedDoctors.length === filteredDoctors.length && filteredDoctors.length > 0}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
-                      className="border-slate-300"
+                      className="border-slate-400"
                     />
                   </TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Doctor Name</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Hospital</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Mobile No.</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Marketer</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Discount Codes</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Doctor Name</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Hospital</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Mobile No.</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Marketer</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Discount Codes</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Status</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -291,7 +292,7 @@ export default function Doctors() {
                   <TableRow
                     key={doctor.id}
                     className={cn(
-                      "hover:bg-slate-50/50 transition-colors group h-16 border-b border-slate-100 last:border-0",
+                      "hover:bg-slate-50/50 transition-colors group h-16 border-b last:border-0",
                       selectedDoctors.includes(doctor.id) && "bg-primary/[0.02]"
                     )}
                   >
@@ -300,46 +301,47 @@ export default function Doctors() {
                         checked={selectedDoctors.includes(doctor.id)}
                         onCheckedChange={() => toggleOne(doctor.id)}
                         aria-label={`Select ${doctor.name}`}
-                        className="border-slate-300"
+                        className="border-slate-400"
                       />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
-                          <User className="h-4 w-4 text-slate-400" />
+                        <div className="p-2 bg-slate-100 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
+                          <Stethoscope className="h-4 w-4 text-slate-500" />
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="font-bold text-sm text-slate-800 truncate">{doctor.name}</span>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{doctor.id}</span>
+                          <span className="font-semibold text-sm text-slate-800 truncate">{doctor.name}</span>
+                          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{doctor.id}</span>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 truncate max-w-[200px]" title={doctor.hospital}>
-                        <Building2 className="h-3.5 w-3.5 shrink-0 opacity-40" />
-                        <span className="truncate">{doctor.hospital}</span>
+                      <div className="flex items-center gap-1.5 text-sm font-semibold truncate max-w-[200px]" title={doctor.hospital}>
+                        <div className="p-2 bg-slate-100 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
+                          <Building2 className="h-4 w-4 text-slate-500" />
+                        </div>
+                        <span className="truncate text-slate-700">{doctor.hospital}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                        <Phone className="h-3.5 w-3.5 text-slate-400" />
+                      <div className="text-sm font-semibold text-slate-700">
                         {doctor.phone}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-600">
-                        <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                        <Briefcase className="h-3.5 w-3.5 text-slate-500" />
                         {doctor.marketer}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5 text-sm font-bold text-slate-700">
-                        <Ticket className="h-3 w-3 text-slate-400" />
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                        <Ticket className="h-3.5 w-3.5 text-slate-500" />
                         <span className="tabular-nums">{doctor.usedCodes} / {doctor.totalCodes}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={cn("capitalize px-2 py-0.5 text-[10px] font-bold border",
+                      <Badge variant="default" className={cn("capitalize px-2 py-0.5 text-[11px] font-semibold",
                         doctor.status === 'active' ? "bg-emerald-100 text-emerald-800 border-none" : "bg-slate-100 text-slate-700 border-none"
                       )}>
                         {doctor.status}

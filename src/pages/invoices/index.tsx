@@ -165,7 +165,7 @@ export default function Invoices() {
               ].map((stat, i) => (
                 <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 leading-none">{stat.label}</p>
                     <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none pt-1">{formatCurrency(stat.value)}</h3>
                   </div>
                   <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
@@ -304,7 +304,7 @@ export default function Invoices() {
               {filteredInvoices.map((inv) => (
                 <TableRow key={inv.id} className="hover:bg-slate-50/50 transition-colors group cursor-default h-16">
                   <TableCell className="pl-6">
-                    <code className="text-[11px] font-bold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded border border-slate-200/50">
+                    <code className="text-[11px] font-semibold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded border border-slate-200/50">
                       {inv.id}
                     </code>
                   </TableCell>

@@ -157,7 +157,7 @@ export default function Hospitals() {
               ].map((stat, i) => (
                 <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 leading-none">{stat.label}</p>
                     <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none pt-1">{stat.value}</h3>
                   </div>
                   <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
@@ -230,20 +230,20 @@ export default function Hospitals() {
           <div className="bg-white rounded-xl border overflow-hidden transition-all duration-300">
             <Table>
               <TableHeader className="bg-slate-50/50">
-                <TableRow className="hover:bg-transparent border-none">
+                <TableRow className="hover:bg-transparent transition-none">
                   <TableHead className="w-[48px] pl-6">
                     <Checkbox
                       checked={selectedHospitals.length === filteredHospitals.length && filteredHospitals.length > 0}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
-                      className="border-slate-300"
+                      className="border-slate-400"
                     />
                   </TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Account Code</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Hospital Name</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Location</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Date Registered</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Account Code</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Hospital Name</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Location</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Status</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Date Registered</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -252,7 +252,7 @@ export default function Hospitals() {
                   <TableRow
                     key={hospital.id}
                     className={cn(
-                      "hover:bg-slate-50/50 transition-colors group h-16 border-b border-slate-100 last:border-0",
+                      "hover:bg-slate-50/50 transition-colors group h-16 border-b last:border-0",
                       selectedHospitals.includes(hospital.id) && "bg-primary/[0.02]"
                     )}
                   >
@@ -261,27 +261,27 @@ export default function Hospitals() {
                         checked={selectedHospitals.includes(hospital.id)}
                         onCheckedChange={() => toggleOne(hospital.id)}
                         aria-label={`Select ${hospital.name}`}
-                        className="border-slate-300"
+                        className="border-slate-400"
                       />
                     </TableCell>
                     <TableCell>
-                      <code className="text-[10px] font-bold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded">
+                      <code className="text-[11px] font-semibold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded border border-slate-200/50">
                         {hospital.accountCode}
                       </code>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
-                          <Building2 className="h-4 w-4 text-slate-400" />
+                        <div className="p-2 bg-slate-100 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
+                          <Building2 className="h-4 w-4 text-slate-500" />
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="font-bold text-sm text-slate-800 truncate">{hospital.name}</span>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{hospital.id}</span>
+                          <span className="font-semibold text-sm text-slate-800 truncate">{hospital.name}</span>
+                          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{hospital.id}</span>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 truncate max-w-[250px]" title={hospital.location}>
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-slate-800 truncate max-w-[250px]" title={hospital.location}>
                         <MapPin className="h-3.5 w-3.5 shrink-0 opacity-40" />
                         <span className="truncate">{hospital.location}</span>
                       </div>
