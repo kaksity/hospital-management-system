@@ -13,7 +13,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, User, Phone, Briefcase, Landmark, Hash, CreditCard } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Building2,
+  User,
+  Phone,
+  Briefcase,
+  Landmark,
+  Hash,
+  CreditCard,
+  Check,
+  ChevronsUpDown,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { hospitals } from "@/data/hospitals";
+import { banks } from "@/data/banks";
 
 interface AddEditDoctorModalProps {
   open: boolean;
@@ -53,6 +79,8 @@ export function AddEditDoctorModal({
   doctor,
 }: AddEditDoctorModalProps) {
   const [loading, setLoading] = React.useState(false);
+  const [isHospitalPopoverOpen, setIsHospitalPopoverOpen] = React.useState(false);
+  const [isBankPopoverOpen, setIsBankPopoverOpen] = React.useState(false);
   const [formData, setFormData] = React.useState({
     name: "",
     hospital: "",
@@ -143,21 +171,52 @@ export function AddEditDoctorModal({
 
               <div className="space-y-2">
                 <Label htmlFor="hospital" required>Hospital</Label>
-                <Select
-                  value={formData.hospital}
-                  onValueChange={(value) => setFormData({ ...formData, hospital: value })}
-                  required
-                >
-                  <SelectTrigger id="hospital" className="pl-9 relative">
-                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <SelectValue placeholder="Select Hospital" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {HOSPITALS.map((hosp) => (
-                      <SelectItem key={hosp} value={hosp}>{hosp}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={isHospitalPopoverOpen} onOpenChange={setIsHospitalPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={isHospitalPopoverOpen}
+                      className="w-full justify-between h-10 bg-white hover:bg-slate-50 border-input pl-9 relative"
+                    >
+                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      {formData.hospital ? (
+                        <span className="font-semibold text-sm truncate">{formData.hospital}</span>
+                      ) : (
+                        <span className="text-slate-400 font-medium">Select Hospital...</span>
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search hospital..." className="h-9" />
+                      <CommandList>
+                        <CommandEmpty>No hospital found.</CommandEmpty>
+                        <CommandGroup>
+                          {hospitals.map((hosp) => (
+                            <CommandItem
+                              key={hosp.id}
+                              value={hosp.name}
+                              onSelect={() => {
+                                setFormData({ ...formData, hospital: hosp.name });
+                                setIsHospitalPopoverOpen(false);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <div className="flex items-center justify-between w-full">
+                                <span className="font-medium text-sm">{hosp.name}</span>
+                                {formData.hospital === hosp.name && (
+                                  <Check className="h-4 w-4 text-primary" />
+                                )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
@@ -218,20 +277,52 @@ export function AddEditDoctorModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="bankName">Bank Name</Label>
-                  <Select
-                    value={formData.bankName}
-                    onValueChange={(value) => setFormData({ ...formData, bankName: value })}
-                  >
-                    <SelectTrigger id="bankName" className="pl-9 relative">
-                      <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <SelectValue placeholder="Select Bank" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BANKS.map((bank) => (
-                        <SelectItem key={bank} value={bank}>{bank}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={isBankPopoverOpen} onOpenChange={setIsBankPopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isBankPopoverOpen}
+                        className="w-full justify-between h-10 bg-white hover:bg-slate-50 border-input pl-9 relative"
+                      >
+                        <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        {formData.bankName ? (
+                          <span className="font-semibold text-sm truncate">{formData.bankName}</span>
+                        ) : (
+                          <span className="text-slate-400 font-medium">Select Bank...</span>
+                        )}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search bank..." className="h-9" />
+                        <CommandList>
+                          <CommandEmpty>No bank found.</CommandEmpty>
+                          <CommandGroup>
+                            {banks.map((bank) => (
+                              <CommandItem
+                                key={bank.id}
+                                value={bank.name}
+                                onSelect={() => {
+                                  setFormData({ ...formData, bankName: bank.name });
+                                  setIsBankPopoverOpen(false);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <div className="flex items-center justify-between w-full">
+                                  <span className="font-medium text-sm">{bank.name}</span>
+                                  {formData.bankName === bank.name && (
+                                    <Check className="h-4 w-4 text-primary" />
+                                  )}
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="space-y-2">

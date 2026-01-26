@@ -330,7 +330,7 @@ export default function DiagnosticReports() {
                   {totalReports}
                 </Badge>
               </div>
-              <p className="text-muted-foreground text-sm">Manage and track patient diagnostic reports and dispatch status.</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Manage and track patient diagnostic reports and dispatch status.</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

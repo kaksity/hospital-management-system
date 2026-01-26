@@ -70,7 +70,7 @@ export default function Insights() {
                   Live
                 </Badge>
               </div>
-              <p className="text-muted-foreground text-sm">Strategic analytics and performance metrics for CarePak Diagnostics.</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Strategic analytics and performance metrics for CarePak Diagnostics.</p>
             </div>
             <div className="flex items-center gap-2">
               <Select defaultValue="6months">

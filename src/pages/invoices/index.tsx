@@ -143,7 +143,7 @@ export default function Invoices() {
                   {invoices.length}
                 </Badge>
               </div>
-              <p className="text-muted-foreground text-sm">Manage patient billing, track payments, and issue new invoices.</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Manage patient billing, track payments, and issue new invoices.</p>
             </div>
 
             <div className="flex items-center gap-3">

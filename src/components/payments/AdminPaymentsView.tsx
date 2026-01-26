@@ -224,7 +224,7 @@ export function AdminPaymentsView() {
                   {payments.length}
                 </Badge>
               </div>
-              <p className="text-muted-foreground text-sm">Monitor transactions and manage patient billing across the facility.</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Monitor transactions and manage patient billing across the facility.</p>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" className="gap-2 h-9 font-bold bg-white">

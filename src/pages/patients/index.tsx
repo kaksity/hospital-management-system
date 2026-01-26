@@ -179,7 +179,7 @@ export default function Patients() {
                   {totalPatients}
                 </Badge>
               </div>
-              <p className="text-muted-foreground text-sm">Manage the list of patients in the network.</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Manage the list of patients in the network.</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

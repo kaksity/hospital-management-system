@@ -12,11 +12,9 @@ import {
   Plus,
   Edit,
   Search,
-  Filter,
   Download,
   User,
   Building2,
-  Phone,
   Briefcase,
   Trash2,
   X,
@@ -26,7 +24,6 @@ import {
   Ticket,
   CheckCircle2,
   Clock,
-  Scan,
   Stethoscope,
 } from "lucide-react";
 import {
@@ -36,13 +33,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { formatDate } from "@/utils/dateFormatter";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AddEditDoctorModal } from "@/components/Modals/AddEditDoctorModal";
 import { ViewDoctorModal } from "@/components/Modals/ViewDoctorModal";
 import { GenerateDiscountCodesModal } from "@/components/Modals/GenerateDiscountCodesModal";
+import { doctors as initialDoctors } from "@/data/doctors";
 
 export default function Doctors() {
   const navigate = useNavigate();
@@ -53,52 +50,7 @@ export default function Doctors() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [doctorToInteract, setDoctorToInteract] = useState<any>(null);
-
-  // Mock doctors data
-  const doctors = [
-    {
-      id: "DOC-204",
-      name: "Dr. Adeola Williams",
-      hospital: "St. Nicholas Hospital",
-      phone: "+234 801 222 3333",
-      marketer: "Sarah Johnson",
-      status: "active",
-      createdAt: "2024-11-15",
-      accountName: "Adeola Williams",
-      bankName: "Zenith Bank",
-      accountNumber: "1234567890",
-      usedCodes: 25,
-      totalCodes: 40
-    },
-    {
-      id: "DOC-311",
-      name: "Dr. Chidi Obi",
-      hospital: "Reddington Hospital",
-      phone: "+234 802 333 4444",
-      marketer: "Michael Chen",
-      status: "active",
-      createdAt: "2024-12-01",
-      accountName: "Chidi Obi",
-      bankName: "Guaranty Trust Bank (GTB)",
-      accountNumber: "0987654321",
-      usedCodes: 12,
-      totalCodes: 20
-    },
-    {
-      id: "DOC-105",
-      name: "Dr. Fatima Musa",
-      hospital: "Main Radiology Wing",
-      phone: "+234 803 444 5555",
-      marketer: "Sarah Johnson",
-      status: "inactive",
-      createdAt: "2025-01-05",
-      accountName: "Fatima Musa",
-      bankName: "Access Bank",
-      accountNumber: "1122334455",
-      usedCodes: 5,
-      totalCodes: 5
-    }
-  ];
+  const [doctors] = useState(initialDoctors);
 
   const filteredDoctors = doctors.filter(doctor => {
     const matchesSearch =
@@ -171,7 +123,7 @@ export default function Doctors() {
                   {doctors.length}
                 </Badge>
               </div>
-              <p className="text-muted-foreground text-sm">Manage medical professionals and their financial preferences.</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Manage medical professionals and their financial preferences.</p>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
@@ -239,13 +191,13 @@ export default function Doctors() {
         {selectedDoctors.length > 0 && (
           <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-xl px-5 py-3 mb-6 animate-in slide-in-from-top-2 duration-300">
             <div className="flex items-center gap-4">
-              <span className="text-sm font-bold text-primary">
+              <span className="text-sm font-semibold text-slate-700">
                 {selectedDoctors.length} doctor{selectedDoctors.length > 1 ? 's' : ''} selected
               </span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 text-[11px] font-bold uppercase tracking-wider text-primary hover:text-primary hover:bg-primary/10 gap-2 px-3"
+                className="h-8 text-[11px] font-semibold uppercase tracking-wider text-primary hover:text-primary hover:bg-primary/10 gap-2 px-3"
                 onClick={() => setSelectedDoctors([])}
               >
                 <X className="h-3.5 w-3.5" />
@@ -253,7 +205,7 @@ export default function Doctors() {
               </Button>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="h-9 gap-2 border-primary/20 text-primary hover:bg-primary/5 font-bold">
+              <Button variant="outline" size="sm" className="h-9 gap-2 border-primary/20 text-slate-600 hover:bg-primary/5 font-semibold">
                 <Download className="h-4 w-4" />
                 Export Selected
               </Button>

@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/dateFormatter";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AddEditHospitalModal } from "@/components/Modals/AddEditHospitalModal";
+import { hospitals as initialHospitals } from "@/data/hospitals";
 
 export default function Hospitals() {
   const navigate = useNavigate();
@@ -35,42 +36,7 @@ export default function Hospitals() {
   const [selectedHospitals, setSelectedHospitals] = useState<string[]>([]);
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
   const [hospitalToEdit, setHospitalToEdit] = useState<any>(null);
-
-  // Mock hospitals data
-  const hospitals = [
-    {
-      id: "HOS-001",
-      accountCode: "ACC-9921",
-      name: "Main Radiology Wing",
-      location: "6 Babtunde Street, Lagos, Nigeria",
-      status: "active",
-      createdAt: "2024-05-15",
-    },
-    {
-      id: "HOS-002",
-      accountCode: "ACC-8842",
-      name: "St. Nicholas Hospital",
-      location: "57 Campbell Street, Lagos Island, Lagos",
-      status: "active",
-      createdAt: "2024-06-20",
-    },
-    {
-      id: "HOS-003",
-      accountCode: "ACC-7753",
-      name: "Reddington Hospital",
-      location: "39 Isaac John Street, Ikeja, Lagos",
-      status: "inactive",
-      createdAt: "2024-07-10",
-    },
-    {
-      id: "HOS-004",
-      accountCode: "ACC-6634",
-      name: "Lagos University Teaching Hospital",
-      location: "Idi-Araba, Lagos",
-      status: "active",
-      createdAt: "2024-08-05",
-    },
-  ];
+  const [hospitals] = useState(initialHospitals);
 
   const filteredHospitals = hospitals.filter(hospital => {
     const matchesSearch =
@@ -132,7 +98,7 @@ export default function Hospitals() {
                   {hospitals.length}
                 </Badge>
               </div>
-              <p className="text-muted-foreground text-sm">Manage the list of hospitals and facilities in the network.</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Manage the list of hospitals and facilities in the network.</p>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
