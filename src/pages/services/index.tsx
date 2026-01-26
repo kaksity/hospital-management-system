@@ -39,6 +39,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { AddEditServiceModal } from "@/components/Modals/AddEditServiceModal";
 
 const services = [
   { id: 1, name: "MRI Brain (Contrast)", category: "MRI", price: 150000, duration: "45 mins", icon: Activity, active: true },
@@ -50,15 +51,36 @@ const services = [
 
 export default function Services() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [servicesData, setServicesData] = useState(services);
 
-  const filteredServices = services.filter(s =>
+  const handleAddService = () => {
+    setSelectedService(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditService = (service: any) => {
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
+  const handleServiceSuccess = (service: any) => {
+    if (selectedService) {
+      setServicesData(prev => prev.map(s => s.id === service.id ? service : s));
+    } else {
+      setServicesData(prev => [...prev, service]);
+    }
+  };
+
+  const filteredServices = servicesData.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const activeCount = services.filter(s => s.active).length;
-  const inactiveCount = services.filter(s => !s.active).length;
-  const categoriesCount = new Set(services.map(s => s.category)).size;
+  const activeCount = servicesData.filter(s => s.active).length;
+  const inactiveCount = servicesData.filter(s => !s.active).length;
+  const categoriesCount = new Set(servicesData.map(s => s.category)).size;
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -75,7 +97,7 @@ export default function Services() {
               </div>
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Configure and manage your inventory of scans and medical services.</p>
             </div>
-            <Button onClick={() => { }} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+            <Button onClick={handleAddService} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
               <Plus className="h-4 w-4" />
               Add New Service
             </Button>
@@ -85,14 +107,14 @@ export default function Services() {
           <Card className="border shadow-none bg-white rounded-xl overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x border-slate-100">
               {[
-                { label: "Total Services", value: services.length, icon: Activity, color: "text-blue-600", bg: "bg-blue-50" },
+                { label: "Total Services", value: servicesData.length, icon: Activity, color: "text-blue-600", bg: "bg-blue-50" },
                 { label: "Active Services", value: activeCount, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
                 { label: "Inactive", value: inactiveCount, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-                { label: "Modalities", value: categoriesCount, icon: LayoutGrid, color: "text-indigo-600", bg: "bg-indigo-50" },
+                { label: "Categories", value: categoriesCount, icon: LayoutGrid, color: "text-indigo-600", bg: "bg-indigo-50" },
               ].map((stat, i) => (
                 <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 leading-none">{stat.label}</p>
                     <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none pt-1">{stat.value}</h3>
                   </div>
                   <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
@@ -127,9 +149,9 @@ export default function Services() {
         <div className="bg-white rounded-xl border overflow-hidden transition-all duration-300">
           <Table>
             <TableHeader className="bg-slate-50/50">
-              <TableRow className="hover:bg-transparent border-none">
+              <TableRow className="hover:bg-transparent transition-none">
                 <TableHead className="pl-6 text-[11px] font-bold uppercase tracking-wider text-slate-500">Service Name</TableHead>
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Modality / Category</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Category</TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Base Price</TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Est. Duration</TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
@@ -138,28 +160,28 @@ export default function Services() {
             </TableHeader>
             <TableBody>
               {filteredServices.map((service) => (
-                <TableRow key={service.id} className="hover:bg-slate-50/50 transition-colors group h-16 border-b border-slate-100 last:border-0">
+                <TableRow key={service.id} className="hover:bg-slate-50/50 transition-colors group h-16 border-b last:border-0">
                   <TableCell className="pl-6">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
-                        <service.icon className="h-4 w-4 text-slate-400" />
+                      <div className="p-2 bg-slate-100 border border-slate-100 rounded-lg shrink-0 group-hover:scale-110 transition-transform">
+                        <service.icon className="h-4 w-4 text-slate-500" />
                       </div>
-                      <span className="font-bold text-sm text-slate-800">{service.name}</span>
+                      <span className="font-semibold text-sm text-slate-700">{service.name}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none text-[10px] font-bold px-2 py-0.5">
+                    <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none text-[11px] font-semibold px-2 py-0.5">
                       {service.category}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-bold text-slate-900 tabular-nums">
+                  <TableCell className="font-semibold text-slate-700 tabular-nums">
                     {formatCurrency(service.price)}
                   </TableCell>
-                  <TableCell className="text-[13px] font-semibold text-slate-500">
+                  <TableCell className="text-[13px] font-semibold text-slate-700">
                     {service.duration}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={cn("capitalize px-2 py-0.5 text-[10px] font-bold border",
+                    <Badge variant="default" className={cn("capitalize px-2 py-0.5 text-[11px] font-semibold",
                       service.active ? "bg-emerald-100 text-emerald-800 border-none" : "bg-slate-100 text-slate-700 border-none"
                     )}>
                       {service.active ? 'Active' : 'Inactive'}
@@ -173,13 +195,9 @@ export default function Services() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-[180px]">
-                        <DropdownMenuItem className="gap-2 font-medium text-sm">
+                        <DropdownMenuItem onClick={() => handleEditService(service)} className="gap-2 font-medium text-sm">
                           <Edit className="h-3.5 w-3.5 text-slate-500" /> Edit Service
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 font-medium text-sm">
-                          <LayoutGrid className="h-3.5 w-3.5 text-slate-500" /> Linked Techs
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600 gap-2 font-medium text-sm">
                           <Trash2 className="h-3.5 w-3.5" /> Delete
                         </DropdownMenuItem>
@@ -192,6 +210,13 @@ export default function Services() {
           </Table>
         </div>
       </div>
+
+      <AddEditServiceModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        service={selectedService}
+        onSuccess={handleServiceSuccess}
+      />
     </div>
   );
 }

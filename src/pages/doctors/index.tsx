@@ -148,7 +148,7 @@ export default function Doctors() {
               ].map((stat, i) => (
                 <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 leading-none">{stat.label}</p>
                     <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none pt-1">{stat.value}</h3>
                   </div>
                   <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
