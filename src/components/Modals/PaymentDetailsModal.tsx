@@ -10,6 +10,8 @@ import { CheckCircle2, Clock, AlertCircle, Download, Send, CreditCard, FileText,
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDate } from "@/utils/dateFormatter";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 
 interface PaymentDetailsModalProps {
   open: boolean;
@@ -48,7 +50,7 @@ export function PaymentDetailsModal({
   const getStatusBadge = (status: string) => {
     const variants = {
       paid: "bg-green-100 text-green-800",
-      partial: "bg-yellow-100 text-yellow-800",
+      partial: "bg-amber-100 text-amber-800",
       pending: "bg-yellow-100 text-yellow-800",
       requested: "bg-yellow-100 text-yellow-800",
       overdue: "bg-red-100 text-red-800",
@@ -62,51 +64,54 @@ export function PaymentDetailsModal({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-2xl overflow-hidden p-0">
-          <DialogHeader className="p-6 pb-2 border-b bg-muted/30">
+          <DialogHeader className="px-6 py-4 border-b bg-muted/30">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-full">
                 <Receipt className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <DialogTitle className="text-xl">Transaction: {client.id}</DialogTitle>
-                <DialogDescription className="font-mono text-xs mt-1">
+                <div className="flex items-center gap-2">
+                  <div className="font-semibold text-lg">Transaction: {client.id}</div>
+                  <Badge className={cn("font-bold capitalize text-[10px]", getStatusBadge(client.status))}>
+                    {client.status}
+                  </Badge>
+                </div>
+                <div className="font-semibold text-[11px] uppercase text-slate-500 tracking-widest">
                   Issued on {formatDate(client.date)} • {client.invoiceNo || "N/A"}
-                </DialogDescription>
+                </div>
               </div>
-              <Badge className={cn("ml-auto font-bold capitalize text-[10px]", getStatusBadge(client.status))}>
-                {client.status}
-              </Badge>
             </div>
           </DialogHeader>
 
-          <div className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
+          <div className="p-6 pt-2 space-y-6 overflow-y-auto custom-scrollbar max-h-[70vh]">
             {/* Payment Summary Cards */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-muted/40 border border-border/50">
-                <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1 tracking-wider">Total amount</p>
-                <p className="text-xl font-semibold">{formatCurrency(client.totalCost || client.totalFee)}</p>
+            <Card className="border shadow-none bg-white rounded-xl overflow-hidden">
+              <div className="grid grid-cols-3 divide-x border-slate-100">
+                <div className="p-4">
+                  <p className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">Total amount</p>
+                  <p className="text-xl font-semibold text-slate-900 tabular-nums">{formatCurrency(client.totalCost || client.totalFee)}</p>
+                </div>
+                <div className="p-4">
+                  <p className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">Collected</p>
+                  <p className="text-xl font-semibold text-emerald-700 tabular-nums">{formatCurrency(client.amountPaid || client.paid)}</p>
+                </div>
+                <div className="p-4">
+                  <p className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">Balance Due</p>
+                  <p className="text-xl font-semibold text-rose-700 tabular-nums">
+                    {formatCurrency(client.balance)}
+                  </p>
+                </div>
               </div>
-              <div className="p-4 rounded-xl bg-muted/40 border border-border/50">
-                <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1 tracking-wider">Collected</p>
-                <p className="text-xl font-semibold">{formatCurrency(client.amountPaid || client.paid)}</p>
-              </div>
-              <div className="p-4 rounded-xl bg-muted/40 border border-border/50">
-                <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1 tracking-wider">Balance Due</p>
-                <p className="text-xl font-semibold">
-                  {formatCurrency(client.balance)}
-                </p>
-              </div>
-            </div>
+            </Card>
 
             {/* Services Section */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 flex items-center gap-2">
-                <Receipt className="h-3 w-3" />
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                 Services & Line Items
               </h4>
-              <div className="border border-border/50 rounded-xl overflow-hidden bg-background">
+              <div className="border border-input/50 rounded-xl overflow-hidden bg-background">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-muted/50 text-[10px] uppercase font-bold text-muted-foreground tracking-wider border-b">
+                  <thead className="bg-muted/50 text-[10px] uppercase font-semibold text-slate-500 tracking-wider border-b">
                     <tr>
                       <th className="px-4 py-2">Service Description</th>
                       <th className="px-4 py-2 text-right">Amount</th>
@@ -117,7 +122,7 @@ export function PaymentDetailsModal({
                       client.services.map((service: any, idx: number) => (
                         <tr key={idx}>
                           <td className="px-4 py-3 font-medium">{service.name}</td>
-                          <td className="px-4 py-3 text-right font-mono font-semibold">{formatCurrency(service.price)}</td>
+                          <td className="px-4 py-3 text-right font-semibold">{formatCurrency(service.price)}</td>
                         </tr>
                       ))
                     ) : (
@@ -131,7 +136,7 @@ export function PaymentDetailsModal({
                   <tfoot className="bg-muted/30 font-bold border-t">
                     <tr>
                       <td className="px-4 py-2">Total Payable</td>
-                      <td className="px-4 py-2 text-right font-mono">{formatCurrency(client.totalCost || client.totalFee)}</td>
+                      <td className="px-4 py-2 text-right font-semibold">{formatCurrency(client.totalCost || client.totalFee)}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -140,26 +145,31 @@ export function PaymentDetailsModal({
 
             {/* Patient Details Section */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 flex items-center gap-2">
-                <User className="h-3 w-3" />
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                 Patient Information
               </h4>
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-xl border border-border/50 bg-background">
-                <div>
-                  <span className="text-[10px] text-muted-foreground uppercase font-medium">Full Name</span>
-                  <p className="text-sm font-semibold">{client.name || client.patientName}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground uppercase font-medium">Patient ID</span>
-                  <p className="text-sm font-mono">{client.patientId || client.clientId}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground uppercase font-medium">Service Type</span>
-                  <p className="text-sm font-medium">{client.case || client.patientType}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground uppercase font-medium">Registration</span>
-                  <p className="text-sm font-medium">{formatDate(client.date)}</p>
+              <div className="p-4 rounded-xl border border-input/50 bg-background flex items-center gap-3">
+                <Avatar className="h-10 w-10 border-2 border-slate-100">
+                  <AvatarImage src={getPatientAvatarPath(client.patientId || client.clientId, client.gender)} alt={client.name || client.patientName} />
+                  <AvatarFallback className={cn("text-sm font-semibold", getAvatarBg(client.name || client.patientName))}>
+                    {getAvatarInitials(client.name || client.patientName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid grid-cols-3 gap-6 flex-1">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Full Name</span>
+                    <p className="text-sm font-semibold text-slate-800">{client.name || client.patientName}</p>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Patient ID</span>
+                    <div>
+                      <code className="text-[11px] font-semibold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded border border-slate-200/50">{client.patientId || client.clientId}</code>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Account Type</span>
+                    <p className="text-sm font-semibold text-slate-700">{client.case || client.patientType}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -167,13 +177,12 @@ export function PaymentDetailsModal({
             {/* Payment Timeline / History placeholder */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 flex items-center gap-2">
-                  <FileText className="h-3 w-3" />
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600">
                   Transaction Ledger
                 </h4>
               </div>
 
-              <div className="border border-border/50 rounded-xl divide-y bg-background">
+              <div className="border border-input/50 rounded-xl divide-y bg-background">
                 {client.paymentPlan ? (
                   client.paymentPlan.map((payment: any, index: number) => (
                     <div key={index} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
@@ -185,35 +194,36 @@ export function PaymentDetailsModal({
                         </div>
                         <div>
                           <p className="text-sm font-semibold">{payment.name}</p>
-                          <p className="text-[10px] text-muted-foreground font-medium">
+                          <p className="text-[10px] text-slate-500 font-medium">
                             {payment.status === 'paid' ? "Completed" : "Scheduled"}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold">{formatCurrency(payment.amount)}</p>
-                        <p className="text-[10px] text-muted-foreground">{formatDate(payment.date || payment.dueDate)}</p>
+                        <p className="text-[10px] text-slate-500">{formatDate(payment.date || payment.dueDate)}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="p-8 text-center bg-muted/10">
-                    <p className="text-xs text-muted-foreground font-medium italic">No detailed ledger entries for this transaction.</p>
+                    <p className="text-[13px] text-slate-500 font-medium italic">No detailed ledger entries for this transaction.</p>
                   </div>
                 )}
               </div>
             </div>
           </div>
-
-          <div className="p-6 pt-2 border-t flex justify-end gap-3 bg-muted/30">
-            <Button variant="ghost" className="text-xs" onClick={() => onOpenChange(false)}>
-              Close Detail View
+          <div className="p-6 pt-4 border-t flex justify-end gap-3 bg-muted/30">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
             </Button>
-            <Button variant="outline" className="text-xs gap-2">
-              <Receipt className="h-3.5 w-3.5" /> View Receipt
-            </Button>
-            <Button className="text-xs gap-2">
-              <Download className="h-3.5 w-3.5" /> Save PDF
+            {client.balance > 0 && (
+              <Button>
+                <CreditCard className="h-3.5 w-3.5" /> Record New Payment
+              </Button>
+            )}
+            <Button variant="secondary">
+              <Download className="h-3.5 w-3.5" /> Download PDF
             </Button>
           </div>
         </DialogContent>

@@ -6,21 +6,15 @@ import {
   Download,
   CreditCard,
   Send,
-  TrendingUp,
-  FileText,
   MoreHorizontal,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   X,
-  Info,
   Search,
-  Filter,
   Eye,
   Receipt,
-  User,
-  Ticket,
   Archive,
   Calendar as CalendarIcon,
   CheckCircle2,
@@ -38,7 +32,6 @@ import { useState, useMemo } from "react";
 import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { PaymentDetailsModal } from "@/components/Modals/PaymentDetailsModal";
 import { RecordPaymentModal } from "@/components/Modals/RecordPaymentModal";
@@ -47,13 +40,14 @@ import { formatDate } from "@/utils/dateFormatter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 
 export function AdminPaymentsView() {
   const [showSendInvoiceModal, setShowSendInvoiceModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -69,12 +63,19 @@ export function AdminPaymentsView() {
       patientId: "PAT-105",
       patientName: "John Adebayo",
       patientType: "Regular",
+      gender: "Male",
+      accountCode: "MRI-01",
+      method: "Bank Transfer",
       totalCost: 150000,
       amountPaid: 100000,
       balance: 50000,
       status: "partial",
       date: "2024-11-15",
       invoiceNo: "INV-2024-101",
+      paymentPlan: [
+        { name: "Initial Deposit", amount: 100000, date: "2024-11-15", status: "paid" },
+        { name: "Final Balance", amount: 50000, date: "2024-11-30", status: "partial" }
+      ],
       services: [
         { name: "MRI Brain (With Contrast)", price: 150000 }
       ]
@@ -84,12 +85,18 @@ export function AdminPaymentsView() {
       patientId: "PAT-211",
       patientName: "Sarah Phillips",
       patientType: "Regular",
+      gender: "Female",
+      accountCode: "CT-02",
+      method: "Card",
       totalCost: 45000,
       amountPaid: 45000,
       balance: 0,
       status: "paid",
       date: "2024-12-01",
       invoiceNo: "INV-2024-102",
+      paymentPlan: [
+        { name: "Full Payment", amount: 45000, date: "2024-12-01", status: "paid" }
+      ],
       services: [
         { name: "CT Scan Head", price: 45000 }
       ]
@@ -99,12 +106,18 @@ export function AdminPaymentsView() {
       patientId: "PAT-094",
       patientName: "Michael Chen",
       patientType: "Regular",
+      gender: "Male",
+      accountCode: "XRY-01",
+      method: "Cash",
       totalCost: 85000,
       amountPaid: 0,
       balance: 85000,
       status: "unpaid",
       date: "2025-01-05",
       invoiceNo: "INV-2025-001",
+      paymentPlan: [
+        { name: "Registration Fee", amount: 85000, date: "2025-01-05", status: "unpaid" }
+      ],
       services: [
         { name: "Emergency Radiology Consult", price: 35000 },
         { name: "Chest X-Ray", price: 50000 }
@@ -115,12 +128,18 @@ export function AdminPaymentsView() {
       patientId: "PAT-302",
       patientName: "Elena Rodriguez",
       patientType: "Regular",
+      gender: "Female",
+      accountCode: "MRI-02",
+      method: "Bank Transfer",
       totalCost: 250000,
       amountPaid: 250000,
       balance: 0,
       status: "paid",
       date: "2025-01-10",
       invoiceNo: "INV-2025-002",
+      paymentPlan: [
+        { name: "Down Payment", amount: 250000, date: "2025-01-10", status: "paid" }
+      ],
       services: [
         { name: "MRI Spine (Lumbar)", price: 250000 }
       ]
@@ -130,12 +149,19 @@ export function AdminPaymentsView() {
       patientId: "PAT-118",
       patientName: "David Wilson",
       patientType: "Regular",
+      gender: "Male",
+      accountCode: "ULS-01",
+      method: "Card",
       totalCost: 12000,
       amountPaid: 4000,
       balance: 8000,
       status: "partial",
       date: "2025-01-12",
       invoiceNo: "INV-2025-003",
+      paymentPlan: [
+        { name: "Part Payment", amount: 4000, date: "2025-01-12", status: "paid" },
+        { name: "Outstanding", amount: 8000, date: "2025-01-20", status: "partial" }
+      ],
       services: [
         { name: "Abdominal Ultrasound", price: 12000 }
       ]
@@ -249,7 +275,7 @@ export function AdminPaymentsView() {
               ].map((stat, i) => (
                 <div key={i} className="p-4 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 leading-none">{stat.label}</p>
                     <div className="flex items-end gap-2 pt-1">
                       <h3 className="text-lg font-bold text-slate-800 tabular-nums leading-none">{formatCurrency(stat.value)}</h3>
                       <span className="text-[10px] font-bold text-slate-400 leading-none mb-0.5">{stat.trend}</span>
@@ -279,7 +305,7 @@ export function AdminPaymentsView() {
               <div className="flex items-center gap-0 border border-input rounded-lg overflow-hidden bg-white h-10">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("h-full px-4 justify-start text-left font-semibold text-[13px] gap-2 rounded-none border-none", !startDate && "text-slate-400")}>
+                    <Button variant="outline" className={cn("h-full px-4 justify-start text-left font-semibold text-sm gap-2 rounded-none border-none", !startDate && "text-slate-600")}>
                       <CalendarIcon className="h-4 w-4" />
                       {startDate ? format(startDate, "MMM dd, yyyy") : "Start"}
                     </Button>
@@ -291,7 +317,7 @@ export function AdminPaymentsView() {
                 <div className="w-px h-4 bg-slate-200 shrink-0" />
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("h-full px-4 justify-start text-left font-semibold text-sm gap-2 bg-white rounded-none border-none", !endDate && "text-slate-400")}>
+                    <Button variant="outline" className={cn("h-full px-4 justify-start text-left font-semibold text-sm gap-2 bg-white rounded-none border-none", !endDate && "text-slate-600")}>
                       <CalendarIcon className="h-4 w-4" />
                       {endDate ? format(endDate, "MMM dd, yyyy") : "End"}
                     </Button>
@@ -390,25 +416,25 @@ export function AdminPaymentsView() {
         <div className="bg-white rounded-xl border overflow-hidden transition-all duration-300">
           <Table>
             <TableHeader className="bg-slate-50/50">
-              <TableRow className="hover:bg-transparent border-none">
+              <TableRow className="hover:bg-transparent transition-none">
                 <TableHead className="w-[48px] pl-6">
                   <Checkbox
                     checked={selectedIds.length === paginatedPayments.length && paginatedPayments.length > 0}
                     onCheckedChange={toggleAll}
-                    className="border-slate-300"
+                    className="border-slate-400"
                   />
                 </TableHead>
                 <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Txn ID</TableHead>
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Patient Details</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Patient Details</TableHead>
                 {statusFilter === "unpaid" && (
-                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Invoice No.</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Invoice No.</TableHead>
                 )}
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Type</TableHead>
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Cost</TableHead>
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Paid</TableHead>
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance</TableHead>
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
-                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Date</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Type</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Account Code</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Method</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Total Cost</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Status</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Date</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -417,7 +443,7 @@ export function AdminPaymentsView() {
                 <TableRow
                   key={payment.id}
                   className={cn(
-                    "hover:bg-slate-50/50 cursor-pointer transition-colors group h-16 border-b border-slate-100 last:border-0",
+                    "hover:bg-slate-50/50 cursor-pointer transition-colors group h-16 border-b last:border-0",
                     selectedIds.includes(payment.id) && "bg-primary/[0.02]"
                   )}
                   onClick={() => {
@@ -429,37 +455,53 @@ export function AdminPaymentsView() {
                     <Checkbox
                       checked={selectedIds.includes(payment.id)}
                       onCheckedChange={() => toggleOne(payment.id)}
-                      className="border-slate-300"
+                      className="border-slate-400"
                     />
                   </TableCell>
                   <TableCell>
-                    <code className="text-[11px] font-bold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded border border-slate-200/50">
+                    <code className="text-[11px] font-semibold font-mono text-slate-700 bg-slate-100 px-2 py-1 rounded border border-slate-200/50">
                       {payment.id}
                     </code>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col min-w-0">
-                      <span className="font-bold text-sm text-slate-800 truncate">{payment.patientName}</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{payment.patientId}</span>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8 border border-slate-200">
+                        <AvatarImage src={getPatientAvatarPath(payment.patientId, (payment as any).gender)} alt={payment.patientName} />
+                        <AvatarFallback className={cn("text-[10px] font-bold text-slate-600", getAvatarBg(payment.patientName))}>
+                          {getAvatarInitials(payment.patientName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-semibold text-sm text-slate-800 truncate">{payment.patientName}</span>
+                        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{payment.patientId}</span>
+                      </div>
                     </div>
                   </TableCell>
                   {statusFilter === "unpaid" && (
                     <TableCell>
-                      <Badge variant="outline" className="text-[10px] font-bold font-mono border-slate-100 bg-slate-50 text-slate-600">
+                      <Badge variant="outline" className="text-[10px] font-semibold font-mono border-slate-100 bg-slate-50 text-slate-600">
                         {payment.invoiceNo}
                       </Badge>
                     </TableCell>
                   )}
                   <TableCell>
-                    <span className="text-[12px] font-bold text-slate-500 uppercase tracking-tight">{payment.patientType}</span>
+                    <Badge variant="outline" className="text-[10px] font-bold bg-slate-50 text-slate-500 border-slate-200 py-0 h-6">
+                      {payment.patientType}
+                    </Badge>
                   </TableCell>
-                  <TableCell className="font-bold text-slate-900 tabular-nums">{formatCurrency(payment.totalCost)}</TableCell>
-                  <TableCell className="font-bold text-emerald-600 tabular-nums">{formatCurrency(payment.amountPaid)}</TableCell>
-                  <TableCell className="font-bold text-rose-600 tabular-nums">{formatCurrency(payment.balance)}</TableCell>
+                  <TableCell>
+                    <code className="text-[11px] font-semibold text-primary bg-blue-50/50 px-2 py-0.5 rounded border border-blue-100">
+                      {(payment as any).accountCode || "N/A"}
+                    </code>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-[13px] font-semibold text-slate-700">{(payment as any).method || "N/A"}</span>
+                  </TableCell>
+                  <TableCell className="font-semibold text-slate-900 tabular-nums">{formatCurrency(payment.totalCost)}</TableCell>
                   <TableCell>
                     {getStatusBadge(payment.status)}
                   </TableCell>
-                  <TableCell className="text-[13px] font-medium text-slate-500 whitespace-nowrap">{formatDate(payment.date)}</TableCell>
+                  <TableCell className="text-[13px] font-semibold text-slate-600 whitespace-nowrap">{formatDate(payment.date)}</TableCell>
                   <TableCell className="pr-6" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -468,9 +510,11 @@ export function AdminPaymentsView() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-[180px]">
-                        <DropdownMenuItem className="gap-2 font-medium text-sm" onClick={() => handleRecordPayment(payment)}>
-                          <CreditCard className="h-3.5 w-3.5 text-slate-500" /> Record Payment
-                        </DropdownMenuItem>
+                        {payment.status !== 'paid' && (
+                          <DropdownMenuItem className="gap-2 font-medium text-sm" onClick={() => handleRecordPayment(payment)}>
+                            <CreditCard className="h-3.5 w-3.5 text-slate-500" /> Record Payment
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem className="gap-2 font-medium text-sm" onClick={() => {
                           setSelectedClient({ ...payment, name: payment.patientName });
                           setShowPaymentDetailsModal(true);
@@ -506,17 +550,13 @@ export function AdminPaymentsView() {
         </div>
 
         {/* Pagination Controls */}
-        {filteredPayments.length > 0 && (
+        {filteredPayments.length > 15 && (
           <div className="flex items-center justify-between px-2 py-6">
-            <div className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">
-              {filteredPayments.length} results found
-            </div>
-
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 hidden lg:flex bg-white border-slate-200"
+                className="h-8 w-8 hidden lg:flex bg-white shadow-sm border-slate-200"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
               >
@@ -525,22 +565,19 @@ export function AdminPaymentsView() {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 bg-white border-slate-200"
+                className="h-8 w-8 bg-white shadow-sm border-slate-200"
                 onClick={() => setCurrentPage(prev => prev - 1)}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-1.5 px-3 h-8 bg-slate-100 rounded-md">
-                <span className="text-xs font-bold text-slate-600">Page</span>
-                <span className="text-xs font-black text-slate-900">{currentPage}</span>
-                <span className="text-xs font-bold text-slate-400">of</span>
-                <span className="text-xs font-black text-slate-900">{totalPages}</span>
-              </div>
+              <span className="text-[13px] font-bold text-slate-700 px-3 whitespace-nowrap">
+                Page {currentPage} / {totalPages}
+              </span>
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 bg-white border-slate-200"
+                className="h-8 w-8 bg-white shadow-sm border-slate-200"
                 onClick={() => setCurrentPage(prev => prev + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
               >
@@ -549,7 +586,7 @@ export function AdminPaymentsView() {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 hidden lg:flex bg-white border-slate-200"
+                className="h-8 w-8 hidden lg:flex bg-white shadow-sm border-slate-200"
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages || totalPages === 0}
               >
@@ -557,26 +594,32 @@ export function AdminPaymentsView() {
               </Button>
             </div>
 
-            <div className="flex items-center gap-3 bg-white p-1 pl-3 rounded-lg border border-slate-200">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter text-[10px]">Show</span>
-              <Select
-                value={`${itemsPerPage}`}
-                onValueChange={(v) => {
-                  setItemsPerPage(Number(v));
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="w-[60px] h-7 border-none shadow-none font-bold text-xs ring-0 focus:ring-0">
-                  <SelectValue placeholder={itemsPerPage} />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[10, 20, 30, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`} className="text-xs font-bold">
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex items-center gap-4">
+              <div className="text-[12px] font-bold text-slate-500 uppercase tracking-wider bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm text-center">
+                Showing <span className="text-slate-800">{startIndex + 1}</span> - <span className="text-slate-800">{Math.min(startIndex + itemsPerPage, filteredPayments.length)}</span> of <span className="text-slate-800">{filteredPayments.length}</span> Entries
+              </div>
+
+              <div className="flex items-center gap-3 bg-white p-1 pl-3 rounded-lg border border-slate-200 shadow-sm">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter text-[10px]">Show</span>
+                <Select
+                  value={`${itemsPerPage}`}
+                  onValueChange={(v) => {
+                    setItemsPerPage(Number(v));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[60px] h-7 border-none shadow-none font-bold text-xs ring-0 focus:ring-0">
+                    <SelectValue placeholder={itemsPerPage} />
+                  </SelectTrigger>
+                  <SelectContent side="top">
+                    {[10, 20, 30, 50].map((pageSize) => (
+                      <SelectItem key={pageSize} value={`${pageSize}`} className="text-xs font-bold">
+                        {pageSize}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         )}
