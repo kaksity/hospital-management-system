@@ -47,6 +47,8 @@ const getBreadcrumbs = (pathname: string) => {
     "/patients/import": { label: "Import Records", href: "/patients/import" },
     "/admin/products": { label: "Visa Products", href: "/admin/products" },
     "/admin/users": { label: "User Management", href: "/admin/users" },
+    "/invoices": { label: "Invoices", href: "/invoices" },
+    "/invoices/create": { label: "Create Invoice", href: "/invoices/create" },
   };
 
   // Handle dynamic patient detail pages

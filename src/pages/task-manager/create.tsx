@@ -181,7 +181,7 @@ export default function CreateTask() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-semibold tracking-light">Create New Task</h1>
-        <p className="text-muted-foreground">Select a patient and create a reporting task for Doctors</p>
+        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1.5">Select a patient and create a reporting task for Doctors</p>
       </div>
 
       {/* Vertical Timeline Layout */}

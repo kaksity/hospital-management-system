@@ -221,7 +221,7 @@ export default function CreatePatientPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-semibold tracking-light">Register New Patient</h1>
-        <p className="text-muted-foreground">Follow the steps below to create a comprehensive patient record.</p>
+        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1.5">Follow the steps below to create a comprehensive patient record.</p>
       </div>
 
       {/* Timeline Progress Header */}
