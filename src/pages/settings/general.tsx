@@ -34,7 +34,7 @@ export function GeneralSettings() {
   const handleDeleteAvatar = () => {
     setAvatarUrl("");
     localStorage.removeItem('userAvatar');
-    
+
     // Revoke the blob URL to free memory
     if (avatarUrl.startsWith('blob:')) {
       URL.revokeObjectURL(avatarUrl);
@@ -46,7 +46,7 @@ export function GeneralSettings() {
 
   const handleDeleteAccount = () => {
     if (!canDeleteAccount) return;
-    
+
     // Add your account deletion logic here
     console.log('Deleting account...');
     alert('Account deletion would be processed here');
@@ -94,10 +94,10 @@ export function GeneralSettings() {
                     <Upload className="h-4 w-4" />
                     {hasAvatar ? "Change Photo" : "Upload Photo"}
                   </Button>
-                  
+
                   {hasAvatar && (
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={handleDeleteAvatar}
                       className="text-destructive hover:text-destructive"
                     >
@@ -156,7 +156,7 @@ export function GeneralSettings() {
               Delete Account
             </CardTitle>
             <CardDescription>
-              Permanently delete your account and all associated data. This action cannot be undone. 
+              Permanently delete your account and all associated data. This action cannot be undone.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -165,10 +165,10 @@ export function GeneralSettings() {
                 Warning: This will permanently delete your account. Upon deletion all your cases, documents and client information will be permanently deleted
               </p>
             </div>
-            
+
             <div className="space-y-3">
               <Label htmlFor="confirmEmail" className="text-sm font-medium">
-                Type your email to confirm deletion. Enter <span className="font-mono text-destructive">{user?.email}</span> to confirm account deletion
+                Type your email to confirm deletion. Enter <span className="font-semibold antialiased text-destructive">{user?.email}</span> to confirm account deletion
               </Label>
               <Input
                 id="confirmEmail"
@@ -179,9 +179,9 @@ export function GeneralSettings() {
                 className="max-w-md"
               />
             </div>
-            
-            <Button 
-              variant="destructive" 
+
+            <Button
+              variant="destructive"
               onClick={handleDeleteAccount}
               disabled={!canDeleteAccount}
               className="mt-4"
