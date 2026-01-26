@@ -144,11 +144,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full overflow-x-hidden">
+      <div className="flex h-screen w-full overflow-hidden bg-background">
         <AppSidebar />
 
-        <div className="flex flex-1 flex-col min-w-0">
-          <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-card px-6">
+        <div className="flex flex-1 flex-col min-w-0 h-full">
+          <header className="flex-shrink-0 sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-card px-6">
             {/* Left side: Breadcrumbs */}
             <div className="flex items-center gap-4 flex-1">
               <SidebarTrigger />
@@ -262,7 +262,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </header>
 
-          <main className="flex-1 bg-background overflow-hidden min-w-0">
+          <main className="flex-1 overflow-y-auto min-w-0 bg-[#fafafa]">
             {children}
           </main>
         </div>

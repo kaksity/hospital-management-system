@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -23,6 +24,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -55,7 +58,8 @@ const invoices = [
     status: "paid",
     dueDate: "2024-11-20",
     issuedDate: "2024-11-15",
-    service: "MRI Brain"
+    service: "MRI Brain",
+    gender: "Male"
   },
   {
     id: "INV-2024-002",
@@ -65,7 +69,8 @@ const invoices = [
     status: "overdue",
     dueDate: "2024-11-18",
     issuedDate: "2024-11-10",
-    service: "CT Head"
+    service: "CT Head",
+    gender: "Female"
   },
   {
     id: "INV-2024-003",
@@ -75,11 +80,13 @@ const invoices = [
     status: "pending",
     dueDate: "2024-11-25",
     issuedDate: "2024-11-20",
-    service: "Radiology Consult"
+    service: "Radiology Consult",
+    gender: "Male"
   }
 ];
 
 export default function Invoices() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -140,7 +147,7 @@ export default function Invoices() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button onClick={() => { }} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
+              <Button onClick={() => navigate("/invoices/create")} size="sm" className="gap-2 h-9 font-bold shadow-sm px-4">
                 <Plus className="h-4 w-4" />
                 Create Invoice
               </Button>
@@ -302,9 +309,17 @@ export default function Invoices() {
                     </code>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col min-w-0">
-                      <span className="font-bold text-sm text-slate-800 truncate">{inv.patientName}</span>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{inv.patientId}</span>
+                    <div className="flex gap-2 items-center">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={getPatientAvatarPath(inv.patientId, inv.gender)} alt={inv.patientName} />
+                        <AvatarFallback className={cn("text-[12px] font-semibold text-white", getAvatarBg(inv.patientName))}>
+                          {getAvatarInitials(inv.patientName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-bold text-sm text-slate-800 truncate">{inv.patientName}</span>
+                        <span className="text-[10px] text-slate-500 font-mono font-semibold">{inv.patientId}</span>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -316,7 +331,7 @@ export default function Invoices() {
                     </div>
                   </TableCell>
                   <TableCell className="font-bold text-slate-900 tabular-nums">{formatCurrency(inv.amount)}</TableCell>
-                  <TableCell className="text-[13px] font-medium text-slate-500">{formatDate(inv.issuedDate)}</TableCell>
+                  <TableCell className="text-[13px] font-semibold text-slate-700">{formatDate(inv.issuedDate)}</TableCell>
                   <TableCell className="text-[13px] font-semibold text-slate-700">{formatDate(inv.dueDate)}</TableCell>
                   <TableCell>
                     {getStatusBadge(inv.status)}

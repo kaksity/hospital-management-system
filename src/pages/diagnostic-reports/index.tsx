@@ -525,14 +525,14 @@ export default function DiagnosticReports() {
           <Table>
             <TableHeader className="bg-slate-50/50">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[48px]"></TableHead>
-                <TableHead>Report No.</TableHead>
-                <TableHead>Patient Name</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Request</TableHead>
-                <TableHead>Consultant</TableHead>
-                <TableHead>Approval</TableHead>
-                <TableHead>Created By</TableHead>
+                <TableHead className="w-[48px] text-[11px] font-bold uppercase tracking-wider text-slate-600"></TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Report No.</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Patient Name</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Date</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Request</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Consultant</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Approval</TableHead>
+                <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Created By</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>

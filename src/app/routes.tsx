@@ -25,6 +25,7 @@ import { SecuritySettings } from "@/pages/settings/security";
 import { MembersSettings } from "@/pages/settings/members";
 import Appointments from "@/pages/appointments";
 import Invoices from "@/pages/invoices";
+import CreateInvoice from "@/pages/invoices/create";
 import Insights from "@/pages/insights";
 import Hospitals from "@/pages/hospitals";
 import Doctors from "@/pages/doctors";
@@ -207,6 +208,16 @@ export function AppRoutes() {
           <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
             <DashboardLayout>
               <Invoices />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/invoices/create"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+            <DashboardLayout>
+              <CreateInvoice />
             </DashboardLayout>
           </ProtectedRoute>
         }
