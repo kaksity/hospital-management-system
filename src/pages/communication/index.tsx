@@ -48,12 +48,15 @@ import {
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/dateFormatter";
+import { SendMessageModal } from "@/components/Modals/SendMessageModal";
+import { toast } from "sonner";
+import { patients } from "@/data/patients";
 
 const communications = [
   {
     id: "COM-001",
-    recipientName: "John Adebayo",
-    patientId: "PAT-105",
+    recipientName: "Alex Turner",
+    patientId: "CP120456A",
     mode: "Email",
     subject: "Diagnostic Report: MRI Brain (Contrast)",
     status: "Delivered",
@@ -62,8 +65,8 @@ const communications = [
   },
   {
     id: "COM-002",
-    recipientName: "Sarah Phillips",
-    patientId: "PAT-211",
+    recipientName: "Maria Garcia",
+    patientId: "CP238122C",
     mode: "SMS",
     subject: "Appointment Reminder: CT Scan",
     status: "Sent",
@@ -72,8 +75,8 @@ const communications = [
   },
   {
     id: "COM-003",
-    recipientName: "Michael Chen",
-    patientId: "PAT-094",
+    recipientName: "James Wilson",
+    patientId: "CP349011B",
     mode: "WhatsApp",
     subject: "Report Ready: Radiology Consult Result",
     status: "Delivered",
@@ -82,8 +85,8 @@ const communications = [
   },
   {
     id: "COM-004",
-    recipientName: "Elena Rodriguez",
-    patientId: "PAT-302",
+    recipientName: "Lisa Wang",
+    patientId: "CP456789D",
     mode: "Email",
     subject: "Invoice #INV-2025-002",
     status: "Failed",
@@ -92,13 +95,13 @@ const communications = [
   },
   {
     id: "COM-005",
-    recipientName: "David Wilson",
-    patientId: "PAT-118",
+    recipientName: "Sarah Johnson",
+    patientId: "CP678901F",
     mode: "WhatsApp",
     subject: "Follow-up Notification: Ultrasound Result",
     status: "Pending",
     date: "2024-11-20T16:00:00Z",
-    gender: "Male"
+    gender: "Female"
   }
 ];
 
@@ -108,6 +111,29 @@ export default function Communication() {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [isSendMessageModalOpen, setIsSendMessageModalOpen] = useState(false);
+  const [selectedPatientToMessage, setSelectedPatientToMessage] = useState<any>(null);
+
+  const handleSendMessage = (data: any) => {
+    toast.success("Message dispatched successfully", {
+      description: `Targeting ${data.recipient} via ${data.means.toUpperCase()}`
+    });
+  };
+
+  const handleNewMessage = () => {
+    setSelectedPatientToMessage(null);
+    setIsSendMessageModalOpen(true);
+  };
+
+  const handleResend = (com: any) => {
+    const patient = patients.find(p => p.id === com.patientId);
+    if (patient) {
+      setSelectedPatientToMessage(patient);
+      setIsSendMessageModalOpen(true);
+    } else {
+      toast.error("Patient record not found");
+    }
+  };
 
   const modes = ["Email", "SMS", "WhatsApp"];
   const statuses = ["Delivered", "Sent", "Failed", "Pending"];
@@ -184,7 +210,7 @@ export default function Communication() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button size="sm" className="h-9 font-medium px-4">
+              <Button size="sm" className="h-9 font-medium px-4" onClick={handleNewMessage}>
                 <Plus className="h-4 w-4" />
                 New Message
               </Button>
@@ -405,8 +431,8 @@ export default function Communication() {
                         <DropdownMenuItem className="gap-2 font-medium text-sm">
                           <Eye className="h-3.5 w-3.5 text-muted-foreground" /> View Message
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 font-medium text-sm">
-                          <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" /> Resend
+                        <DropdownMenuItem className="gap-2 font-medium text-sm" onClick={() => handleResend(com)}>
+                          <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" /> Edit & Resend
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -431,6 +457,13 @@ export default function Communication() {
           </Table>
         </div>
       </div>
+
+      <SendMessageModal
+        open={isSendMessageModalOpen}
+        onOpenChange={setIsSendMessageModalOpen}
+        patient={selectedPatientToMessage}
+        onSendMessage={handleSendMessage}
+      />
     </div>
   );
 }
