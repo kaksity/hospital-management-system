@@ -54,13 +54,16 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ViewTaskModal from "@/components/Modals/ViewTaskModal";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type PatientType = "regular" | "private" | "hmo";
 type TaskStatus = "pending" | "draft" | "completed" | "assigned" | "unassigned";
@@ -261,6 +264,7 @@ export default function TaskManager() {
 
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
   const [selectedTaskForAssignment, setSelectedTaskForAssignment] = useState<Task | null>(null);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
 
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedTaskForView, setSelectedTaskForView] = useState<Task | null>(null);
@@ -1312,11 +1316,12 @@ export default function TaskManager() {
           if (!open) {
             setAssignmentModalOpen(false);
             setSelectedTaskForAssignment(null);
+            setSelectedDoctorId(null);
             setDoctorSearch("");
           }
         }}
       >
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
             <DialogTitle>
               {selectedTaskForAssignment?.assignedDoctor ? 'Reassign' : 'Assign'} Task
@@ -1331,69 +1336,102 @@ export default function TaskManager() {
           </DialogHeader>
 
           {selectedTaskForAssignment && (
-            <div className="space-y-4">
+            <div className="flex flex-col h-full overflow-hidden">
               <div>
                 <p className="text-sm font-medium text-slate-700 mb-2">
-                  Select a doctor to {selectedTaskForAssignment.assignedDoctor ? 'reassign' : 'assign'} this task:
+                  Select a doctor to{" "}
+                  {selectedTaskForAssignment.assignedDoctor
+                    ? "reassign"
+                    : "assign"}{" "}
+                  this task:
                 </p>
-                <div className="relative mb-4">
+                <div className="relative mb-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input
                     placeholder="Search doctors"
-                    className="pl-10"
+                    className="pl-10 h-10 border-input"
                     value={doctorSearch}
                     onChange={(e) => setDoctorSearch(e.target.value)}
                   />
                 </div>
+              </div>
 
-                <div className="space-y-2 max-h-70 overflow-y-auto custom-scrollbar pr-1">
-                  {filteredDoctors.map((doctor) => (
-                    <div
-                      key={doctor.id}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all hover:bg-slate-50",
-                        selectedTaskForAssignment.assignedDoctor === doctor.name && "bg-blue-50 border-[#006bff]"
-                      )}
-                      onClick={() => {
-                        if (selectedTaskForAssignment.assignedDoctor) {
-                          handleReassignTask(selectedTaskForAssignment, doctor.id);
-                        } else {
-                          handleAssignTask(selectedTaskForAssignment.id, doctor.id);
-                        }
-                      }}
-                    >
-                      <div className="h-6 w-6 bg-primary/10 text-xs text-primary font-semibold rounded-full flex items-center justify-center">
-                        <Stethoscope className="h-3 w-3" />
+              <ScrollArea className="flex-1 b-2 max-h-70">
+                <div className="space-y-1.5 py-2">
+                  {filteredDoctors.map((doctor) => {
+                    const isTaskAssignedToDoctor =
+                      selectedTaskForAssignment.assignedDoctor === doctor.name;
+                    const isActuallySelected = selectedDoctorId === doctor.id;
+
+                    return (
+                      <div
+                        key={doctor.id}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:bg-slate-50 hover:border-input",
+                          isTaskAssignedToDoctor
+                            ? "bg-slate-50 border-input pointer-events-none opacity-60"
+                            : isActuallySelected
+                              ? "bg-slate-50 border-primary shadow-[0_0_0_1px_rgba(var(--primary),0.05)]"
+                              : "bg-white border-input/50"
+                        )}
+                        onClick={() => setSelectedDoctorId(doctor.id)}
+                      >
+                        <div
+                          className={cn(
+                            "h-8 w-8 rounded-full flex items-center justify-center transition-all",
+                            isActuallySelected
+                              ? "bg-primary text-white"
+                              : "bg-primary/10 text-primary"
+                          )}
+                        >
+                          <Stethoscope className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-sm text-slate-800 leading-tight">
+                            {doctor.name}
+                          </div>
+                          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                            {doctor.specialty}
+                          </p>
+                        </div>
+                        {isTaskAssignedToDoctor && (
+                          <Badge className="bg-[#EBFFF6] text-[#008037] text-[10px] border-[#58BF85] font-bold">
+                            Current
+                          </Badge>
+                        )}
+                        {isActuallySelected && (
+                          <CheckCircle2 className="h-4 w-4 text-primary" />
+                        )}
                       </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm text-slate-800">{doctor.name}</div>
-                      </div>
-                      {selectedTaskForAssignment.assignedDoctor === doctor.name && (
-                        <Badge className="bg-[#EBFFF6] text-[#008037] text-[11px] border-[#58BF85]">
-                          Currently Assigned
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {filteredDoctors.length === 0 && (
                     <div className="text-center py-6 text-slate-500">
                       <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>No doctors found matching "{doctorSearch}"</p>
+                      <p className="text-sm font-medium">
+                        No doctors found matching "{doctorSearch}"
+                      </p>
                     </div>
                   )}
                 </div>
-              </div>
+              </ScrollArea>
 
               {selectedTaskForAssignment.assignedDoctor && (
-                <div className="mt-4 p-4 py-3 bg-amber-50 rounded-lg border border-amber-200">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="h-5 w-5 min-w-5 text-amber-600 mt-0.5" />
-                    <div>
-                      <p className="text-[13px] text-amber-700">
-                        This task is currently assigned to {selectedTaskForAssignment.assignedDoctor}.
-                        Reassigning will notify both the current and new doctor.
-                      </p>
+                <div>
+                  <div className="p-4 py-3 bg-amber-50 rounded-xl border border-[#ecd471]">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 min-w-4 text-amber-600 mt-0.5" />
+                      <div>
+                        <p className="text-[12px] text-amber-700 leading-snug">
+                          This task is currently assigned to{" "}
+                          <span className="font-bold">
+                            {selectedTaskForAssignment.assignedDoctor}
+                          </span>
+                          . Reassigning will notify both the current and new
+                          doctor.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1401,30 +1439,49 @@ export default function TaskManager() {
             </div>
           )}
 
-          <div className="flex justify-end gap-3">
+          <DialogFooter className="pt-4 border-t bg-slate-50/50">
             <Button
               variant="outline"
               onClick={() => {
                 setAssignmentModalOpen(false);
                 setSelectedTaskForAssignment(null);
+                setSelectedDoctorId(null);
                 setDoctorSearch("");
               }}
+              className="font-bold border-slate-200"
             >
               Cancel
             </Button>
             <Button
               onClick={() => {
-                if (selectedTaskForAssignment) {
-                  setAssignmentModalOpen(false);
-                  setSelectedTaskForAssignment(null);
-                  setDoctorSearch("");
+                if (selectedTaskForAssignment && selectedDoctorId) {
+                  const doctorName =
+                    doctors.find((d) => d.id === selectedDoctorId)?.name || "";
+                  if (selectedTaskForAssignment.assignedDoctor) {
+                    handleReassignTask(selectedTaskForAssignment, selectedDoctorId);
+                  } else {
+                    handleAssignTask(selectedTaskForAssignment.id, selectedDoctorId);
+                  }
+                  toast.success(`Task reassigned to ${doctorName}`);
                 }
               }}
-              disabled={!selectedTaskForAssignment}
+              disabled={!selectedDoctorId}
             >
-              {selectedTaskForAssignment?.assignedDoctor ? 'Reassign' : 'Assign'}
+              {selectedDoctorId ? (
+                <>
+                  Reassign to Dr.{" "}
+                  {
+                    doctors.find((d) => d.id === selectedDoctorId)?.name.split(" ")
+                      .pop()
+                  }
+                </>
+              ) : selectedTaskForAssignment?.assignedDoctor ? (
+                "Reassign Task"
+              ) : (
+                "Assign Task"
+              )}
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
