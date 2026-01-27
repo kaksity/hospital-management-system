@@ -4,26 +4,27 @@
 import * as React from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
-  MoreHorizontal,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Edit,
-  FileText,
-  DollarSign,
-  User,
-  Building,
-  Globe,
-  Clock,
-  Stethoscope,
-  ChevronRight,
-  ShieldCheck,
-  Receipt,
-  FileSearch,
   Plus,
   ReceiptIcon,
-  CalendarCheck
+  CalendarCheck,
+  CheckCircle2,
+  AlertCircle,
+  Download,
+  Eye,
+  ArrowUpRight,
+  ArrowDownRight,
+  Calendar,
+  Clock,
+  User,
+  Mail,
+  MoreHorizontal,
+  Edit,
+  FileText,
+  Receipt,
+  FileSearch,
+  Stethoscope,
+  ChevronRight,
+  Hospital
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
@@ -287,79 +288,79 @@ export default function PatientDetail() {
 
           {/* Patient Information Tab */}
           <TabsContent value="info">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Full Patient Information</CardTitle>
+            <Card className="border shadow-none bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="border-b bg-slate-50/50 py-4 px-6">
+                <CardTitle className="text-[11px] font-semibold uppercase tracking-widest text-slate-600">Full Clinical Profile</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8">
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Patient Type</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.patientType}</p>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-7">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Patient Name</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.name}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Patient Name</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.name}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Patient ID</p>
+                    <p className="text-sm font-mono font-bold text-slate-600">{patientData.id}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Patient ID</p>
-                    <p className="text-sm font-mono mt-1.5">{patientData.id}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Patient Type</p>
+                    <p className="text-sm font-semibold text-slate-800 capitalize">{patientData.clinicalInfo.patientType}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Email Address</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.email}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.email}</p>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Mobile Number</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.phone}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mobile Number</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.phone}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Date of Birth</p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-sm font-medium">{formatDate(patientData.clinicalInfo.dob)}</span>
-                      <Badge variant="outline" className="text-[10px] font-bold h-5 px-1.5">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date of Birth</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-slate-800">{formatDate(patientData.clinicalInfo.dob)}</span>
+                      <Badge variant="secondary" className="text-[10px] font-bold bg-slate-100 text-slate-500 border-none h-5 px-1.5">
                         {patientData.clinicalInfo.age} YRS
                       </Badge>
                     </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Gender</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.gender}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gender</p>
+                    <p className="text-sm font-semibold text-slate-800 uppercase tracking-tight">{patientData.clinicalInfo.gender}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Marital Status</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.maritalStatus}</p>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Residential Address</p>
-                    <p className="text-sm font-medium mt-1.5 leading-relaxed">{patientData.address}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Nationality</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.nationality}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Preferred Communication</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.preferredCommunication}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Marital Status</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.clinicalInfo.maritalStatus}</p>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Last Appointment</p>
-                    <p className="text-sm font-medium mt-1.5">
+                  <div className="md:col-span-2 space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Residential Address</p>
+                    <p className="text-sm font-semibold text-slate-800 leading-relaxed">{patientData.address}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nationality</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.clinicalInfo.nationality}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Preferred Communication</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.clinicalInfo.preferredCommunication}</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last Appointment</p>
+                    <p className="text-sm font-semibold text-slate-800">
                       {patientData.appointments.length > 0
                         ? formatDate(patientData.appointments[0].date)
                         : "No record"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Date of Registration</p>
-                    <p className="text-sm font-medium mt-1.5">{formatDate(patientData.joinedDate)}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registration Date</p>
+                    <p className="text-sm font-semibold text-slate-800">{formatDate(patientData.joinedDate)}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Registered By</p>
-                    <p className="text-sm font-medium mt-1.5">{patientData.clinicalInfo.registeredBy}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registered By</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.clinicalInfo.registeredBy}</p>
                   </div>
                 </div>
               </CardContent>
@@ -368,54 +369,63 @@ export default function PatientDetail() {
 
           {/* Appointments Tab */}
           <TabsContent value="appointments">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <Card className="border shadow-none bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="border-b bg-slate-50/50 flex flex-row items-center justify-between py-4 px-6 space-y-0">
                 <div>
-                  <CardTitle>Appointment History</CardTitle>
-                  <CardDescription>View upcoming and previous clinical visits</CardDescription>
+                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-700">Clinical Visit Log</CardTitle>
+                  <div className="text-xs font-medium text-slate-600">Comprehensive history of clinical appointments and consultations</div>
                 </div>
-                <Button size="sm" className="gap-2">
-                  <Plus className="h-4 w-4" /> Schedule New
+                <Button size="sm" className="h-8 text-xs font-bold gap-2">
+                  <Plus className="h-3.5 w-3.5" /> Schedule New Visit
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Date & Time</TableHead>
-                      <TableHead>Facility</TableHead>
-                      <TableHead>Doctor</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right"></TableHead>
+                  <TableHeader className="bg-slate-50/50">
+                    <TableRow className="hover:bg-transparent border-b">
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4 pl-6">Service Type</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Schedule Date</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Referring Hospital</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Primary Clinician</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {patientData.appointments.map((apt) => (
-                      <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors">
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            <Stethoscope className="h-4 w-4 text-muted-foreground" />
-                            {apt.type}
+                      <TableRow key={apt.id} className="hover:bg-slate-50/50 transition-colors border-b">
+                        <TableCell className="pl-6 py-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                              <Stethoscope className="h-3.5 w-3.5 text-slate-500" />
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700">{apt.type}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="space-y-0.5">
-                            <div className="text-sm font-medium">{formatDate(apt.date)}</div>
-                            <div className="text-xs text-muted-foreground">{apt.time}</div>
+                          <div className="flex flex-col">
+                            <span className="text-[13px] font-semibold text-slate-800">{formatDate(apt.date)} {apt.time}</span>
                           </div>
                         </TableCell>
-                        <TableCell>{apt.facility}</TableCell>
-                        <TableCell>{apt.doctor}</TableCell>
                         <TableCell>
-                          <Badge className={getAppointmentStatusBadge(apt.status)}>
+                          <div className="flex items-center gap-2.5">
+                            <div className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                              <Hospital className="h-3.5 w-3.5 text-slate-500" />
+                            </div>
+                            <span className="text-[13px] font-semibold text-slate-600">{apt.facility}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2.5">
+                            <div className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                              <Stethoscope className="h-3.5 w-3.5 text-slate-500" />
+                            </div>
+                            <span className="text-[13px] font-semibold text-slate-600">{apt.doctor}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={cn("text-[11px] border-none px-2 py-0.5", getAppointmentStatusBadge(apt.status))}>
                             {apt.status}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="icon">
-                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -428,145 +438,177 @@ export default function PatientDetail() {
           {/* Payments / Invoices Tab */}
           <TabsContent value="payments">
             <div className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Total Revenue</div>
-                    <div className="text-xl font-bold font-mono">₦{patientData.paymentSummary.totalValue.toLocaleString()}</div>
-                  </CardContent>
+              <div className="space-y-8">
+                {/* Unified Financial Summary Card */}
+                <Card className="border shadow-none bg-white rounded-2xl overflow-hidden">
+                  <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-slate-100">
+                    {[
+                      { label: "Total Revenue", value: patientData.paymentSummary.totalValue, icon: Receipt, color: "text-blue-600", bg: "bg-blue-50" },
+                      { label: "Amount Paid", value: patientData.paymentSummary.paid, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
+                      { label: "Balance Due", value: patientData.paymentSummary.balance, icon: AlertCircle, color: "text-amber-600", bg: "bg-amber-50" },
+                    ].map((stat, i) => (
+                      <div key={i} className="p-5 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">{stat.label}</p>
+                          <h3 className={cn(
+                            "text-lg font-bold tabular-nums leading-none pt-1",
+                            (i === 1 ? "text-emerald-600" : (i === 2 ? "text-amber-600" : "text-slate-900"))
+                          )}>
+                            {formatCurrency(stat.value as number)}
+                          </h3>
+                        </div>
+                        <div className={cn("p-2.5 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
+                          <stat.icon className={cn("h-4 w-4", stat.color)} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Amount Paid</div>
-                    <div className="text-xl font-bold text-green-600 font-mono">₦{patientData.paymentSummary.paid.toLocaleString()}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Balance Due</div>
-                    <div className="text-xl font-bold text-yellow-600 font-mono">₦{patientData.paymentSummary.balance.toLocaleString()}</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-primary/5 border-primary/20">
-                  <CardContent className="pt-6">
-                    <div className="text-xs text-primary/80 uppercase tracking-wider font-semibold mb-1">Next Due Date</div>
-                    <div className="text-xl font-bold text-primary">{formatDate(patientData.paymentSummary.nextPaymentDue)}</div>
+
+                {/* Invoices Table */}
+                <Card className="border shadow-none bg-white rounded-2xl overflow-hidden">
+                  <CardHeader className="border-b bg-slate-50/50 flex flex-row items-center justify-between py-4 px-6 space-y-0">
+                    <div>
+                      <CardTitle className="text-sm font-semibold uppercase tracking-widest text-slate-700">Billing History</CardTitle>
+                      <div className="text-xs font-medium text-slate-600">Track and manage all invoices issued to this patient</div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs font-semibold antialiased gap-2 bg-white"
+                      onClick={() => navigate(`/invoices/create?patientId=${patientData.id}`)}
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Create New Invoice
+                    </Button>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader className="bg-slate-50/50">
+                        <TableRow className="hover:bg-transparent border-slate-100">
+                          <TableHead className="text-[11px] font-black uppercase tracking-widest py-4 pl-6">Invoice ID</TableHead>
+                          <TableHead className="text-[11px] font-black uppercase tracking-widest py-4">Medical Service</TableHead>
+                          <TableHead className="text-[11px] font-black uppercase tracking-widest py-4">Total Amount</TableHead>
+                          <TableHead className="text-[11px] font-black uppercase tracking-widest py-4">Billed Date</TableHead>
+                          <TableHead className="text-[11px] font-black uppercase tracking-widest py-4">Status</TableHead>
+                          <TableHead className="text-[11px] font-black uppercase tracking-widest py-4 pr-6 text-right"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {patientData.paymentSummary.invoices.map((inv) => (
+                          <TableRow key={inv.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
+                            <TableCell className="pl-6 py-4">
+                              <code className="text-[11px] font-bold font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/50">
+                                {inv.id}
+                              </code>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-sm font-semibold text-slate-700">{inv.name}</span>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-sm font-black text-slate-900 tabular-nums">{formatCurrency(inv.amount)}</span>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-xs font-semibold text-slate-600">{formatDate(inv.date)}</span>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={cn(
+                                "text-[10px] font-black uppercase border-none px-2 py-0.5",
+                                inv.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                              )}>
+                                {inv.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="pr-6 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </CardContent>
                 </Card>
               </div>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                  <div>
-                    <CardTitle>Invoices</CardTitle>
-                    <CardDescription>Billing history and outstanding invoices</CardDescription>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-2"
-                    onClick={() => navigate(`/invoices/create?patientId=${patientData.id}`)}
-                  >
-                    <Receipt className="h-4 w-4" /> Create Invoice
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Invoice ID</TableHead>
-                        <TableHead>Service Name</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Date / Due</TableHead>
-                        <TableHead className="text-right"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {patientData.paymentSummary.invoices.map((inv) => (
-                        <TableRow key={inv.id}>
-                          <TableCell className="font-mono text-xs">{inv.id}</TableCell>
-                          <TableCell className="font-medium text-sm">{inv.name}</TableCell>
-                          <TableCell className="font-mono tracking-tighter">₦{inv.amount.toLocaleString()}</TableCell>
-                          <TableCell>
-                            <Badge className={
-                              inv.status === 'paid' ? 'bg-green-100 text-green-800 border-none' :
-                                'bg-yellow-100 text-yellow-800 border-none'
-                            }>
-                              {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {formatDate(inv.date)}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="sm">Download</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
 
           {/* Medical Reports Tab */}
           <TabsContent value="reports">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <Card className="border shadow-none bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="border-b bg-slate-50/50 flex flex-row items-center justify-between py-4 px-6 space-y-0">
                 <div>
-                  <CardTitle>Medical Reports</CardTitle>
-                  <CardDescription>Diagnostic findings and clinical report archives</CardDescription>
+                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-700">Medical Report Archive</CardTitle>
+                  <CardDescription className="text-[11px] font-medium text-slate-500">Validated diagnostic findings and radiologist interpretations</CardDescription>
                 </div>
-                <Button size="sm" variant="outline" className="gap-2">
-                  <Plus className="h-4 w-4" /> Add Report
+                <Button size="sm" variant="outline" className="h-8 text-xs font-bold gap-2 bg-white">
+                  <Plus className="h-3.5 w-3.5" /> File New Report
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Report ID</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Radiologist</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right"></TableHead>
+                  <TableHeader className="bg-slate-50/50">
+                    <TableRow className="hover:bg-transparent border-slate-100">
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 pl-6">Report ID</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Diagnostic Title</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Modality</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Finalized Date</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Lead Radiologist</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Status</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 pr-6 text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {patientData.reports.map((report) => (
-                      <TableRow key={report.id} className="hover:bg-muted/50 transition-colors">
-                        <TableCell className="font-mono text-xs font-semibold">{report.id}</TableCell>
-                        <TableCell className="font-medium">{report.title}</TableCell>
+                      <TableRow key={report.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
+                        <TableCell className="pl-6 py-4">
+                          <code className="text-[11px] font-bold font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/50">
+                            {report.id}
+                          </code>
+                        </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="bg-muted/30 font-normal">
+                          <span className="text-sm font-semibold text-slate-700">{report.title}</span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-[10px] font-bold bg-slate-50 text-slate-500 border-slate-200">
                             {report.type}
                           </Badge>
                         </TableCell>
-                        <TableCell>{formatDate(report.date)}</TableCell>
-                        <TableCell>{report.doctor}</TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1.5">
-                            <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                            <span className="text-sm">{report.status}</span>
+                          <span className="text-xs font-semibold text-slate-600">{formatDate(report.date)}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs font-semibold text-slate-600">{report.doctor}</span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                            <span className="text-[11px] font-black uppercase text-emerald-700 tracking-tight">{report.status}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm" className="gap-2">
-                            View PDF <ChevronRight className="h-4 w-4" />
+                        <TableCell className="pr-6 text-right">
+                          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-black uppercase text-[#006bff] hover:bg-slate-50 transition-colors gap-1">
+                            Review PDF <ChevronRight className="h-3.5 w-3.5" />
                           </Button>
                         </TableCell>
                       </TableRow>
                     ))}
                     {patientData.reports.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
-                          <div className="flex flex-col items-center gap-2">
-                            <FileSearch className="h-8 w-8 opacity-20" />
-                            No medical reports found for this patient.
+                        <TableCell colSpan={7} className="text-center py-20 text-slate-400">
+                          <div className="flex flex-col items-center gap-4">
+                            <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center">
+                              <FileSearch className="h-6 w-6 opacity-40 text-slate-400" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-bold uppercase tracking-widest">No reports found</p>
+                              <p className="text-xs font-medium text-slate-400 italic">This patient does not have any finalized diagnostic reports.</p>
+                            </div>
                           </div>
                         </TableCell>
                       </TableRow>

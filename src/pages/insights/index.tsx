@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import {
   BarChart,
@@ -42,35 +42,81 @@ import {
 import { formatCurrency } from '@/utils/formatCurrency';
 import { cn } from '@/lib/utils';
 
-const revenueData = [
-  { month: 'Jan', revenue: 450000, referrals: 120 },
-  { month: 'Feb', revenue: 520000, referrals: 145 },
-  { month: 'Mar', revenue: 480000, referrals: 132 },
-  { month: 'Apr', revenue: 610000, referrals: 168 },
-  { month: 'May', revenue: 590000, referrals: 155 },
-  { month: 'Jun', revenue: 720000, referrals: 198 },
-];
-
 const modalityData = [
-  { name: 'MRI', value: 45, color: '#3b82f6' },
-  { name: 'CT Scan', value: 30, color: '#10b981' },
-  { name: 'X-Ray', value: 15, color: '#f59e0b' },
-  { name: 'Ultrasound', value: 10, color: '#ef4444' },
+  { name: 'CT Scan', value: 15, color: '#3b82f6' },
+  { name: 'MRI', value: 12, color: '#10b981' },
+  { name: 'Ultrasound', value: 10, color: '#f59e0b' },
+  { name: 'General Radiograph (X-ray)', value: 18, color: '#ef4444' },
+  { name: 'Fluroscopy', value: 4, color: '#8b5cf6' },
+  { name: 'Endoscopy', value: 5, color: '#ec4899' },
+  { name: 'Mammogram', value: 6, color: '#06b6d4' },
+  { name: 'Digital Mammography', value: 8, color: '#f97316' },
+  { name: 'Interventional Procedures', value: 4, color: '#6366f1' },
+  { name: 'Breast Biopsy', value: 3, color: '#14b8a6' },
+  { name: 'Breast Ultrasound', value: 5, color: '#a855f7' },
+  { name: 'General Lab Tests', value: 10, color: '#64748b' },
 ];
 
 const dataPoints = [
-  { id: "revenue", label: "Total Revenue", value: 3450000, previousValue: 3100000 },
-  { id: "invoices", label: "Total Invoices", value: 4200000, previousValue: 3800000 },
-  { id: "cash", label: "Revenue by Cash", value: 850000, previousValue: 720000 },
-  { id: "bank", label: "Revenue by Bank", value: 1200000, previousValue: 1100000 },
-  { id: "card", label: "Revenue by Card", value: 1400000, previousValue: 1280000 },
-  { id: "balance", label: "Outstanding Balance", value: 750000, previousValue: 900000 },
-  { id: "patient_revenue", label: "New Patients Revenue", value: 450000, previousValue: 400000 },
-  { id: "refunds", label: "Refunds", value: 45000, previousValue: 52000 },
+  { id: "revenue", label: "Total Revenue", value: 3450000, previousValue: 3100000, color: "#3b82f6" },
+  { id: "invoices", label: "Total Invoices", value: 4200000, previousValue: 3800000, color: "#10b981" },
+  { id: "cash", label: "Revenue by Cash", value: 850000, previousValue: 720000, color: "#f59e0b" },
+  { id: "bank", label: "Revenue by Bank", value: 1200000, previousValue: 1100000, color: "#f59e0b" },
+  { id: "card", label: "Revenue by Card", value: 1400000, previousValue: 1280000, color: "#f59e0b" },
+  { id: "balance", label: "Outstanding Balance", value: 750000, previousValue: 900000, color: "#ef4444" },
+  { id: "patient_revenue", label: "New Patients Revenue", value: 450000, previousValue: 400000, color: "#8b5cf6" },
+  { id: "refunds", label: "Refunds", value: 45000, previousValue: 52000, color: "#64748b" },
 ];
 
 export default function Insights() {
   const [selectedPoint, setSelectedPoint] = useState(dataPoints[0]);
+  const [timeframe, setTimeframe] = useState("30days");
+
+  const chartData = useMemo(() => {
+    const data = [];
+    const now = new Date();
+
+    const getVariance = () => (Math.random() * 0.4) + 0.8; // random between 0.8 and 1.2
+    const baseValue = selectedPoint.value / (timeframe === "12months" ? 12 : timeframe === "60days" ? 30 : timeframe === "30days" ? 30 : 7);
+
+    if (timeframe === "7days") {
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        data.push({
+          label: date.toLocaleDateString(undefined, { weekday: 'short' }),
+          value: Math.floor(baseValue * getVariance()),
+        });
+      }
+    } else if (timeframe === "30days") {
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        data.push({
+          label: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+          value: Math.floor(baseValue * getVariance()),
+        });
+      }
+    } else if (timeframe === "60days") {
+      for (let i = 59; i >= 0; i -= 2) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        data.push({
+          label: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+          value: Math.floor(baseValue * getVariance() * 2), // * 2 because we skip days
+        });
+      }
+    } else if (timeframe === "12months") {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      for (let i = 0; i < 12; i++) {
+        data.push({
+          label: months[i],
+          value: Math.floor(baseValue * getVariance()),
+        });
+      }
+    }
+    return data;
+  }, [timeframe, selectedPoint]);
 
   const handlePointChange = (id: string) => {
     const point = dataPoints.find(p => p.id === id);
@@ -92,15 +138,16 @@ export default function Insights() {
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Strategic analytics and performance metrics for CarePak Diagnostics.</p>
             </div>
             <div className="flex items-center gap-2">
-              <Select defaultValue="6months">
+              <Select value={timeframe} onValueChange={setTimeframe}>
                 <SelectTrigger className="w-[160px] h-9 bg-white border shadow-none font-semibold text-xs">
                   <Calendar className="h-3.5 w-3.5 text-slate-400" />
                   <SelectValue placeholder="Timeframe" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="7days">Last 7 Days</SelectItem>
                   <SelectItem value="30days">Last 30 Days</SelectItem>
-                  <SelectItem value="6months">Last 6 Months</SelectItem>
-                  <SelectItem value="1year">Last Year</SelectItem>
+                  <SelectItem value="60days">Last 60 Days</SelectItem>
+                  <SelectItem value="12months">Last 12 Months</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
@@ -149,26 +196,27 @@ export default function Insights() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     <Select value={selectedPoint.id} onValueChange={handlePointChange}>
-                      <SelectTrigger className="h-auto p-0 border-none shadow-none focus:ring-0 bg-transparent text-slate-500 font-bold uppercase tracking-widest text-[11px] flex gap-2 items-center hover:text-slate-900 transition-colors w-fit">
+                      <SelectTrigger className="h-auto p-0 border-none shadow-none focus:ring-0 bg-transparent text-slate-700 font-semibold antialiased text-sm flex gap-2 items-center hover:text-slate-800 transition-colors w-fit">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {dataPoints.map(p => (
-                          <SelectItem key={p.id} value={p.id} className="text-xs font-bold uppercase tracking-wider">{p.label}</SelectItem>
+                          <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
 
                     <div className="h-4 w-px bg-slate-200" />
 
-                    <Select defaultValue="30days">
-                      <SelectTrigger className="h-auto p-0 border-none shadow-none focus:ring-0 bg-transparent text-slate-400 font-bold uppercase tracking-widest text-[10px] flex gap-2 items-center hover:text-slate-700 transition-colors w-fit">
+                    <Select value={timeframe} onValueChange={setTimeframe}>
+                      <SelectTrigger className="h-auto p-0 border-none shadow-none focus:ring-0 bg-transparent text-slate-700 font-semibold antialiased text-sm flex gap-2 items-center hover:text-slate-800 transition-colors w-fit">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="30days" className="text-xs font-bold uppercase tracking-wider">Last 30 Days</SelectItem>
-                        <SelectItem value="90days" className="text-xs font-bold uppercase tracking-wider">Last 90 Days</SelectItem>
-                        <SelectItem value="1year" className="text-xs font-bold uppercase tracking-wider">Last 1 Year</SelectItem>
+                        <SelectItem value="7days">Last 7 Days</SelectItem>
+                        <SelectItem value="30days">Last 30 Days</SelectItem>
+                        <SelectItem value="60days">Last 60 Days</SelectItem>
+                        <SelectItem value="12months">Last 12 Months</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -192,74 +240,50 @@ export default function Insights() {
 
                 <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-white p-3 rounded-xl border">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                    <div
+                      className="h-2 w-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.2)]"
+                      style={{ backgroundColor: selectedPoint.color, boxShadow: `0 0 8px ${selectedPoint.color}80` }}
+                    />
                     <span className="text-slate-600">{selectedPoint.label}</span>
-                  </div>
-                  <div className="w-px h-3 bg-slate-200" />
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                    <span className="text-slate-600">Patient Volume</span>
                   </div>
                 </div>
               </div>
 
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorMain" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorSecondary" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barGap={timeframe === '30days' ? 8 : timeframe === '60days' ? 6 : 24}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                     <XAxis
-                      dataKey="month"
+                      dataKey="label"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 12, fontWeight: 400, fill: '#64748b' }}
+                      tick={{ fontSize: 10, fontWeight: 400, fill: '#64748b' }}
                       dy={10}
+                      interval={timeframe === '30days' ? 4 : timeframe === '60days' ? 6 : 0}
                     />
                     <YAxis
                       hide={true}
                     />
                     <RechartsTooltip
-                      cursor={{ stroke: '#e2e8f0', strokeWidth: 2 }}
+                      cursor={{ fill: '#f8fafc', opacity: 0.4 }}
                       contentStyle={{
                         borderRadius: '16px',
                         border: '1px solid #f1f5f9',
                         boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)',
                         padding: '12px'
                       }}
-                      itemStyle={{ fontSize: '12px', fontWeight: 400 }}
-                      labelStyle={{ marginBottom: '2px', color: '#94a3b8', fontSize: '10px', fontWeight: 400, textTransform: 'capitalize' }}
+                      itemStyle={{ fontSize: '12px', fontWeight: 600 }}
+                      labelStyle={{ marginBottom: '0', color: '#4b4f54ff', fontSize: '12px', fontWeight: 400, textTransform: 'capitalize' }}
                     />
-                    <Area
-                      type="monotone"
-                      dataKey="revenue"
+                    <Bar
+                      dataKey="value"
                       name={selectedPoint.label}
-                      stroke="#3b82f6"
-                      strokeWidth={3}
-                      fillOpacity={1}
-                      fill="url(#colorMain)"
+                      fill={selectedPoint.color}
+                      radius={[4, 4, 0, 0]}
+                      barSize={timeframe === '7days' ? 120 : timeframe === '30days' ? 32 : timeframe === '60days' ? 20 : 80}
                       animationDuration={1500}
                     />
-                    <Area
-                      type="monotone"
-                      dataKey="referrals"
-                      name="Patient Volume"
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      fillOpacity={1}
-                      fill="url(#colorSecondary)"
-                      animationDuration={1500}
-                    />
-                  </AreaChart>
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
@@ -284,9 +308,9 @@ export default function Insights() {
                         data={modalityData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={65}
-                        outerRadius={90}
-                        paddingAngle={10}
+                        innerRadius={60}
+                        outerRadius={95}
+                        paddingAngle={4}
                         dataKey="value"
                         animationDuration={1500}
                       >
@@ -300,14 +324,14 @@ export default function Insights() {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="w-full md:w-1/2 space-y-3">
+                <div className="w-full md:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {modalityData.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-                      <div className="flex items-center gap-3">
-                        <div className="h-3 w-3 rounded-full shadow-sm" style={{ backgroundColor: item.color }} />
-                        <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">{item.name}</span>
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight truncate">{item.name}</span>
                       </div>
-                      <span className="text-sm font-black text-slate-800 tabular-nums">{item.value}%</span>
+                      <span className="text-xs font-black text-slate-800 tabular-nums ml-2">{item.value}%</span>
                     </div>
                   ))}
                 </div>
@@ -321,7 +345,7 @@ export default function Insights() {
               <TrendingUp className="h-6 w-6 text-slate-400" />
             </div>
             <h4 className="text-sm font-bold text-slate-700 uppercase tracking-widest">More Insights Coming</h4>
-            <p className="text-xs text-slate-500 max-w-[240px] mt-1 font-medium italic">We're currently processing advanced referral patterns and patient retention metrics.</p>
+            <p className="text-xs text-slate-500 max-w-[240px] mt-1 font-medium">We're currently processing advanced referral patterns and patient retention metrics.</p>
           </Card>
         </div>
       </div>
