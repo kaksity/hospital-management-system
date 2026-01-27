@@ -76,7 +76,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
             <DashboardLayout>
               <TaskManager />
             </DashboardLayout>
@@ -86,7 +86,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager/create"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
             <DashboardLayout>
               <CreateTask />
             </DashboardLayout>
@@ -96,7 +96,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager/edit/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
             <DashboardLayout>
               <EditTask />
             </DashboardLayout>
@@ -107,7 +107,7 @@ export function AppRoutes() {
       <Route
         path="/patients"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'staff', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
             <DashboardLayout>
               <Patients />
             </DashboardLayout>
@@ -118,7 +118,7 @@ export function AppRoutes() {
       <Route
         path="/patients/create"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service']}>
             <DashboardLayout>
               <CreatePatient />
             </DashboardLayout>
@@ -129,7 +129,7 @@ export function AppRoutes() {
       <Route
         path="/patients/import"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service']}>
             <DashboardLayout>
               <ImportPatients />
             </DashboardLayout>
@@ -140,7 +140,7 @@ export function AppRoutes() {
       <Route
         path="/patients/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'staff', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
             <DashboardLayout>
               <PatientDetail />
             </DashboardLayout>
@@ -192,7 +192,7 @@ export function AppRoutes() {
       <Route
         path="/communication"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'customer_service', 'doctor']}>
             <DashboardLayout>
               <Communication />
             </DashboardLayout>
@@ -202,7 +202,7 @@ export function AppRoutes() {
       <Route
         path="/payments"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'client']}>
+          <ProtectedRoute allowedRoles={['admin', 'accounts']}>
             <DashboardLayout>
               <Payments />
             </DashboardLayout>
@@ -223,7 +223,7 @@ export function AppRoutes() {
       <Route
         path="/invoices"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'accounts']}>
             <DashboardLayout>
               <Invoices />
             </DashboardLayout>
@@ -233,7 +233,7 @@ export function AppRoutes() {
       <Route
         path="/invoices/create"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'accounts']}>
             <DashboardLayout>
               <CreateInvoice />
             </DashboardLayout>
@@ -288,7 +288,7 @@ export function AppRoutes() {
       <Route
         path="/templates"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'doctor']}>
             <DashboardLayout>
               <ReportTemplates />
             </DashboardLayout>
@@ -298,7 +298,7 @@ export function AppRoutes() {
       <Route
         path="/templates/create"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'doctor']}>
             <DashboardLayout>
               <CreateTemplate />
             </DashboardLayout>
@@ -308,7 +308,7 @@ export function AppRoutes() {
       <Route
         path="/templates/edit/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'attorney', 'paralegal']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'doctor']}>
             <DashboardLayout>
               <EditTemplate />
             </DashboardLayout>

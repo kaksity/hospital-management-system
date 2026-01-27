@@ -45,27 +45,39 @@ const getNavigationItems = (role: string) => {
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
-  const attorneyParalegalItems = [
-    { title: "Tasks", url: "/task-manager", icon: Briefcase },
+  const labDoctorItems = [
+    { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
+    { title: "Patients", url: "/patients", icon: IdCard },
+    { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
+    { title: "Templates", url: "/templates", icon: LayoutPanelTop },
+    { title: "Settings", url: "/settings", icon: Settings },
+  ];
+
+  const customerServiceItems = [
+    { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
+    { title: "Patients", url: "/patients", icon: IdCard },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
     { title: "Communication", url: "/communication", icon: MessageSquareMore },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
-  const clientItems = [
-    { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
+  const accountsItems = [
+    { title: "Invoices", url: "/invoices", icon: Receipt },
     { title: "Payments", url: "/payments", icon: CircleDollarSign },
+    { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
   switch (role) {
     case 'admin':
       return [...baseItems, ...adminItems];
-    case 'attorney':
-    case 'paralegal':
-      return [...baseItems, ...attorneyParalegalItems];
-    case 'client':
-      return [...baseItems, ...clientItems];
+    case 'lab':
+    case 'doctor':
+      return [...baseItems, ...labDoctorItems];
+    case 'customer_service':
+      return [...baseItems, ...customerServiceItems];
+    case 'accounts':
+      return [...baseItems, ...accountsItems];
     default:
       return baseItems;
   }
@@ -76,7 +88,7 @@ export function AppSidebar() {
   const { user, logout, switchUser } = useAuth();
   const collapsed = state === "collapsed";
 
-  const navigationItems = getNavigationItems(user?.role || 'client');
+  const navigationItems = getNavigationItems(user?.role || 'customer_service');
 
   return (
     <Sidebar className="border-r border-border">
@@ -160,7 +172,7 @@ export function AppSidebar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <p className="text-sm font-semibold">{user?.name}</p>
+                  <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {user?.email}
                   </p>
@@ -178,33 +190,41 @@ export function AppSidebar() {
                 variant={user?.role === 'admin' ? "default" : "outline"}
                 size="sm"
                 onClick={() => switchUser('admin')}
-                className="h-8 text-xs"
+                className="h-8 text-[10px]"
               >
-                Ope (Admin)
+                Admin (Ope)
               </Button>
               <Button
-                variant={user?.role === 'paralegal' ? "default" : "outline"}
+                variant={user?.role === 'lab' ? "default" : "outline"}
                 size="sm"
-                onClick={() => switchUser('paralegal')}
-                className="h-8 text-xs"
+                onClick={() => switchUser('lab')}
+                className="h-8 text-[10px]"
               >
-                Sarah (Para)
+                Lab
               </Button>
               <Button
-                variant={user?.role === 'attorney' ? "default" : "outline"}
+                variant={user?.role === 'customer_service' ? "default" : "outline"}
                 size="sm"
-                onClick={() => switchUser('attorney')}
-                className="h-8 text-xs"
+                onClick={() => switchUser('customer_service')}
+                className="h-8 text-[10px]"
               >
-                Michael (Atty)
+                CS
               </Button>
               <Button
-                variant={user?.role === 'client' ? "default" : "outline"}
+                variant={user?.role === 'doctor' ? "default" : "outline"}
                 size="sm"
-                onClick={() => switchUser('client')}
-                className="h-8 text-xs"
+                onClick={() => switchUser('doctor')}
+                className="h-8 text-[10px]"
               >
-                Alex (Client)
+                Doctor
+              </Button>
+              <Button
+                variant={user?.role === 'accounts' ? "default" : "outline"}
+                size="sm"
+                onClick={() => switchUser('accounts')}
+                className="h-8 text-[10px]"
+              >
+                Accounts
               </Button>
             </div>
 

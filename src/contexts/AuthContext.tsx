@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type UserRole = 'admin' | 'paralegal' | 'attorney' | 'client';
+export type UserRole = 'admin' | 'lab' | 'customer_service' | 'doctor' | 'accounts';
 
 interface User {
   id: string;
@@ -16,8 +16,8 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   switchUser: (role: UserRole) => void;
-  updateUserAvatar: (avatarUrl: string) => void; 
-  removeUserAvatar: () => void; 
+  updateUserAvatar: (avatarUrl: string) => void;
+  removeUserAvatar: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,23 +30,29 @@ const mockUsers: Record<UserRole, User> = {
     role: 'admin',
     name: 'Ope Adeyomoye'
   },
-  paralegal: {
+  lab: {
     id: '2',
-    email: 'sarah.chen@agora.com',
-    role: 'paralegal',
-    name: 'Sarah Chen'
+    email: 'lab@agora.com',
+    role: 'lab',
+    name: 'Radiology Lab'
   },
-  attorney: {
+  customer_service: {
     id: '3',
-    email: 'michael.rodriguez@agora.com',
-    role: 'attorney',
-    name: 'Michael Rodriguez'
+    email: 'cs@agora.com',
+    role: 'customer_service',
+    name: 'Customer Service'
   },
-  client: {
+  doctor: {
     id: '4',
-    email: 'alex.turner@agora.com',
-    role: 'client',
-    name: 'Alex Turner'
+    email: 'doctor@agora.com',
+    role: 'doctor',
+    name: 'Dr. Michael Adebayo'
+  },
+  accounts: {
+    id: '5',
+    email: 'accounts@agora.com',
+    role: 'accounts',
+    name: 'Accounts Department'
   }
 };
 
@@ -66,16 +72,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedAvatar = localStorage.getItem('userAvatar');
 
     if (storedRole && mockUsers[storedRole]) {
-      const userWithAvatar = { 
-        ...mockUsers[storedRole], 
-        avatar: storedAvatar || undefined 
+      const userWithAvatar = {
+        ...mockUsers[storedRole],
+        avatar: storedAvatar || undefined
       };
       setUser(userWithAvatar);
     } else {
       // Default to admin for full access during development
-      const adminWithAvatar = { 
-        ...mockUsers.admin, 
-        avatar: storedAvatar || undefined 
+      const adminWithAvatar = {
+        ...mockUsers.admin,
+        avatar: storedAvatar || undefined
       };
       setUser(adminWithAvatar);
       localStorage.setItem('devUserRole', 'admin');
@@ -87,18 +93,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       // For development, any password works
-      let userRole: UserRole = 'client';
-      
+      let userRole: UserRole = 'customer_service';
+
       if (email.includes('admin') || email.includes('ope')) userRole = 'admin';
-      else if (email.includes('paralegal') || email.includes('sarah')) userRole = 'paralegal';
-      else if (email.includes('attorney') || email.includes('michael')) userRole = 'attorney';
-      
+      else if (email.includes('lab')) userRole = 'lab';
+      else if (email.includes('doctor')) userRole = 'doctor';
+      else if (email.includes('accounts')) userRole = 'accounts';
+
       const storedAvatar = localStorage.getItem('userAvatar');
-      const user = { 
-        ...mockUsers[userRole], 
-        avatar: storedAvatar || undefined 
+      const user = {
+        ...mockUsers[userRole],
+        avatar: storedAvatar || undefined
       };
-      
+
       setUser(user);
       localStorage.setItem('devUserRole', userRole);
 
@@ -115,11 +122,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const switchUser = (role: UserRole) => {
     const storedAvatar = localStorage.getItem('userAvatar');
-    const newUser = { 
-      ...mockUsers[role], 
-      avatar: storedAvatar || undefined 
+    const newUser = {
+      ...mockUsers[role],
+      avatar: storedAvatar || undefined
     };
-    
+
     setUser(newUser);
     localStorage.setItem('devUserRole', role);
     // ProtectedRoute will handle redirection automatically
@@ -136,11 +143,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      logout, 
-      isLoading, 
+    <AuthContext.Provider value={{
+      user,
+      login,
+      logout,
+      isLoading,
       switchUser,
       updateUserAvatar,
       removeUserAvatar

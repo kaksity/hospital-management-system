@@ -17,14 +17,14 @@ export function InviteMemberModal({ open, onOpenChange, onInvite }: InviteMember
     firstName: "",
     lastName: "",
     email: "",
-    role: "attorney"
+    role: "customer_service"
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.firstName && formData.lastName && formData.email) {
       onInvite(formData);
-      setFormData({ firstName: "", lastName: "", email: "", role: "attorney" });
+      setFormData({ firstName: "", lastName: "", email: "", role: "customer_service" });
     }
   };
 
@@ -36,15 +36,15 @@ export function InviteMemberModal({ open, onOpenChange, onInvite }: InviteMember
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Invite Team Member</DialogTitle>
-          <DialogDescription>
-            Add a new member to your organization. They will receive an invitation email.
-          </DialogDescription>
+          <div className="text-lg font-semibold text-slate-900">Invite Team Member</div>
+          <div className="text-[13px] font-medium text-slate-500">
+            Add a new member to your clinical organization. They will receive an invitation email.
+          </div>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="firstName">First Name</Label>
               <Input
                 id="firstName"
@@ -54,7 +54,7 @@ export function InviteMemberModal({ open, onOpenChange, onInvite }: InviteMember
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="lastName">Last Name</Label>
               <Input
                 id="lastName"
@@ -65,34 +65,35 @@ export function InviteMemberModal({ open, onOpenChange, onInvite }: InviteMember
               />
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+
+          <div className="space-y-1">
+            <Label htmlFor="email">Email Address</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
-              placeholder="john.doe@example.com"
+              placeholder="john.doe@broadplaces.com"
               required
             />
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+
+          <div className="space-y-1">
+            <Label htmlFor="role">Institutional Role</Label>
             <Select value={formData.role} onValueChange={(value) => handleChange("role", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="attorney">Attorney</SelectItem>
-                <SelectItem value="paralegal">Paralegal</SelectItem>
+                <SelectItem value="lab">Radiology Lab</SelectItem>
+                <SelectItem value="customer_service">Customer Service</SelectItem>
+                <SelectItem value="doctor">Doctor</SelectItem>
+                <SelectItem value="accounts">Accounts</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="support">Support Staff</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel

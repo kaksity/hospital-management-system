@@ -25,7 +25,7 @@ export default function Settings() {
       description: "Personal profile and identification",
       icon: User,
       path: "/settings/account",
-      roles: ['admin', 'attorney', 'paralegal', 'client', 'staff']
+      roles: ['admin', 'lab', 'customer_service', 'doctor', 'accounts']
     },
     {
       id: "security",
@@ -33,7 +33,7 @@ export default function Settings() {
       description: "Access and permissions",
       icon: Shield,
       path: "/settings/security",
-      roles: ['admin', 'attorney', 'paralegal', 'client', 'staff']
+      roles: ['admin', 'lab', 'customer_service', 'doctor', 'accounts']
     },
     {
       id: "communications",
@@ -41,7 +41,7 @@ export default function Settings() {
       description: "Messaging and templates",
       icon: MessageSquare,
       path: "/settings/communications",
-      roles: ['admin']
+      roles: ['admin', 'customer_service']
     },
     {
       id: "notifications",
@@ -49,7 +49,7 @@ export default function Settings() {
       description: "Alert preferences",
       icon: Bell,
       path: "/settings/notifications",
-      roles: ['admin', 'attorney', 'paralegal', 'client', 'staff']
+      roles: ['admin', 'lab', 'customer_service', 'doctor', 'accounts']
     },
     {
       id: "members",
@@ -65,7 +65,7 @@ export default function Settings() {
       description: "Gateway configuration",
       icon: CreditCard,
       path: "/settings/payments",
-      roles: ['admin']
+      roles: ['admin', 'accounts']
     },
     {
       id: "data",
@@ -79,7 +79,7 @@ export default function Settings() {
 
   // Filter tabs based on user role
   const settingsTabs = allSettingsTabs.filter(tab =>
-    tab.roles.includes(user?.role || 'client')
+    tab.roles.includes(user?.role || 'customer_service')
   );
 
   const currentTab = settingsTabs.find(tab => location.pathname === tab.path) || settingsTabs[0];

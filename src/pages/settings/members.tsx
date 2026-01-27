@@ -41,32 +41,32 @@ export function MembersSettings() {
     {
       id: 1,
       name: "Sarah Johnson",
-      email: "sarah@agora.com",
-      role: "Paralegal",
+      email: "sarah@broadplaces.com",
+      role: "Radiology Lab",
       status: "active",
       avatar: ""
     },
     {
       id: 2,
       name: "Michael Chen",
-      email: "michael@agora.com",
-      role: "Attorney",
+      email: "michael@broadplaces.com",
+      role: "Doctor",
       status: "active",
       avatar: ""
     },
     {
       id: 3,
       name: "David Rodriguez",
-      email: "david@agora.com",
-      role: "Attorney",
+      email: "david@broadplaces.com",
+      role: "Customer Service",
       status: "pending",
       avatar: ""
     },
     {
       id: 4,
       name: "Emily Wilson",
-      email: "emily@agora.com",
-      role: "Admin",
+      email: "emily@broadplaces.com",
+      role: "Accounts",
       status: "inactive",
       avatar: ""
     }

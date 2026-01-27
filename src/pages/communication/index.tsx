@@ -210,7 +210,7 @@ export default function Communication() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button size="sm" className="h-9 font-medium px-4" onClick={handleNewMessage}>
+              <Button size="sm" className="h-9 px-4" onClick={handleNewMessage}>
                 <Plus className="h-4 w-4" />
                 New Message
               </Button>

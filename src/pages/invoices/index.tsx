@@ -147,7 +147,7 @@ export default function Invoices() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button onClick={() => navigate("/invoices/create")} size="sm" className="h-9 font-medium px-4">
+              <Button onClick={() => navigate("/invoices/create")} size="sm" className="h-9 px-4">
                 <Plus className="h-4 w-4" />
                 Create Invoice
               </Button>

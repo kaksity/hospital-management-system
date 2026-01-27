@@ -150,7 +150,7 @@ export default function Insights() {
                   <SelectItem value="12months">Last 12 Months</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" className="gap-2 h-9 font-bold bg-white">
+              <Button variant="outline" className="gap-2 h-9 bg-white">
                 <Download className="h-4 w-4" />
                 Export Report
               </Button>

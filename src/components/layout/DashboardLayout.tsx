@@ -246,7 +246,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center">
                         <Building2 className="h-4 w-4 text-slate-600" />
                       </div>
-                      <span className="text-sm font-medium hidden sm:inline-block">Broadplaces Radiology</span>
+                      <span className="text-sm font-semibold hidden sm:inline-block">Broadplaces Radiology</span>
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </Button>

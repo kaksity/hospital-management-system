@@ -203,7 +203,7 @@ export default function Patients() {
               <div className="flex items-center gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2 h-9 font-medium text-slate-600 bg-white">
+                    <Button variant="outline" size="sm" className="gap-2 h-9 text-slate-600 bg-white">
                       <Download className="h-3.5 w-3.5" />
                       Import/Export
                     </Button>
@@ -224,7 +224,7 @@ export default function Patients() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button onClick={handleAddPatient} size="sm" className="h-9 font-medium px-4">
+                <Button onClick={handleAddPatient} size="sm" className="h-9 px-4">
                   <Plus className="h-4 w-4" />
                   Add New Patient
                 </Button>

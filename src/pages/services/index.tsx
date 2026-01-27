@@ -109,7 +109,7 @@ export default function Services() {
               </div>
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">Configure and manage your inventory of scans and medical services.</p>
             </div>
-            <Button onClick={handleAddService} size="sm" className="h-9 font-medium px-4">
+            <Button onClick={handleAddService} size="sm" className="h-9 px-4">
               <Plus className="h-4 w-4" />
               Add New Service
             </Button>
