@@ -95,8 +95,8 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-border px-6 py-4">
         <div className="flex items-center gap-3">
           <img
-            src="/images/logos/agora-logo-dark.png"
-            alt="Agora Visa Platform"
+            src="/images/logos/carepak-logo.png"
+            alt="Carepak Platform"
             className="h-8 w-auto"
           />
         </div>

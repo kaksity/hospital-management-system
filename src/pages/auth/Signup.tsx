@@ -37,23 +37,23 @@ export function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-6">
           {/* Agora Logo */}
           <div className="flex justify-center">
-            <img 
-              src="/images/logos/agora-logo-dark.png" 
-              alt="Agora Visa" 
-              className="h-12 w-auto"
+            <img
+              src="/images/logos/carepak-bpr-logo.png"
+              alt="Carepak"
+              className="h-11 w-auto"
             />
           </div>
           <div className="space-y-2">
             <CardTitle className="text-2xl">Create your account</CardTitle>
-            <CardDescription>Join Agora VisaRamp to start your immigration journey</CardDescription>
+            <CardDescription>Join Carepak to start managing your labs</CardDescription>
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name Fields */}
@@ -180,7 +180,7 @@ export function Signup() {
 
           <div className="text-center text-sm">
             Already have an account?{" "}
-            <Link to="/login" className="text-secondary hover:underline font-medium">
+            <Link to="/login" className="text-primary hover:underline font-medium">
               Sign in
             </Link>
           </div>
