@@ -627,12 +627,15 @@ export default function DiagnosticReports() {
                             <DropdownMenuItem
                               onClick={() => handleSendEmail(report)}
                               className="gap-2 font-medium text-sm"
-                              disabled={isGenerating}
+                              disabled={isGenerating || report.approvalStatus !== 'approved'}
                             >
                               <Mail className="h-3.5 w-3.5 text-slate-500" />
                               Send via Email
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2 font-medium text-sm" disabled={isPartial}>
+                            <DropdownMenuItem
+                              className="gap-2 font-medium text-sm"
+                              disabled={isPartial || report.approvalStatus !== 'approved'}
+                            >
                               <Send className="h-3.5 w-3.5 text-slate-500" />
                               Dispatch
                             </DropdownMenuItem>

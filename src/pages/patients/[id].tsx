@@ -217,7 +217,7 @@ export default function PatientDetail() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
                       <Calendar className="h-3.5 w-3.5" />
                       Joined {formatDate(patientData.joinedDate)}
                     </div>
@@ -225,16 +225,16 @@ export default function PatientDetail() {
                       <Clock className="h-3.5 w-3.5" />
                       Last Active {formatDate(patientData.lastActivity)}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-primary uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
                       <User className="h-3.5 w-3.5" />
-                      {patientData.clinicalInfo.patientType} Patient
+                      {patientData.clinicalInfo.patientType}
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="h-9 font-bold px-4 gap-2 border-slate-200">
+                <Button variant="outline" size="sm" className="h-9 px-4 gap-2">
                   <Mail className="h-4 w-4" />
                   Send Email
                 </Button>
@@ -508,11 +508,11 @@ export default function PatientDetail() {
                               <span className="text-sm font-black text-slate-900 tabular-nums">{formatCurrency(inv.amount)}</span>
                             </TableCell>
                             <TableCell>
-                              <span className="text-xs font-semibold text-slate-600">{formatDate(inv.date)}</span>
+                              <span className="text-[13px] font-semibold text-slate-600">{formatDate(inv.date)}</span>
                             </TableCell>
                             <TableCell>
                               <Badge className={cn(
-                                "text-[10px] font-black uppercase border-none px-2 py-0.5",
+                                "text-[11px] font-semibold capitalize border-none px-2 py-0.5",
                                 inv.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
                               )}>
                                 {inv.status}
@@ -544,7 +544,7 @@ export default function PatientDetail() {
               <CardHeader className="border-b bg-slate-50/50 flex flex-row items-center justify-between py-4 px-6 space-y-0">
                 <div>
                   <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-700">Medical Report Archive</CardTitle>
-                  <CardDescription className="text-[11px] font-medium text-slate-500">Validated diagnostic findings and radiologist interpretations</CardDescription>
+                  <div className="text-xs font-medium text-slate-600">Validated diagnostic findings and radiologist interpretations</div>
                 </div>
                 <Button size="sm" variant="outline" className="h-8 text-xs font-bold gap-2 bg-white">
                   <Plus className="h-3.5 w-3.5" /> File New Report
@@ -554,13 +554,13 @@ export default function PatientDetail() {
                 <Table>
                   <TableHeader className="bg-slate-50/50">
                     <TableRow className="hover:bg-transparent border-slate-100">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 pl-6">Report ID</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Diagnostic Title</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Modality</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Finalized Date</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Lead Radiologist</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Status</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 pr-6 text-right">Actions</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4 pl-6">Report ID</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Diagnostic Title</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Exam Type</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Finalized Date</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Lead Radiologist</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Status</TableHead>
+                      <TableHead className="text-[11px] font-black uppercase tracking-widest py-4 pr-6 text-right"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -575,20 +575,20 @@ export default function PatientDetail() {
                           <span className="text-sm font-semibold text-slate-700">{report.title}</span>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="text-[10px] font-bold bg-slate-50 text-slate-500 border-slate-200">
+                          <Badge variant="outline" className="text-[11px] font-semibold bg-slate-50 text-slate-500 border-slate-200">
                             {report.type}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs font-semibold text-slate-600">{formatDate(report.date)}</span>
+                          <span className="text-[13px] font-semibold text-slate-600">{formatDate(report.date)}</span>
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs font-semibold text-slate-600">{report.doctor}</span>
+                          <span className="text-[13px] font-semibold text-slate-600">{report.doctor}</span>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                            <span className="text-[11px] font-black uppercase text-emerald-700 tracking-tight">{report.status}</span>
+                            <span className="text-[13px] font-semibold antialiased capitalize text-emerald-700">{report.status}</span>
                           </div>
                         </TableCell>
                         <TableCell className="pr-6 text-right">

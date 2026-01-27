@@ -36,7 +36,7 @@ const getInitials = (name: string) => {
 
 export function MembersSettings() {
   const { user } = useAuth();
-  
+
   const [teamMembers, setTeamMembers] = useState([
     {
       id: 1,
@@ -65,7 +65,7 @@ export function MembersSettings() {
     {
       id: 4,
       name: "Emily Wilson",
-      email: "emily@agora.com", 
+      email: "emily@agora.com",
       role: "Admin",
       status: "inactive",
       avatar: ""
@@ -163,10 +163,10 @@ export function MembersSettings() {
                         </div>
                       </DropdownMenuItem>
                     )}
-                    
+
                     {/* Remove/Revoke - different labels based on status */}
                     {member.status === "active" ? (
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => handleRemoveMember(member.id)}
                         className="text-destructive focus:text-destructive"
                       >
@@ -176,7 +176,7 @@ export function MembersSettings() {
                         </div>
                       </DropdownMenuItem>
                     ) : member.status === "pending" ? (
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => handleRevokeInvite(member.id)}
                         className="text-destructive focus:text-destructive"
                       >
@@ -186,7 +186,7 @@ export function MembersSettings() {
                         </div>
                       </DropdownMenuItem>
                     ) : (
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => handleRemoveMember(member.id)}
                         className="text-destructive focus:text-destructive"
                       >
@@ -224,8 +224,8 @@ export function MembersSettings() {
       <div className="space-y-6 lg:col-span-2">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-medium">{teamMembers.length} Team Members</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="text-[17px] font-semibold">Team Members <Badge variant="default">{teamMembers.length}</Badge></h3>
+            <p className="text-[13px] text-muted-foreground">
               People with access to this organization
             </p>
           </div>
@@ -239,26 +239,26 @@ export function MembersSettings() {
           <CardContent className="p-0">
             <Tabs defaultValue="active" className="w-full">
               <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 h-auto">
-                <TabsTrigger 
-                  value="active" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#fe5e41] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
+                <TabsTrigger
+                  value="active"
+                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[#006bff] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
                 >
                   Active Members ({activeMembers.length})
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="pending" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#fe5e41] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
+                <TabsTrigger
+                  value="pending"
+                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[#006bff] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
                 >
                   Pending Invites ({pendingMembers.length})
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="inactive" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#fe5e41] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
+                <TabsTrigger
+                  value="inactive"
+                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[#006bff] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
                 >
                   Inactive ({inactiveMembers.length})
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="active" className="m-0">
                 {activeMembers.length > 0 ? (
                   <MemberTable members={activeMembers} />
@@ -268,7 +268,7 @@ export function MembersSettings() {
                   </div>
                 )}
               </TabsContent>
-              
+
               <TabsContent value="pending" className="m-0">
                 {pendingMembers.length > 0 ? (
                   <MemberTable members={pendingMembers} />
@@ -278,7 +278,7 @@ export function MembersSettings() {
                   </div>
                 )}
               </TabsContent>
-              
+
               <TabsContent value="inactive" className="m-0">
                 {inactiveMembers.length > 0 ? (
                   <MemberTable members={inactiveMembers} />

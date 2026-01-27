@@ -7,12 +7,6 @@ import { emailService } from "@/services/emailService";
 import { pdfService } from "@/services/pdfService";
 import { EmailPreviewModal } from "@/components/diagnostic-reports/EmailPreviewModal";
 import {
-  ChevronLeft,
-  User,
-  Mail,
-  Building,
-  Stethoscope,
-  CreditCard,
   FileText,
   Download,
   Printer,
@@ -21,12 +15,10 @@ import {
   Send,
   Paperclip,
   FileImage,
-  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { formatDateOnly, formatDateTime } from "@/utils/dateFormatter";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +29,8 @@ const mockReport = {
   requestDate: "2024-11-15",
   reportDate: "2024-11-16",
   reportNo: "RAD-2024-5401",
-  patientName: "John Adebayo",
+  patientId: "CP778899Q",
+  patientName: "Michael Adebayo",
   patientType: "hmo",
   gender: "Male",
   age: 45,
@@ -198,7 +191,7 @@ export default function ViewReport() {
             size="sm"
             className="gap-2 h-9 bg-white border-slate-200"
             onClick={handleSendReport}
-            disabled={isSendingEmail}
+            disabled={isSendingEmail || reportData.status !== 'approved'}
           >
             {isSendingEmail ? (
               <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />

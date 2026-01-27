@@ -2,7 +2,7 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 //import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Shield, Users } from "lucide-react";
+import { User, Shield, Users, Building2, MessageSquare, Bell, CreditCard, Database } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -13,28 +13,68 @@ export default function Settings() {
   const allSettingsTabs = [
     {
       id: "general",
-      title: "General",
-      description: "Account settings and preferences",
-      icon: User,
+      title: "Organization",
+      description: "Business identity and registry",
+      icon: Building2,
       path: "/settings/general",
-      roles: ['admin', 'attorney', 'paralegal', 'client'] // All roles can access
+      roles: ['admin'] // Org settings only for admin
+    },
+    {
+      id: "account",
+      title: "My Account",
+      description: "Personal profile and identification",
+      icon: User,
+      path: "/settings/account",
+      roles: ['admin', 'attorney', 'paralegal', 'client', 'staff']
     },
     {
       id: "security",
       title: "Security",
-      description: "Password and authentication",
+      description: "Access and permissions",
       icon: Shield,
       path: "/settings/security",
-      roles: ['admin', 'attorney', 'paralegal', 'client'] // All roles can access
+      roles: ['admin', 'attorney', 'paralegal', 'client', 'staff']
+    },
+    {
+      id: "communications",
+      title: "Communications",
+      description: "Messaging and templates",
+      icon: MessageSquare,
+      path: "/settings/communications",
+      roles: ['admin']
+    },
+    {
+      id: "notifications",
+      title: "Notifications",
+      description: "Alert preferences",
+      icon: Bell,
+      path: "/settings/notifications",
+      roles: ['admin', 'attorney', 'paralegal', 'client', 'staff']
     },
     {
       id: "members",
-      title: "Team Members",
-      description: "Manage team access",
+      title: "Team",
+      description: "Manage clinical staff",
       icon: Users,
       path: "/settings/members",
-      roles: ['admin'] // Only admins can access
-    }
+      roles: ['admin']
+    },
+    {
+      id: "payments",
+      title: "Payments",
+      description: "Gateway configuration",
+      icon: CreditCard,
+      path: "/settings/payments",
+      roles: ['admin']
+    },
+    {
+      id: "data",
+      title: "Data Handling",
+      description: "Governance and portability",
+      icon: Database,
+      path: "/settings/data",
+      roles: ['admin']
+    },
   ];
 
   // Filter tabs based on user role
@@ -83,7 +123,7 @@ export default function Settings() {
 
       {/* Main Content Area */}
       <div className="max-w-[1400px] mx-auto p-6 lg:px-10 lg:py-8">
-        <div className="max-w-4xl">
+        <div className="max-w-5xl">
           <Outlet />
         </div>
       </div>

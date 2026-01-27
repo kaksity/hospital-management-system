@@ -22,8 +22,13 @@ import ImportPatients from "@/pages/patients/import";
 import PatientDetail from "@/pages/patients/[id]";
 import Settings from "@/pages/settings";
 import { GeneralSettings } from "@/pages/settings/general";
+import { AccountSettings } from "@/pages/settings/account";
 import { SecuritySettings } from "@/pages/settings/security";
 import { MembersSettings } from "@/pages/settings/members";
+import { CommunicationsSettings } from "@/pages/settings/communications";
+import { NotificationsSettings } from "@/pages/settings/notifications";
+import { PaymentsSettings } from "@/pages/settings/payments";
+import { DataSettings } from "@/pages/settings/data";
 import Appointments from "@/pages/appointments";
 import Invoices from "@/pages/invoices";
 import CreateInvoice from "@/pages/invoices/create";
@@ -322,7 +327,12 @@ export function AppRoutes() {
         }
       >
         <Route path="general" element={<GeneralSettings />} />
+        <Route path="account" element={<AccountSettings />} />
         <Route path="security" element={<SecuritySettings />} />
+        <Route path="communications" element={<CommunicationsSettings />} />
+        <Route path="notifications" element={<NotificationsSettings />} />
+        <Route path="payments" element={<PaymentsSettings />} />
+        <Route path="data" element={<DataSettings />} />
 
         {/* Members settings only for admin */}
         <Route

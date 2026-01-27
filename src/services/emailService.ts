@@ -1,5 +1,4 @@
 // src/services/emailService.ts
-import { toast } from 'sonner';
 
 export interface EmailAttachment {
   name: string;
@@ -12,6 +11,7 @@ export interface ReportEmailData {
   reportNumber: string;
   reportDate: string;
   physicianName: string;
+  examName?: string;
   reportContent: string;
   attachments?: EmailAttachment[];
 }
@@ -43,8 +43,8 @@ class EmailService {
 
       const payload = {
         sender: {
-          name: 'Radiology Diagnostic Center',
-          email: 'reports@radiologycenter.com',
+          name: 'Broadplaces Radiology',
+          email: 'reports@broadplacesradiology.com',
         },
         to: emailData.to.map(email => ({
           email,
@@ -57,7 +57,7 @@ class EmailService {
           content: att.content,
         })),
         replyTo: {
-          email: 'support@radiologycenter.com',
+          email: 'support@broadplacesradiology.com',
           name: 'Support Team'
         }
       };
@@ -96,47 +96,54 @@ class EmailService {
       <html>
       <head>
         <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          body { line-height: 1.6; color: #333; margin: 0; padding: 0; }
           .container { max-width: 600px; margin: 0 auto; background: #f9fafb; }
-          .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 40px 20px; text-align: center; }
-          .logo { font-size: 24px; font-weight: bold; letter-spacing: 1px; color: white; text-decoration: none; }
+          .header { background: #006bff; color: white; padding: 40px 20px; text-align: center; }
+          .logo { font-size: 24px; font-weight: 600; letter-spacing: 1px; color: white; text-decoration: none; }
           .content { padding: 30px; background: white; border-radius: 8px; margin: -20px 20px 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-          .report-info { background: #f3f4f6; border-radius: 6px; padding: 20px; margin: 20px 0; border-left: 4px solid #4f46e5; }
+          .report-info { background: #f3f4f6; border-radius: 6px; padding: 20px; margin: 20px 0; border-left: 4px solid #006bff; }
           .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-          .label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
+          .label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; letter-spacing: 1px; }
           .value { font-size: 14px; font-weight: 500; color: #111827; }
           .summary { color: #4b5563; font-size: 14px; background: #fdfdfd; border: 1px solid #e5e7eb; padding: 15px; border-radius: 4px; margin: 20px 0; }
           .cta { text-align: center; margin: 30px 0; }
-          .button { background: #4f46e5; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; }
+          .button { background: #006bff; color: white !important; padding: 10px 20px; font-size: 14px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block; }
           .footer { text-align: center; padding: 30px; color: #9ca3af; font-size: 12px; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo">CAREPAK DIAGNOSTICS</div>
-            <p style="margin-top: 10px; opacity: 0.9;">Radiology & Lab Report Notification</p>
+            <div class="logo">BroadPlaces Radiology</div>
+            <p style="opacity: 0.9;">Radiology & Lab Report Notification</p>
           </div>
           
           <div class="content">
-            <h2 style="margin: 0 0 10px; color: #1f2937;">Report Ready for Review</h2>
-            <p style="margin: 0; color: #6b7280;">Dear ${emailData.patientName}, your diagnostic report has been finalized.</p>
+            <h2 style="margin: 0 0 10px; color: #1f2937; font-size: 18px;">Diagnostic Report Ready</h2>
+            <p style="margin: 0 0 20px; color: #4e5158ff; line-height: 1.5; font-size: 15px;">
+              Dear ${emailData.patientName},<br><br>
+              Your diagnostic report for <strong>${emailData.examName || 'your recent procedure'}</strong> has been finalized and is now available for review.
+            </p>
             
             <div class="report-info">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td width="50%" style="padding-bottom: 15px;">
+                  <td width="50%" style="padding-bottom: 20px;">
+                    <div class="label">Patient Name</div>
+                    <div class="value">${emailData.patientName}</div>
+                  </td>
+                  <td width="50%" style="padding-bottom: 20px;">
                     <div class="label">Report Number</div>
                     <div class="value">${emailData.reportNumber}</div>
                   </td>
-                  <td width="50%" style="padding-bottom: 15px;">
-                    <div class="label">Report Date</div>
-                    <div class="value">${emailData.reportDate}</div>
-                  </td>
                 </tr>
                 <tr>
-                  <td>
-                    <div class="label">Physician</div>
+                  <td width="50%">
+                    <div class="label">Exam Date</div>
+                    <div class="value">${emailData.reportDate}</div>
+                  </td>
+                  <td width="50%">
+                    <div class="label">Referring Physician</div>
                     <div class="value">${emailData.physicianName}</div>
                   </td>
                 </tr>
@@ -158,8 +165,8 @@ class EmailService {
           </div>
           
           <div class="footer">
-            <p><strong>Radiology Diagnostic Center</strong></p>
-            <p>123 Medical Plaza, Victoria Island, Lagos</p>
+            <p><strong>Broad Places Radiology</strong></p>
+            <p>15 Babatunde Street Off Ogunlana Drive Surulere, Lagos</p>
             <p>Confidential Medical Information - Restricted Access</p>
           </div>
         </div>

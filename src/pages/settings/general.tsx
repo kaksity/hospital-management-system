@@ -3,202 +3,182 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/contexts/AuthContext";
-import { Upload, Trash2, AlertTriangle } from "lucide-react";
-import { UploadAvatarModal } from "@/components/Modals/UploadAvatarModal";
-import { getAvatarInitials } from "@/utils/avatarUtils";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Building2,
+  MapPin,
+  Globe,
+  Briefcase,
+  Upload,
+  Trash2,
+  Image as ImageIcon,
+  Check
+} from "lucide-react";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function GeneralSettings() {
-  const { user, updateUserAvatar, removeUserAvatar } = useAuth();
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [deleteEmail, setDeleteEmail] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar || "");
+  const [logo, setLogo] = useState<string>("");
 
-  const isClient = user?.role === 'client';
-  const isStaff = ['admin', 'attorney', 'paralegal'].includes(user?.role || '');
-
-  const hasAvatar = !!avatarUrl;
-  const canDeleteAccount = deleteEmail === user?.email;
-
-  const handleAvatarUpload = (file: File) => {
-    const newAvatarUrl = URL.createObjectURL(file);
-    setAvatarUrl(newAvatarUrl);
-    localStorage.setItem('userAvatar', newAvatarUrl);
-    updateUserAvatar(newAvatarUrl); // Update context
-    toast.success("Profile photo uploaded successfully");
+  const handleLogoUpload = () => {
+    // In a real app, this would open a file picker
+    toast.info("Logo upload process initialized");
   };
-
-  const handleDeleteAvatar = () => {
-    setAvatarUrl("");
-    localStorage.removeItem('userAvatar');
-
-    // Revoke the blob URL to free memory
-    if (avatarUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(avatarUrl);
-    }
-
-    removeUserAvatar();
-    toast.success("Profile photo removed");
-  };
-
-  const handleDeleteAccount = () => {
-    if (!canDeleteAccount) return;
-
-    // Add your account deletion logic here
-    console.log('Deleting account...');
-    alert('Account deletion would be processed here');
-  };
-
-  // Load avatar from localStorage on component mount
-  useState(() => {
-    const storedAvatar = localStorage.getItem('userAvatar');
-    if (storedAvatar) {
-      setAvatarUrl(storedAvatar);
-    }
-  });
 
   return (
-    <div className="grid gap-10 lg:grid-cols-3">
-      {/* Left Column - Header */}
-      <div className="space-y-1 lg:col-span-1">
-        <h2 className="text-lg font-semibold">Profile</h2>
-        <p className="text-sm text-muted-foreground">
-          Update your personal information, profile picture, or delete your account
-        </p>
-      </div>
+    <div className="space-y-10 animate-in fade-in duration-500 pb-10">
+      {/* Organization Header */}
+      <div className="grid gap-6 lg:grid-cols-3 items-start">
+        <div className="lg:col-span-1 space-y-1">
+          <h2 className="text-lg font-semibold text-slate-900">Logo</h2>
+          <p className="text-[13px] text-slate-500 font-medium">
+            Define your organization's brand identity. This logo will appear on diagnostic reports, dispatches, and invoices.
+          </p>
+        </div>
 
-      {/* Right Column - Content */}
-      <div className="space-y-6 lg:col-span-2">
-        {/* Profile Picture */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base tracking-normal">Profile Picture</CardTitle>
-            <CardDescription>
-              Update your profile picture
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={avatarUrl} />
-                <AvatarFallback className="text-lg font-semibold">
-                  {user ? getAvatarInitials(user.name) : "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-2 flex-1">
-                <div className="flex gap-2">
-                  <Button onClick={() => setShowUploadModal(true)}>
-                    <Upload className="h-4 w-4" />
-                    {hasAvatar ? "Change Photo" : "Upload Photo"}
+        <Card className="lg:col-span-2 border shadow-none bg-white rounded-2xl overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="h-24 w-24 rounded-2xl bg-slate-50 border-2 border-dashed border-input/50 flex flex-col items-center justify-center gap-2 group hover:border-[#006bff]/50 hover:bg-blue-50/30 transition-all cursor-pointer overflow-hidden relative" onClick={handleLogoUpload}>
+                {logo ? (
+                  <img src={logo} alt="Org Logo" className="w-full h-full object-contain" />
+                ) : (
+                  <>
+                    <ImageIcon className="h-6 w-6 text-slate-400 group-hover:text-[#006bff] group-hover:scale-110 transition-all" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Add Logo</span>
+                  </>
+                )}
+              </div>
+
+              <div className="flex-1 space-y-4 text-center md:text-left">
+                <div className="space-y-1">
+                  <h3 className="text-base font-semibold text-slate-900">Business Logo</h3>
+                  <p className="text-[13px] text-slate-500 font-medium">Use a high-resolution PNG or SVG with a transparent background for best results on diagnostic reports.</p>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                  <Button size="sm" variant="outline" className="h-9 px-4 gap-2 border" onClick={handleLogoUpload}>
+                    <Upload className="h-3.5 w-3.5" />
+                    Upload Logo
                   </Button>
-
-                  {hasAvatar && (
-                    <Button
-                      variant="outline"
-                      onClick={handleDeleteAvatar}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete Photo
+                  {logo && (
+                    <Button size="sm" variant="ghost" className="h-9 px-4 gap-2 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => setLogo("")}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Remove
                     </Button>
                   )}
                 </div>
-
-                <p className="text-[13px] text-muted-foreground max-w-[250px]">
-                  JPG or PNG format only (recommended size 400px by 400px). Max size 2MB.
-                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Basic Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base tracking-normal">Basic Information</CardTitle>
-            <CardDescription>
-              Update your personal details
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" defaultValue={user?.name?.split(' ')[0]} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" defaultValue={user?.name?.split(' ')[1]} />
-              </div>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" defaultValue={user?.email} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" />
-              </div>
-            </div>
-            <Button>Save Changes</Button>
-          </CardContent>
-        </Card>
-
-        {/* Delete Account */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive text-base tracking-normal">
-              <AlertTriangle className="h-5 w-5" />
-              Delete Account
-            </CardTitle>
-            <CardDescription>
-              Permanently delete your account and all associated data. This action cannot be undone.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-              <p className="text-sm text-destructive font-medium">
-                Warning: This will permanently delete your account. Upon deletion all your cases, documents and client information will be permanently deleted
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="confirmEmail" className="text-sm font-medium">
-                Type your email to confirm deletion. Enter <span className="font-semibold antialiased text-destructive">{user?.email}</span> to confirm account deletion
-              </Label>
-              <Input
-                id="confirmEmail"
-                type="email"
-                placeholder={user?.email}
-                value={deleteEmail}
-                onChange={(e) => setDeleteEmail(e.target.value)}
-                className="max-w-md"
-              />
-            </div>
-
-            <Button
-              variant="destructive"
-              onClick={handleDeleteAccount}
-              disabled={!canDeleteAccount}
-              className="mt-4"
-            >
-              Delete Account Permanently
-            </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Upload Avatar Modal */}
-      <UploadAvatarModal
-        open={showUploadModal}
-        onOpenChange={setShowUploadModal}
-        onUpload={handleAvatarUpload}
-        currentAvatar={avatarUrl}
-      />
+      <hr className="border-input/50" />
+
+      {/* Business Information Form */}
+      <div className="grid gap-6 lg:grid-cols-3 items-start">
+        <div className="lg:col-span-1 space-y-1">
+          <h2 className="text-lg font-semibold text-slate-900">Business Information</h2>
+          <p className="text-[13px] text-slate-500 font-medium">
+            Legal information used for regulatory compliance and institutional documentation.
+          </p>
+        </div>
+
+        <Card className="lg:col-span-2 border shadow-none bg-white rounded-2xl overflow-hidden">
+          <CardContent className="p-8 space-y-8 border-b">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <Label required>Legal Business Name</Label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input id="orgName" className="pl-10" defaultValue="Broad Places Radiology Diagnostic Center" />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label required>Street Address</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input id="street" className="pl-8" defaultValue="15 Babatunde Street Off Ogunlana Drive" />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-1">
+                  <Label required>City / District</Label>
+                  <Input id="city" defaultValue="Surulere" />
+                </div>
+                <div className="space-y-1">
+                  <Label required>State / Province</Label>
+                  <Input id="state" defaultValue="Lagos" />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+
+                <div className="space-y-1">
+                  <Label required>Postal Code</Label>
+                  <Input id="postal" defaultValue="101211" />
+                </div>
+                <div className="space-y-1">
+                  <Label required>Country</Label>
+                  <Input id="country" defaultValue="Nigeria" disabled />
+                </div>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-1">
+                  <Label required htmlFor="businessType">Business Type</Label>
+                  <Select defaultValue="sole">
+                    <SelectTrigger>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                        <SelectValue placeholder="Select type" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sole">Sole Proprietorship</SelectItem>
+                      <SelectItem value="partnership">Partnership</SelectItem>
+                      <SelectItem value="corp">Corporation</SelectItem>
+                      <SelectItem value="llc">LLC (Limited Liability Company)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label required htmlFor="companyType">Company Type</Label>
+                  <Select defaultValue="private">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select company type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="private">Private Enterprise</SelectItem>
+                      <SelectItem value="public">Publicly Traded</SelectItem>
+                      <SelectItem value="non-profit">Non-Profit Organization</SelectItem>
+                      <SelectItem value="government">Government Integrated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label>Business Website</Label>
+                <div className="relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input id="website" className="pl-10" placeholder="https://broadplacesradiology.com" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="px-8">
+            <div className="pt-4 flex justify-end">
+              <Button>
+                <Check className="h-4 w-4" />
+                Update Business Information
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }
