@@ -123,7 +123,7 @@ export default function Settings() {
 
       {/* Main Content Area */}
       <div className="max-w-[1400px] mx-auto p-6 lg:px-10 lg:py-8">
-        <div className="max-w-5xl">
+        <div>
           <Outlet />
         </div>
       </div>

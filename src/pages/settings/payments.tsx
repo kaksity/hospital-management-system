@@ -32,7 +32,7 @@ export function PaymentsSettings() {
       <div className="grid gap-6 lg:grid-cols-3 items-start">
         <div className="lg:col-span-1 space-y-1">
           <h2 className="text-lg font-semibold text-slate-900">Payment Infrastructure</h2>
-          <p className="text-[13px] text-slate-500 leading-relaxed font-medium">
+          <p className="text-[13px] text-slate-500 font-medium">
             Configure institutional payment gateways to accept online settlements for radiology services.
           </p>
         </div>
