@@ -14,7 +14,8 @@ import {
   Search,
   Calendar as CalendarIcon,
   ShieldCheck,
-  CalendarDays
+  CalendarDays,
+  Scan
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -550,7 +551,7 @@ export default function CreatePatientPage() {
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-lg font-medium">Scans & Services</h3>
+                      <h3 className="text-[17px] font-semibold">Scans & Services</h3>
                       <p className="text-sm text-muted-foreground">Add services to be provided for this visit.</p>
                     </div>
                     <Button variant="outline" size="sm" onClick={() => setIsServiceModalOpen(true)} className="gap-2">
@@ -565,18 +566,18 @@ export default function CreatePatientPage() {
                       </div>
                     ) : (
                       formData.scans.map((scan) => (
-                        <div key={scan.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border">
+                        <div key={scan.id} className="flex items-center justify-between p-4 py-3 rounded-lg bg-muted/30 border">
                           <div className="flex items-center gap-3">
                             <div className="p-2 bg-primary/10 rounded-lg">
-                              <Receipt className="h-4 w-4 text-primary" />
+                              <Scan className="h-4 w-4 text-primary" />
                             </div>
                             <div>
-                              <p className="font-medium">{scan.name}</p>
-                              <p className="text-xs text-muted-foreground">Standard Radiology Service</p>
+                              <p className="font-semibold text-[15px]">{scan.name}</p>
+                              <p className="text-xs text-slate-500">Standard Radiology Service</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-6">
-                            <p className="font-semibold font-mono">₦{scan.price.toLocaleString()}</p>
+                            <p className="font-semibold">₦{scan.price.toLocaleString()}</p>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -597,14 +598,14 @@ export default function CreatePatientPage() {
                         <span>Subtotal</span>
                         <span>₦{calculateTotal().toLocaleString()}</span>
                       </div>
-                      <div className="flex gap-12 text-lg font-bold">
+                      <div className="flex gap-12 text-[17px] font-semibold">
                         <span>Total Amount</span>
-                        <span className="text-primary font-mono">₦{calculateTotal().toLocaleString()}</span>
+                        <span className="text-primary font-semibold">₦{calculateTotal().toLocaleString()}</span>
                       </div>
                     </div>
                   )}
 
-                  <div className="bg-primary/5 p-4 rounded-lg flex items-center gap-4 text-sm text-primary border border-primary/10">
+                  <div className="p-4 rounded-lg flex items-center gap-3 text-sm text-primary border bg-[#F0F6FF] text-[#1f61e2] border-[#6291ee] font-semibold antialiased">
                     <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <Receipt className="h-4 w-4" />
                     </div>
@@ -668,7 +669,7 @@ export default function CreatePatientPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="relative my-4">
+          <div className="relative my-2">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by service name or category (e.g. MRI)"
@@ -683,31 +684,31 @@ export default function CreatePatientPage() {
               <div
                 key={service.id}
                 className={cn(
-                  "flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer group",
+                  "flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group",
                   formData.scans.some(s => s.id === service.id)
                     ? "bg-primary/5 border-primary/20 pointer-events-none opacity-60"
                     : "hover:bg-muted/50 hover:border-primary/20"
                 )}
                 onClick={() => addScan(service)}
               >
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center font-bold text-xs">
-                    {service.category}
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center font-semibold text-xs">
+                    <Stethoscope className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="font-medium">{service.name}</p>
+                    <p className="text-sm font-semibold">{service.name}</p>
                     <p className="text-xs text-muted-foreground">{service.category} Radiology</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-mono font-semibold">₦{service.price.toLocaleString()}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">₦{service.price.toLocaleString()}</span>
                   {formData.scans.some(s => s.id === service.id) ? (
                     <div className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
                       <Check className="h-4 w-4" />
                     </div>
                   ) : (
                     <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      Add
+                      <Plus className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
