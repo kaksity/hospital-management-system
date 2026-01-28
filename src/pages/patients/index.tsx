@@ -47,6 +47,8 @@ import { ScheduleAppointmentModal } from "@/components/Modals/ScheduleAppointmen
 import { SendMessageModal } from "@/components/Modals/SendMessageModal";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 import { patients as initialPatients } from "@/data/patients";
+import { emailService } from "@/services/emailService";
+import { format } from "date-fns";
 
 
 const formatDate = (dateString: string) => {
@@ -420,8 +422,8 @@ export default function Patients() {
                     </Button>
                   </div>
 
-                  <div className="text-[12px] font-bold text-slate-500 uppercase tracking-wider bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
-                    Showing <span className="text-slate-800">{startIndex + 1}</span> - <span className="text-slate-800">{Math.min(startIndex + itemsPerPage, filteredPatients.length)}</span> of <span className="text-slate-800">{filteredPatients.length}</span> Entries
+                  <div className="text-sm font-semibold antialiased text-slate-500">
+                    Showing <span className="text-slate-800">{startIndex + 1}</span> - <span className="text-slate-800">{Math.min(startIndex + itemsPerPage, filteredPatients.length)}</span> of <span className="text-slate-800">{filteredPatients.length}</span> Patients
                   </div>
                 </div>
               )}
@@ -479,15 +481,7 @@ export default function Patients() {
         }}
       />
 
-      <SendInvoiceModal
-        open={isInvoiceModalOpen}
-        onOpenChange={setIsInvoiceModalOpen}
-        patient={selectedPatient}
-        onSendInvoice={(data) => {
-          console.log("Sending invoice:", data);
-          // Actual invoice logic would go here
-        }}
-      />
+
 
       <ScheduleAppointmentModal
         open={isScheduleModalOpen}

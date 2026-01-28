@@ -23,7 +23,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription
+  DialogDescription,
+  DialogFooter
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +38,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -46,6 +46,9 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { countryCodes } from "@/utils/countryData";
+import { emailService } from "@/services/emailService";
+import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
+import { toast } from "sonner";
 
 const STEPS = [
   { id: 1, title: "Contact Information", icon: User },
@@ -94,6 +97,7 @@ export default function CreatePatientPage() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [isSendInvoiceModalOpen, setIsSendInvoiceModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serviceSearch, setServiceSearch] = useState("");
   const [formData, setFormData] = useState({
@@ -161,10 +165,15 @@ export default function CreatePatientPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const addScan = (service: typeof MOCK_SERVICES[0]) => {
-    if (formData.scans.some(s => s.id === service.id)) return;
-    setFormData(prev => ({ ...prev, scans: [...prev.scans, service] }));
-    setIsServiceModalOpen(false);
+  const toggleScan = (service: typeof MOCK_SERVICES[0]) => {
+    setFormData(prev => {
+      const isSelected = prev.scans.some(s => s.id === service.id);
+      if (isSelected) {
+        return { ...prev, scans: prev.scans.filter(s => s.id !== service.id) };
+      } else {
+        return { ...prev, scans: [...prev.scans, service] };
+      }
+    });
   };
 
   const removeScan = (id: string) => {
@@ -204,13 +213,42 @@ export default function CreatePatientPage() {
     s.category.toLowerCase().includes(serviceSearch.toLowerCase())
   );
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
+    // Instead of finishing immediately, we trigger the Send Invoice Modal
+    setIsSendInvoiceModalOpen(true);
+  };
+
+  const handleCreateAndSendInvoice = async (invoiceData: any) => {
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      if (invoiceData.recipientEmail) {
+        await emailService.sendInvoice({
+          to: [invoiceData.recipientEmail],
+          patientName: `${formData.firstName} ${formData.lastName}`,
+          invoiceNumber: invoiceData.invoiceNumber,
+          invoiceDate: invoiceData.invoiceDate,
+          totalAmount: invoiceData.total,
+          services: invoiceData.services.map((s: any) => ({ name: s.name, price: s.price }))
+        });
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Close modal and show success before navigating
+      setIsSendInvoiceModalOpen(false);
+
+      toast.success("Registration complete", {
+        description: `Patient record created and invoice ${invoiceData.invoiceNumber} dispatched to ${invoiceData.recipientEmail}`,
+      });
+
       setIsSubmitting(false);
       navigate("/patients");
-    }, 1500);
+    } catch (error) {
+      console.error("Error finalizing registration:", error);
+      setIsSubmitting(false);
+      toast.error("Registration failed. Please try again.");
+    }
   };
 
   const calculateTotal = () => {
@@ -343,7 +381,6 @@ export default function CreatePatientPage() {
                         <SelectContent>
                           <SelectItem value="Male">Male</SelectItem>
                           <SelectItem value="Female">Female</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -562,7 +599,10 @@ export default function CreatePatientPage() {
                   <div className="space-y-3">
                     {formData.scans.length === 0 ? (
                       <div className="border-2 border-dashed rounded-xl p-12 text-center text-muted-foreground">
-                        No services added yet. Click 'Add Service' to begin.
+                        <div className="flex items-center justify-center bg-muted/50 rounded-full w-12 h-12 mx-auto mb-2">
+                          <Scan className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <span className="text-[15px] font-semibold antialiased text-muted-foreground">No services added yet. Click 'Add Service' to begin.</span>
                       </div>
                     ) : (
                       formData.scans.map((scan) => (
@@ -650,7 +690,7 @@ export default function CreatePatientPage() {
                   {isSubmitting ? (
                     <>Processing...</>
                   ) : (
-                    <>Finalize Registration <Check className="h-4 w-4" /></>
+                    <>Finalize & Send Invoice <Check className="h-4 w-4" /></>
                   )}
                 </Button>
               )}
@@ -680,43 +720,71 @@ export default function CreatePatientPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-            {filteredServices.map((service) => (
-              <div
-                key={service.id}
-                className={cn(
-                  "flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group",
-                  formData.scans.some(s => s.id === service.id)
-                    ? "bg-primary/5 border-primary/20 pointer-events-none opacity-60"
-                    : "hover:bg-muted/50 hover:border-primary/20"
-                )}
-                onClick={() => addScan(service)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center font-semibold text-xs">
-                    <Stethoscope className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">{service.name}</p>
-                    <p className="text-xs text-muted-foreground">{service.category} Radiology</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold">₦{service.price.toLocaleString()}</span>
-                  {formData.scans.some(s => s.id === service.id) ? (
-                    <div className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                      <Check className="h-4 w-4" />
-                    </div>
-                  ) : (
-                    <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Plus className="h-4 w-4" />
-                    </Button>
+            {filteredServices.map((service) => {
+              const isSelected = formData.scans.some(s => s.id === service.id);
+              return (
+                <div
+                  key={service.id}
+                  className={cn(
+                    "flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group",
+                    isSelected
+                      ? "bg-primary/5 border-primary/20"
+                      : "hover:bg-muted/50 hover:border-primary/20"
                   )}
+                  onClick={() => toggleScan(service)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center font-semibold text-xs">
+                      <Stethoscope className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">{service.name}</p>
+                      <p className="text-xs text-muted-foreground">{service.category} Radiology</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold">₦{service.price.toLocaleString()}</span>
+                    {isSelected ? (
+                      <div className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                        <Check className="h-4 w-4" />
+                      </div>
+                    ) : (
+                      <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity group-hover:text-primary">
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+
+          <DialogFooter className="border-t pt-4 mt-2">
+            <div className="flex items-center justify-between w-full">
+              <div className="text-sm text-muted-foreground">
+                {formData.scans.length} service(s) selected
+              </div>
+              <Button onClick={() => setIsServiceModalOpen(false)}>
+                Confirm Selection
+              </Button>
+            </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <SendInvoiceModal
+        open={isSendInvoiceModalOpen}
+        onOpenChange={setIsSendInvoiceModalOpen}
+        patient={{
+          id: "NEW", // Temporary ID
+          name: `${formData.firstName} ${formData.lastName}`,
+          gender: formData.gender,
+          email: formData.email,
+          status: "active"
+        }}
+        initialSelectedServices={formData.scans}
+        onSendInvoice={handleCreateAndSendInvoice}
+      />
     </div>
   );
 }

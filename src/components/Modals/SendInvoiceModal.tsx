@@ -1,176 +1,221 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useState, useEffect, useMemo } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Receipt, X, Send, User, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Paperclip, Send, Mail, User, ShieldCheck } from "lucide-react";
+import { emailService } from "@/services/emailService";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
-import { useMemo } from "react";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface SendInvoiceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   patient: any;
   onSendInvoice: (invoiceData: any) => void;
+  initialSelectedServices?: any[];
 }
 
-const MOCK_SERVICES = [
-  { id: "S-001", name: "MRI Brain (With Contrast)", price: 185000, category: "MRI" },
-  { id: "S-002", name: "MRI Spine (Lumbar)", price: 150000, category: "MRI" },
-  { id: "S-003", name: "CT Scan Head", price: 85000, category: "CT" },
-  { id: "S-004", name: "Chest X-Ray", price: 15000, category: "X-Ray" },
-  { id: "S-005", name: "Abdominal Ultrasound", price: 25000, category: "Ultrasound" },
-];
+export function SendInvoiceModal({
+  open,
+  onOpenChange,
+  patient,
+  onSendInvoice,
+  initialSelectedServices = [],
+}: SendInvoiceModalProps) {
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [emailPreviewHtml, setEmailPreviewHtml] = useState("");
+  const invoiceNumber = useMemo(() => `INV-${Math.floor(Math.random() * 90000) + 10000}`, []);
+  const invoiceDate = useMemo(() => format(new Date(), "PPP"), []);
 
-export function SendInvoiceModal({ open, onOpenChange, patient, onSendInvoice }: SendInvoiceModalProps) {
-  const [selectedServices, setSelectedServices] = useState<any[]>([]);
-  const [serviceSearch, setServiceSearch] = useState("");
-
-  const toggleService = (service: any) => {
-    if (selectedServices.find(s => s.id === service.id)) {
-      setSelectedServices(prev => prev.filter(s => s.id !== service.id));
-    } else {
-      setSelectedServices(prev => [...prev, service]);
+  useEffect(() => {
+    if (open && patient?.email) {
+      setRecipientEmail(patient.email);
     }
-  };
-
-  const filteredServices = useMemo(() => {
-    return MOCK_SERVICES.filter(s =>
-      s.name.toLowerCase().includes(serviceSearch.toLowerCase()) ||
-      s.category.toLowerCase().includes(serviceSearch.toLowerCase())
-    );
-  }, [serviceSearch]);
+  }, [open, patient?.email]);
 
   const calculateTotal = () => {
-    return selectedServices.reduce((sum, s) => sum + s.price, 0);
+    return initialSelectedServices.reduce((sum, s) => sum + s.price, 0);
   };
 
-  const handleSend = () => {
-    onSendInvoice({
-      patientId: patient.id,
-      patientName: patient.name,
-      services: selectedServices,
-      total: calculateTotal(),
-      date: new Date().toISOString()
-    });
-    onOpenChange(false);
-    setSelectedServices([]);
+  useEffect(() => {
+    if (open && patient) {
+      const html = emailService.generateInvoiceHtmlContent({
+        to: [recipientEmail],
+        patientName: patient.name || "Valued Patient",
+        invoiceNumber: invoiceNumber,
+        invoiceDate: invoiceDate,
+        totalAmount: calculateTotal(),
+        services: initialSelectedServices.map(s => ({ name: s.name, price: s.price })),
+      });
+      setEmailPreviewHtml(html);
+    }
+  }, [open, patient, recipientEmail, initialSelectedServices, invoiceNumber, invoiceDate]);
+
+  const handleSend = async () => {
+    if (!recipientEmail) {
+      toast.error("Please provide a recipient email");
+      return;
+    }
+
+    try {
+      setIsSending(true);
+      await onSendInvoice({
+        patientId: patient.id,
+        patientName: patient.name,
+        services: initialSelectedServices,
+        total: calculateTotal(),
+        invoiceNumber,
+        invoiceDate,
+        recipientEmail,
+      });
+    } catch (error: any) {
+      toast.error("Failed to send invoice", {
+        description: error.message,
+      });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   if (!patient) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl h-[90vh] flex flex-col p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle>Send New Invoice</DialogTitle>
-          <DialogDescription>
-            Generate and send a radiology service invoice to the patient.
-          </DialogDescription>
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl !gap-0">
+        <DialogHeader className="px-6 py-5 bg-slate-50 border-b relative">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Mail className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="text-[17px] font-semibold text-slate-800 leading-[22px]">Email Invoice Preview</div>
+              <div className="text-[13px] text-slate-500 font-medium">
+                Review the invoice notification before sending it to the patient.
+              </div>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col px-6">
-          {/* Patient Header - Keep it fairly static but inside the flex-1 to allow it to be part of the layout */}
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 border mb-6 shrink-0">
-            <Avatar className="h-10 w-10 border border-muted shadow-sm">
-              <AvatarImage src={getPatientAvatarPath(patient.id, patient.gender)} alt={patient.name} />
-              <AvatarFallback className={cn("text-base font-semibold", getAvatarBg(patient.name))}>
-                {getAvatarInitials(patient.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-semibold text-base">{patient.name}</p>
-              <p className="text-sm text-muted-foreground font-mono">{patient.id}</p>
-            </div>
-            <Badge variant="outline" className="ml-auto bg-background capitalize">
-              {patient.status}
-            </Badge>
-          </div>
+        <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+          {/* Email Settings */}
+          <div className="w-full lg:w-80 p-6 space-y-6 border-r bg-white flex flex-col">
+            <div className="space-y-4 flex-1">
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Sender</Label>
+                <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-1">
+                  <ShieldCheck className="h-4 w-4 text-green-600" />
+                  <span className="text-xs font-semibold text-slate-700">billing@broadplacesradiology.com</span>
+                </div>
+              </div>
 
-          {/* Service Selection Search */}
-          <div className="relative mb-4 shrink-0">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search services by name or category..."
-              className="pl-9"
-              value={serviceSearch}
-              onChange={(e) => setServiceSearch(e.target.value)}
-            />
-          </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Recipient Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    value={recipientEmail}
+                    onChange={(e) => setRecipientEmail(e.target.value)}
+                    placeholder="patient@example.com"
+                    className="pl-9 h-11"
+                  />
+                </div>
+              </div>
 
-          {/* Scrollable Service List */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4 px-1 pb-4">
-            <div className="flex items-center justify-between sticky top-0 bg-background py-2">
-              <h4 className="font-medium text-sm tracking-light text-muted-foreground">Select Services</h4>
-              <Badge variant="warning" className="font-mono">
-                {selectedServices.length} selected
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-1 gap-2">
-              {filteredServices.map((service) => (
-                <div
-                  key={service.id}
-                  onClick={() => toggleService(service)}
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all",
-                    selectedServices.find(s => s.id === service.id)
-                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "hover:bg-muted/50"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
-                      selectedServices.find(s => s.id === service.id) ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    )}>
-                      <Receipt className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{service.name}</p>
-                      <p className="text-xs text-muted-foreground">{service.category}</p>
+              <div className="p-4 bg-slate-50 rounded-xl border space-y-4">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <User className="h-4 w-4" />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest">Patient Details</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={getPatientAvatarPath(patient.id, patient.gender)} alt={patient.name} />
+                    <AvatarFallback className={cn("text-xs font-bold text-white", getAvatarBg(patient.name || ""))}>
+                      {getAvatarInitials(patient.name || "??")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-bold text-slate-800 truncate">{patient.name}</div>
+                    <div className="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5 uppercase tracking-tight">
+                      <span className="font-semibold text-slate-500 font-mono">{patient.id === 'NEW' ? 'New Patient' : patient.id}</span>
                     </div>
                   </div>
-                  <p className="font-semibold font-mono">₦{service.price.toLocaleString()}</p>
                 </div>
-              ))}
-              {filteredServices.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No services found matching "{serviceSearch}"
+              </div>
+
+              <div className="pt-4 border-t">
+                <div className="flex items-center gap-2 mb-3">
+                  <Paperclip className="h-4 w-4 text-slate-400" />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Attachments</span>
                 </div>
-              )}
+                <div className="p-3 bg-slate-50 rounded-lg border border-dashed flex items-center gap-2">
+                  <div className="h-8 w-8 rounded bg-red-100 flex items-center justify-center">
+                    <span className="text-[10px] font-semibold text-red-700">PDF</span>
+                  </div>
+                  <span className="text-xs font-semibold text-slate-700 truncate max-w-[140px]">
+                    Invoice_{invoiceNumber}.pdf
+                  </span>
+                </div>
+              </div>
             </div>
+
+            <div className="pt-4 mt-auto border-t">
+              <div className="flex justify-between items-center bg-primary/5 p-3 rounded-lg border border-primary/10">
+                <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">Total Payable</span>
+                <span className="text-sm font-black text-primary">₦{calculateTotal().toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Email Body Preview */}
+          <div className="flex-1 bg-slate-100 p-6 flex flex-col">
+            <Label className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">Email Content Preview</Label>
+            <ScrollArea className="flex-1 rounded-xl border bg-white overflow-hidden shadow-inner">
+              <div
+                className="p-4 transform origin-top scale-[0.85] lg:scale-100"
+                dangerouslySetInnerHTML={{ __html: emailPreviewHtml }}
+              />
+            </ScrollArea>
           </div>
         </div>
 
-        {/* Static Total Section & Footer */}
-        <div className="p-6 pt-2 border-t bg-muted/5 shrink-0">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center pt-4">
-              <span className="text-base font-semibold">Total Amount</span>
-              <span className="text-base font-bold text-primary font-mono select-none">₦{calculateTotal().toLocaleString()}</span>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-6">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSend}
-              disabled={selectedServices.length === 0}
-              className="gap-2 min-w-[140px]"
-            >
-              <Send className="h-4 w-4" />
-              Send Invoice
-            </Button>
-          </div>
-        </div>
+        <DialogFooter className="p-6 bg-slate-50 border-t flex items-center justify-between sm:justify-between">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSend}
+            disabled={isSending || initialSelectedServices.length === 0}
+            className="min-w-[160px] gap-2"
+          >
+            {isSending ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Sending Invoice...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                Send Invoice
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

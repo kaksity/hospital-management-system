@@ -55,6 +55,9 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 import { patients } from "@/data/patients";
+import { emailService } from "@/services/emailService";
+import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
+import { Send } from "lucide-react";
 
 const MOCK_SERVICES = [
   { id: "S-001", name: "MRI Brain (With Contrast)", price: 185000, category: "MRI" },
@@ -71,6 +74,7 @@ export default function CreateInvoicePage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [isSendInvoiceModalOpen, setIsSendInvoiceModalOpen] = useState(false);
   const [isPatientPopoverOpen, setIsPatientPopoverOpen] = useState(false);
   const [serviceSearch, setServiceSearch] = useState("");
   const [modalSelectedServices, setModalSelectedServices] = useState<any[]>([]);
@@ -91,7 +95,7 @@ export default function CreateInvoicePage() {
     return formData.services.reduce((sum, s) => sum + s.price, 0);
   };
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     if (!formData.patientId) {
       toast.error("Please select a patient");
       return;
@@ -101,12 +105,40 @@ export default function CreateInvoicePage() {
       return;
     }
 
+    setIsSendInvoiceModalOpen(true);
+  };
+
+  const handleCreateAndSendInvoice = async (invoiceData: any) => {
     setIsSubmitting(true);
-    setTimeout(() => {
+
+    try {
+      if (invoiceData.recipientEmail) {
+        await emailService.sendInvoice({
+          to: [invoiceData.recipientEmail],
+          patientName: selectedPatient?.name || "Patient",
+          invoiceNumber: invoiceData.invoiceNumber,
+          invoiceDate: invoiceData.invoiceDate,
+          totalAmount: invoiceData.total,
+          services: invoiceData.services.map((s: any) => ({ name: s.name, price: s.price }))
+        });
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Close modal and show success before navigating
+      setIsSendInvoiceModalOpen(false);
+
+      toast.success("Invoice sent", {
+        description: `Invoice ${invoiceData.invoiceNumber} has been dispatched to ${invoiceData.recipientEmail}`,
+      });
+
       setIsSubmitting(false);
-      toast.success("Invoice created successfully");
       navigate("/invoices");
-    }, 1500);
+    } catch (error) {
+      console.error("Error finalizing invoice:", error);
+      setIsSubmitting(false);
+      toast.error("Failed to generate and send invoice");
+    }
   };
 
   const removeService = (id: string) => {
@@ -379,12 +411,12 @@ export default function CreateInvoicePage() {
               Cancel
             </Button>
             <Button
-              className="min-w-[180px]"
+              className="min-w-[200px] gap-2"
               onClick={handleFinalize}
-              disabled={isSubmitting}
+              disabled={isSubmitting || formData.services.length === 0}
             >
-              {isSubmitting ? "Finalizing..." : (
-                <>Generate Invoice <Check className="h-4 w-4" /></>
+              {isSubmitting ? "Generating..." : (
+                <>Generate & Send Invoice <Send className="h-4 w-4" /></>
               )}
             </Button>
           </div>
@@ -480,6 +512,19 @@ export default function CreateInvoicePage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <SendInvoiceModal
+          open={isSendInvoiceModalOpen}
+          onOpenChange={setIsSendInvoiceModalOpen}
+          patient={{
+            id: selectedPatient?.id,
+            name: selectedPatient?.name,
+            gender: selectedPatient?.gender,
+            email: selectedPatient?.email
+          }}
+          initialSelectedServices={formData.services}
+          onSendInvoice={handleCreateAndSendInvoice}
+        />
       </div>
     </div>
   );
