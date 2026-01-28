@@ -42,6 +42,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { AddEditServiceModal } from "@/components/Modals/AddEditServiceModal";
+import { ConfirmationModal } from "@/components/Modals/ConfirmationModal";
 
 const services = [
   { id: 1, name: "MRI Brain (Contrast)", category: "MRI", price: 150000, duration: "45 mins", icon: Activity, active: true },
@@ -57,6 +58,8 @@ export default function Services() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [servicesData, setServicesData] = useState(services);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleAddService = () => {
     setSelectedService(null);
@@ -66,6 +69,26 @@ export default function Services() {
   const handleEditService = (service: any) => {
     setSelectedService(service);
     setIsModalOpen(true);
+  };
+
+  const handleDeleteService = (service: any) => {
+    setSelectedService(service);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      setIsDeleting(true);
+      // Logic for deleting service would go here
+      console.log("Deleting service:", selectedService?.id);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setServicesData(prev => prev.filter(s => s.id !== selectedService?.id));
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Failed to delete service:", error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleServiceSuccess = (service: any) => {
@@ -227,7 +250,7 @@ export default function Services() {
                         <DropdownMenuItem onClick={() => handleEditService(service)} className="gap-2 font-medium text-sm">
                           <Edit className="h-3.5 w-3.5 text-slate-500" /> Edit Service
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 gap-2 font-medium text-sm">
+                        <DropdownMenuItem onClick={() => handleDeleteService(service)} className="text-red-600 gap-2 font-medium text-sm">
                           <Trash2 className="h-3.5 w-3.5" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -245,6 +268,18 @@ export default function Services() {
         onOpenChange={setIsModalOpen}
         service={selectedService}
         onSuccess={handleServiceSuccess}
+      />
+
+      <ConfirmationModal
+        open={isDeleteModalOpen}
+        onOpenChange={setIsDeleteModalOpen}
+        title="Delete Service"
+        description="Are you sure you want to delete this service? This action cannot be undone and will remove the service from your diagnostic catalog."
+        entityName={selectedService?.name || ""}
+        actionLabel="Delete Service"
+        type="delete"
+        onConfirm={confirmDelete}
+        isLoading={isDeleting}
       />
     </div>
   );

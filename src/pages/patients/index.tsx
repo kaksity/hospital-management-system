@@ -45,6 +45,7 @@ import { EditPatientModal } from "@/components/Modals/EditPatientModal";
 import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
 import { ScheduleAppointmentModal } from "@/components/Modals/ScheduleAppointmentModal";
 import { SendMessageModal } from "@/components/Modals/SendMessageModal";
+import { ConfirmationModal } from "@/components/Modals/ConfirmationModal";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 import { patients as initialPatients } from "@/data/patients";
 import { emailService } from "@/services/emailService";
@@ -73,6 +74,7 @@ export default function Patients() {
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
 
@@ -162,6 +164,23 @@ export default function Patients() {
 
   const handleRowClick = (patientId: string) => {
     navigate(`/patients/${patientId}`);
+  };
+
+  const handleArchivePatient = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsArchiveModalOpen(true);
+  };
+
+  const confirmArchive = async () => {
+    try {
+      // Logic for archiving patient would go here
+      console.log("Archiving patient:", selectedPatient?.id);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setIsArchiveModalOpen(false);
+      // In a real app we'd refresh the list or update local state
+    } catch (error) {
+      console.error("Failed to archive patient:", error);
+    }
   };
 
   const totalPatients = patients.length;
@@ -343,7 +362,7 @@ export default function Patients() {
                                   Unarchive Patient
                                 </DropdownMenuItem>
                               ) : (
-                                <DropdownMenuItem onClick={() => console.log("Archiving...")} className="flex items-center gap-2 text-destructive">
+                                <DropdownMenuItem onClick={() => handleArchivePatient(patient)} className="flex items-center gap-2 text-destructive font-medium">
                                   <Archive className="h-4 w-4" />
                                   Archive Patient
                                 </DropdownMenuItem>
@@ -500,6 +519,17 @@ export default function Patients() {
         onSendMessage={(data) => {
           console.log("Sending message:", data);
         }}
+      />
+
+      <ConfirmationModal
+        open={isArchiveModalOpen}
+        onOpenChange={setIsArchiveModalOpen}
+        title="Archive Patient Record"
+        description="Are you sure you want to archive this patient? This will remove them from the active registry, but their history will be preserved."
+        entityName={selectedPatient?.name || ""}
+        actionLabel="Archive Patient"
+        type="archive"
+        onConfirm={confirmArchive}
       />
     </div>
   );

@@ -10,15 +10,28 @@ import {
   Settings,
   UserPlus,
   PlusCircle,
-  Repeat,
   Check,
-  Building2,
-  ChevronDown
+  ChevronDown,
+  Hospital,
+  FileText,
+  CreditCard,
+  Activity,
+  User,
+  Clock,
+  CheckCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +44,49 @@ import {
 interface DashboardLayoutProps {
   children: ReactNode;
 }
+
+const MOCK_NOTIFICATIONS = [
+  {
+    id: 1,
+    title: "New Patient Registered",
+    description: "Olusola Adebayo was added to the registry by Admin.",
+    time: "2m ago",
+    type: "patient",
+    unread: true,
+    icon: User,
+    color: "bg-blue-100 text-blue-600",
+  },
+  {
+    id: 2,
+    title: "Invoice Generated",
+    description: "Invoice INV-83921 (₦185,000) for Sarah Smith is ready.",
+    time: "15m ago",
+    type: "invoice",
+    unread: true,
+    icon: FileText,
+    color: "bg-amber-100 text-amber-600",
+  },
+  {
+    id: 3,
+    title: "Payment Received",
+    description: "Successfully processed payment of ₦45,000 for INV-91022.",
+    time: "1h ago",
+    type: "payment",
+    unread: false,
+    icon: CreditCard,
+    color: "bg-emerald-100 text-emerald-600",
+  },
+  {
+    id: 4,
+    title: "Report Finalized",
+    description: "MRI Brain report for Michael Brown is ready for review.",
+    time: "3h ago",
+    type: "report",
+    unread: false,
+    icon: Activity,
+    color: "bg-purple-100 text-purple-600",
+  },
+];
 
 // Enhanced breadcrumb mapping with support for dynamic segments
 const getBreadcrumbs = (pathname: string) => {
@@ -231,10 +287,63 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <HelpCircle className="h-5 w-5" />
               </Button>
 
-              <Button variant="ghost" size="icon" className="relative text-muted-foreground">
-                <Bell className="h-5 w-5" />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#fe5e41]"></span>
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative text-muted-foreground">
+                    <Bell className="h-5 w-5" />
+                    <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#fe5e41] border-2 border-card"></span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-[360px] p-0 overflow-hidden shadow-2xl">
+                  <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b">
+                    <h3 className="text-sm font-bold text-slate-800">Notifications</h3>
+                    <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none hover:bg-slate-200 cursor-pointer gap-2">
+                      <CheckCheck className="h-4 w-4" />
+                      Mark all as read
+                    </Badge>
+                  </div>
+                  <ScrollArea className="h-[400px]">
+                    <div className="flex flex-col">
+                      {MOCK_NOTIFICATIONS.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={cn(
+                            "flex items-start gap-3 p-4 pl-5 border-b last:border-none hover:bg-slate-50 transition-colors cursor-pointer relative group",
+                            notification.unread && "bg-primary/[0.02]"
+                          )}
+                        >
+                          {notification.unread && (
+                            <div className="absolute left-2 top-[35px] -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full" />
+                          )}
+                          <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center shrink-0", notification.color)}>
+                            <notification.icon className="h-4 w-4" />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className={cn("text-[13px] font-bold leading-none", notification.unread ? "text-slate-900" : "text-slate-600")}>
+                                {notification.title}
+                              </p>
+                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground whitespace-nowrap font-medium">
+                                <Clock className="h-3 w-3" />
+                                {notification.time}
+                              </div>
+                            </div>
+                            <p className="text-xs font-medium text-slate-500">
+                              {notification.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                  <div className="p-3 bg-slate-50 border-t text-center">
+                    <Button variant="ghost" size="sm" className="w-full text-[13px] font-semibold text-primary group">
+                      View all notifications
+                      <ChevronRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
               <div className="h-6 w-px bg-border mx-1" />
 
@@ -244,7 +353,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <Button variant="ghost" className="h-9 gap-2 px-2 hover:bg-muted">
                     <div className="flex items-center gap-2">
                       <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center">
-                        <Building2 className="h-4 w-4 text-slate-600" />
+                        <Hospital className="h-4 w-4 text-slate-600" />
                       </div>
                       <span className="text-sm font-semibold hidden sm:inline-block">Broadplaces Radiology</span>
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
