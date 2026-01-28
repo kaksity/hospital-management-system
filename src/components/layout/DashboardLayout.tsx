@@ -18,7 +18,11 @@ import {
   Activity,
   User,
   Clock,
-  CheckCheck
+  CheckCheck,
+  Lightbulb,
+  MessageSquare,
+  BookOpen,
+  Wrench
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -283,9 +287,59 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
             {/* Right side: Actions */}
             <div className="flex items-center gap-2 flex-1 justify-end">
-              <Button variant="ghost" size="icon" className="text-muted-foreground">
-                <HelpCircle className="h-5 w-5" />
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-muted-foreground group">
+                    <HelpCircle className="h-5 w-5 transition-colors group-hover:text-primary" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-[320px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                  {/* Header Area */}
+                  <div className="bg-primary px-5 pt-8 pb-12 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                      <HelpCircle className="h-20 w-20 text-white animate-pulse" />
+                    </div>
+                    <div className="relative z-10">
+                      <h3 className="text-lg font-bold text-white leading-tight">Hi {user?.name?.split(' ')[0] || "there"}!</h3>
+                      <p className="text-[13px] font-medium text-primary-foreground/80 mt-1">Let's make the lab more productive</p>
+                    </div>
+                  </div>
+
+                  {/* Resource Center Card */}
+                  <div className="px-4 pb-4 -mt-6 relative z-20">
+                    <div className="bg-white rounded-xl border border-slate-100 shadow-xl shadow-slate-200/50 p-4">
+                      <div className="mb-4">
+                        <h4 className="text-[15px] font-semibold text-slate-800">Resource center</h4>
+                        <p className="text-xs font-medium text-slate-600">Get started with these tools below</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { icon: Wrench, label: "Setup Assistance", color: "text-blue-500", bg: "bg-blue-50" },
+                          { icon: BookOpen, label: "Help Center", color: "text-emerald-500", bg: "bg-emerald-50" },
+                          { icon: Lightbulb, label: "Feature Request", color: "text-amber-500", bg: "bg-amber-50" },
+                          { icon: MessageSquare, label: "Send Feedback", color: "text-purple-500", bg: "bg-purple-50" },
+                        ].map((item, i) => (
+                          <button
+                            key={i}
+                            className="flex flex-col items-start p-3 rounded-xl border hover:border-input/50 hover:bg-slate-50/50 transition-all text-left group"
+                          >
+                            <div className={cn("p-2 rounded-lg mb-2 transition-transform group-hover:scale-110", item.bg)}>
+                              <item.icon className={cn("h-4 w-4", item.color)} />
+                            </div>
+                            <span className="text-[11px] font-bold text-slate-700 leading-tight">{item.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="px-5 py-3 bg-slate-50 border-t flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">V1.1.0-Stable</span>
+                    <button className="text-[11px] font-black text-primary hover:underline transition-all">What's new?</button>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
               <Popover>
                 <PopoverTrigger asChild>
