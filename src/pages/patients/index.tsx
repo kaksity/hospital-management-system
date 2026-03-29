@@ -307,24 +307,53 @@ export default function Patients() {
         <div>
           {patients.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {paginatedPatients.map((patient) => (
-                  <Card
-                    key={patient.id}
-                    className="group transition-all duration-300 border border-l-4 cursor-pointer overflow-hidden flex flex-col hover:shadow-lg hover:shadow-slate-200/50 hover:-translate-y-0.5 bg-white"
-                    style={{ borderLeftColor: getPatientStatusColor(patient.status) }}
-                    onClick={() => handleRowClick(patient.id)}
-                  >
-                    <CardHeader className="p-4 pb-4">
-                      <div className="flex justify-between items-start">
-                        <Avatar className="h-10 w-10 border border-slate-100 shadow-sm ring-2 ring-white ring-offset-0">
-                          <AvatarImage src={getPatientAvatarPath(patient.id, patient.gender)} alt={patient.name} />
-                          <AvatarFallback className={cn("text-[13px] font-bold", getAvatarBg(patient.name))}>
-                            {getAvatarInitials(patient.name)}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <div onClick={(e) => e.stopPropagation()}>
+              <div className="bg-white rounded-lg border shadow-sm mb-8 overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-slate-50 border-b">
+                    <TableRow>
+                      <TableHead className="w-[250px] font-semibold text-slate-600">Patient</TableHead>
+                      <TableHead className="font-semibold text-slate-600">ID</TableHead>
+                      <TableHead className="font-semibold text-slate-600">Age</TableHead>
+                      <TableHead className="font-semibold text-slate-600">Gender</TableHead>
+                      <TableHead className="font-semibold text-slate-600">Status</TableHead>
+                      <TableHead className="text-right font-semibold text-slate-600">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedPatients.map((patient) => (
+                      <TableRow 
+                        key={patient.id}
+                        className="cursor-pointer hover:bg-slate-50 transition-colors"
+                        onClick={() => handleRowClick(patient.id)}
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-9 w-9 border border-slate-100 shadow-sm">
+                              <AvatarImage src={getPatientAvatarPath(patient.id, patient.gender)} alt={patient.name} />
+                              <AvatarFallback className={cn("text-xs font-bold", getAvatarBg(patient.name))}>
+                                {getAvatarInitials(patient.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium text-slate-900">{patient.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <code className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                            {patient.id}
+                          </code>
+                        </TableCell>
+                        <TableCell className="text-sm text-slate-600 font-medium">
+                          {patient.age} Y/O
+                        </TableCell>
+                        <TableCell className="text-sm text-slate-600 font-medium">
+                          {patient.gender}
+                        </TableCell>
+                        <TableCell>
+                           <Badge className={cn("capitalize px-2 py-0.5 text-[11px] font-semibold tracking-wide shadow-none border-none", getStatusBadge(patient.status))}>
+                             {patient.status}
+                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
@@ -369,31 +398,11 @@ export default function Patients() {
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        </div>
-                      </div>
-
-                      <div className="mt-4">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-[15px] font-semibold text-slate-800 truncate leading-tight transition-colors">
-                            {patient.name}
-                          </h3>
-                          <code className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded leading-none ring-1 ring-slate-200/50 uppercase tracking-tighter">
-                            {patient.id}
-                          </code>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] uppercase tracking-wide font-bold text-slate-600">
-                            {patient.gender === 'Male' ? 'M' : 'F'}
-                          </span>
-                          <div className="h-1 w-1 rounded-full bg-slate-400" />
-                          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
-                            {patient.age} Y/O
-                          </span>
-                        </div>
-                      </div>
-                    </CardHeader>
-                  </Card>
-                ))}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
 
               {/* Pagination */}
