@@ -1,6 +1,13 @@
 export type PatientStatus = "active" | "inactive" | "archived";
 export type PatientType = "private" | "hmo" | "regular";
 
+export interface MedicalHistoryEntry {
+    id: string;
+    date: string;
+    addedBy: string;
+    notes: string;
+}
+
 export interface Patient {
     id: string;
     name: string;
@@ -21,8 +28,10 @@ export interface Patient {
     totalVisits: number;
     lastService?: string;
     pendingTests: string[];
-    referringHospital?: string;
-    referringDoctor?: string;
+    isAdmitted?: boolean;
+    ward?: string;
+    bedNumber?: string;
+    medicalHistory?: MedicalHistoryEntry[];
 }
 
 export const patients: Patient[] = [
@@ -46,8 +55,9 @@ export const patients: Patient[] = [
         totalVisits: 3,
         lastService: "MRI Brain",
         pendingTests: ["CT Chest", "X-Ray Wrist"],
-        referringHospital: "Evercare Hospital",
-        referringDoctor: "Dr. Ope Adeyemi"
+        isAdmitted: true,
+        ward: "Surgical Ward",
+        bedNumber: "W-4B"
     },
     {
         id: "CP238122C",
@@ -69,8 +79,6 @@ export const patients: Patient[] = [
         totalVisits: 2,
         lastService: "Ultrasound Pelvis",
         pendingTests: ["MRI Spine"],
-        referringHospital: "Evercare Hospital",
-        referringDoctor: "Dr. Michael Chen"
     },
     {
         id: "CP349011B",
@@ -92,8 +100,6 @@ export const patients: Patient[] = [
         totalVisits: 1,
         lastService: "CT Scan",
         pendingTests: [],
-        referringHospital: "St. Nicholas Hospital",
-        referringDoctor: "Dr. David Lee"
     },
     {
         id: "CP456789D",
@@ -115,8 +121,6 @@ export const patients: Patient[] = [
         totalVisits: 2,
         lastService: "Ultrasound",
         pendingTests: [],
-        referringHospital: "Lagos University Teaching Hospital",
-        referringDoctor: "Dr. Michael Chen"
     },
     {
         id: "CP567890E",
@@ -138,8 +142,6 @@ export const patients: Patient[] = [
         totalVisits: 0,
         lastService: "X-Ray",
         pendingTests: [],
-        referringHospital: "Reddington Hospital",
-        referringDoctor: "Dr. Michael Chen"
     },
     {
         id: "CP678901F",
@@ -161,8 +163,6 @@ export const patients: Patient[] = [
         totalVisits: 4,
         lastService: "Mammography",
         pendingTests: ["Ultrasound Breast"],
-        referringHospital: "Evercare Hospital",
-        referringDoctor: "Dr. Ope Adeyemi"
     },
     {
         id: "CP789012G",
@@ -184,8 +184,6 @@ export const patients: Patient[] = [
         totalVisits: 5,
         lastService: "CT Abdomen",
         pendingTests: [],
-        referringHospital: "St. Nicholas Hospital",
-        referringDoctor: "Dr. David Lee"
     },
     {
         id: "CP890123H",
@@ -207,8 +205,6 @@ export const patients: Patient[] = [
         totalVisits: 1,
         lastService: "X-Ray Chest",
         pendingTests: [],
-        referringHospital: "Lagos University Teaching Hospital",
-        referringDoctor: "Dr. Sarah Adams"
     },
     {
         id: "CP901234I",
@@ -230,8 +226,6 @@ export const patients: Patient[] = [
         totalVisits: 8,
         lastService: "MRI Spine",
         pendingTests: ["CT Head"],
-        referringHospital: "Reddington Hospital",
-        referringDoctor: "Dr. Michael Chen"
     },
     {
         id: "CP012345J",
@@ -253,8 +247,6 @@ export const patients: Patient[] = [
         totalVisits: 2,
         lastService: "Ultrasound Pelvis",
         pendingTests: [],
-        referringHospital: "Evercare Hospital",
-        referringDoctor: "Dr. Ope Adeyemi"
     },
     {
         id: "CP112233K",
@@ -276,8 +268,6 @@ export const patients: Patient[] = [
         totalVisits: 3,
         lastService: "X-Ray Knee",
         pendingTests: [],
-        referringHospital: "St. Nicholas Hospital",
-        referringDoctor: "Dr. David Lee"
     },
     {
         id: "CP223344L",
@@ -299,8 +289,6 @@ export const patients: Patient[] = [
         totalVisits: 2,
         lastService: "CT Chest",
         pendingTests: ["MRI Brain"],
-        referringHospital: "Lagos University Teaching Hospital",
-        referringDoctor: "Dr. Sarah Adams"
     },
     {
         id: "CP334455M",
@@ -322,8 +310,6 @@ export const patients: Patient[] = [
         totalVisits: 6,
         lastService: "MRI Shoulder",
         pendingTests: [],
-        referringHospital: "Reddington Hospital",
-        referringDoctor: "Dr. Michael Chen"
     },
     {
         id: "CP445566N",
@@ -345,8 +331,6 @@ export const patients: Patient[] = [
         totalVisits: 3,
         lastService: "Ultrasound Abdomen",
         pendingTests: [],
-        referringHospital: "Evercare Hospital",
-        referringDoctor: "Dr. Ope Adeyemi"
     },
     {
         id: "CP556677O",
@@ -368,8 +352,6 @@ export const patients: Patient[] = [
         totalVisits: 1,
         lastService: "X-Ray Wrist",
         pendingTests: [],
-        referringHospital: "St. Nicholas Hospital",
-        referringDoctor: "Dr. David Lee"
     },
     {
         id: "CP667788P",
@@ -391,8 +373,6 @@ export const patients: Patient[] = [
         totalVisits: 4,
         lastService: "CT Head",
         pendingTests: ["MRI Spine"],
-        referringHospital: "Lagos University Teaching Hospital",
-        referringDoctor: "Dr. Sarah Adams"
     },
     {
         id: "CP778899Q",
@@ -414,8 +394,6 @@ export const patients: Patient[] = [
         totalVisits: 3,
         lastService: "MRI Knee",
         pendingTests: [],
-        referringHospital: "Reddington Hospital",
-        referringDoctor: "Dr. Michael Chen"
     },
     {
         id: "CP889900R",
@@ -437,8 +415,6 @@ export const patients: Patient[] = [
         totalVisits: 2,
         lastService: "Ultrasound Thyroid",
         pendingTests: [],
-        referringHospital: "Evercare Hospital",
-        referringDoctor: "Dr. Ope Adeyemi"
     },
     {
         id: "CP990011S",
@@ -460,8 +436,6 @@ export const patients: Patient[] = [
         totalVisits: 12,
         lastService: "CT Angiography",
         pendingTests: [],
-        referringHospital: "St. Nicholas Hospital",
-        referringDoctor: "Dr. David Lee"
     },
     {
         id: "CP001122T",
@@ -483,7 +457,5 @@ export const patients: Patient[] = [
         totalVisits: 1,
         lastService: "X-Ray Ankle",
         pendingTests: [],
-        referringHospital: "Lagos University Teaching Hospital",
-        referringDoctor: "Dr. Sarah Adams"
     }
 ];

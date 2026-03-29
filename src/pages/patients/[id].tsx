@@ -45,18 +45,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { UploadReportModal } from "@/components/Modals/UploadReportModal";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/dateFormatter";
 import { formatCurrency } from "@/utils/formatCurrency";
 
 
-import { patients as initialPatients, Patient } from "@/data/patients";
+import { patients as initialPatients, Patient, MedicalHistoryEntry } from "@/data/patients";
 
 
 export default function PatientDetail() {
   const { id: routeId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(true);
+  const [medicalHistory, setMedicalHistory] = React.useState<MedicalHistoryEntry[]>([]);
+  const [newHistoryNote, setNewHistoryNote] = React.useState("");
+  const [reports, setReports] = React.useState<any[]>([]);
+  const [isUploadReportModalOpen, setIsUploadReportModalOpen] = React.useState(false);
 
   // Find the patient in our central data store
   const patient = React.useMemo(() => {
@@ -64,9 +70,48 @@ export default function PatientDetail() {
   }, [routeId]);
 
   React.useEffect(() => {
+    if (patient) {
+        setMedicalHistory(patient.medicalHistory || []);
+        
+        // Initialize reports
+        setReports(patient.pendingTests.length > 0 ? [
+          {
+            id: `REP-${patient.id}-9921`,
+            title: "Medical Analysis",
+            type: "Medical Report",
+            date: patient.lastActivity,
+            status: "Finalized",
+            doctor: "Dr. Sarah Johnson"
+          }
+        ] : []);
+    }
     const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [patient]);
+
+  const handleAddHistory = () => {
+    if (!newHistoryNote.trim()) return;
+    const newEntry: MedicalHistoryEntry = {
+        id: Math.random().toString(36).substr(2, 9),
+        date: new Date().toISOString(),
+        addedBy: "Dr. Admin User", // Simulated logged-in doctor
+        notes: newHistoryNote.trim()
+    };
+    setMedicalHistory([newEntry, ...medicalHistory]);
+    setNewHistoryNote("");
+  };
+
+  const handleUploadReport = (files: File[], metadata: any) => {
+    const newReport = {
+      id: `REP-${patientData.id}-${Math.floor(Math.random() * 10000)}`,
+      title: metadata.title,
+      type: metadata.type,
+      date: new Date().toISOString(),
+      status: "Finalized",
+      doctor: "Dr. Admin User"
+    };
+    setReports([newReport, ...reports]);
+  };
 
   if (loading) {
     return (
@@ -122,12 +167,12 @@ export default function PatientDetail() {
     appointments: [
       {
         id: `APT-${patient.id}-001`,
-        type: patient.lastService || "General Consultation",
+        type: "General Consultation",
         status: "Completed",
         date: patient.lastActivity,
         time: "10:00 AM",
-        doctor: patient.referringDoctor || "Dr. Sarah Johnson",
-        facility: patient.referringHospital || "Main Radiology Wing"
+        doctor: "Dr. Sarah Johnson",
+        facility: "Main Clinic"
       },
       ... (patient.totalVisits > 1 ? [
         {
@@ -137,21 +182,10 @@ export default function PatientDetail() {
           date: "2025-02-10",
           time: "02:30 PM",
           doctor: "Dr. Michael Chen",
-          facility: "Emergency Radiology"
+          facility: "Emergency Room"
         }
       ] : [])
     ],
-
-    reports: patient.pendingTests.length > 0 ? [
-      {
-        id: `REP-${patient.id}-9921`,
-        title: `${patient.lastService} Analysis`,
-        type: "Radiology Report",
-        date: patient.lastActivity,
-        status: "Finalized",
-        doctor: patient.referringDoctor || "Dr. Sarah Johnson"
-      }
-    ] : [],
 
     paymentSummary: {
       totalValue: patient.totalValue,
@@ -161,7 +195,7 @@ export default function PatientDetail() {
       invoices: [
         {
           id: `INV-${patient.id}-1001`,
-          name: `${patient.lastService || "Medical Service"} Fee`,
+          name: "Medical Consultation Fee",
           amount: patient.totalValue,
           status: patient.totalValue > 0 ? "paid" : "pending",
           date: patient.lastActivity
@@ -270,6 +304,9 @@ export default function PatientDetail() {
               <TabsTrigger variant="line" value="info" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] rounded-none transition-all flex items-center gap-2">
                 <User className="h-4 w-4" /> Patient Bio
               </TabsTrigger>
+              <TabsTrigger variant="line" value="clinical" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] rounded-none transition-all flex items-center gap-2">
+                <Stethoscope className="h-4 w-4" /> Clinical Info
+              </TabsTrigger>
               <TabsTrigger variant="line" value="appointments" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] rounded-none transition-all flex items-center gap-2">
                 <Calendar className="h-4 w-4" /> Clinical Visits
               </TabsTrigger>
@@ -367,6 +404,122 @@ export default function PatientDetail() {
             </Card>
           </TabsContent>
 
+          {/* Clinical Information Tab */}
+          <TabsContent value="clinical">
+            <Card className="border shadow-none bg-white rounded-2xl overflow-hidden">
+              <CardHeader className="border-b bg-slate-50/50 py-4 px-6 flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-700">Clinical Details</CardTitle>
+                    <div className="text-xs font-medium text-slate-600">Manage patient's clinical and medical information</div>
+                </div>
+                <Button size="sm" className="h-8 text-xs font-bold gap-2">
+                  <Edit className="h-3.5 w-3.5" /> Edit Clinical Info
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-7">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Blood Group</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.clinicalInfo.bloodGroup || "Not specified"}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Genotype</p>
+                    <p className="text-sm font-semibold text-slate-800">{patientData.clinicalInfo.genotype || "Not specified"}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Allergies</p>
+                    <div className="flex gap-2 mt-1">
+                      {patientData.clinicalInfo.allergies?.length > 0 ? patientData.clinicalInfo.allergies.map(a => (
+                        <Badge key={a} variant="outline" className="text-xs border-primary/20 bg-primary/5 text-primary">{a}</Badge>
+                      )) : <span className="text-sm font-semibold text-slate-800">None known</span>}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current Medications</p>
+                    <div className="flex gap-2 mt-1">
+                      {patientData.clinicalInfo.medications?.length > 0 ? patientData.clinicalInfo.medications.map(a => (
+                        <Badge key={a} variant="outline" className="text-xs">{a}</Badge>
+                      )) : <span className="text-sm font-semibold text-slate-800">None</span>}
+                    </div>
+                  </div>
+                  <div className="md:col-span-2 space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Medical Notes</p>
+                    <p className="text-sm font-semibold text-slate-800 leading-relaxed">{patientData.clinicalInfo.history || "No significant medical history recorded."}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Medical History Section */}
+            <Card className="border shadow-none bg-white rounded-2xl overflow-hidden mt-6">
+              <CardHeader className="border-b bg-slate-50/50 py-4 px-6 flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-700">Patient Medical History</CardTitle>
+                    <div className="text-xs font-medium text-slate-600">Timeline of all medical notes and history entries</div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-6">
+                  {/* Add New History Note */}
+                  <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-widest">Add New Note</label>
+                    <Textarea 
+                      placeholder="Write patient medical history, symptoms, or consultation notes here..." 
+                      className="min-h-[100px] resize-y bg-white text-sm"
+                      value={newHistoryNote}
+                      onChange={(e) => setNewHistoryNote(e.target.value)}
+                    />
+                    <div className="flex justify-end pt-1">
+                      <Button onClick={handleAddHistory} size="sm" className="gap-2 h-9 px-5 font-semibold" disabled={!newHistoryNote.trim()}>
+                        <Plus className="h-4 w-4" /> Save Note
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* History Timeline */}
+                  <div className="space-y-4 pt-4">
+                    {medicalHistory.length === 0 ? (
+                      <div className="text-center py-8 text-slate-400">
+                        <div className="h-12 w-12 mx-auto rounded-full bg-slate-50 flex items-center justify-center mb-3">
+                            <FileText className="h-5 w-5 opacity-40 text-slate-400" />
+                        </div>
+                        <p className="text-sm font-bold uppercase tracking-widest">No History Records</p>
+                        <p className="text-xs mt-1 text-slate-400">There are no medical notes recorded for this patient yet.</p>
+                      </div>
+                    ) : (
+                      <div className="relative border-l-2 border-slate-100 ml-3 md:ml-4 py-2 space-y-8">
+                        {medicalHistory.map((entry) => (
+                          <div key={entry.id} className="relative pl-6 md:pl-8">
+                            {/* Timeline Dot */}
+                            <div className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-[hsl(var(--primary))] ring-4 ring-white" />
+                            
+                            <div className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-slate-50/50 border-b px-4 py-2.5 flex flex-wrap gap-x-4 gap-y-2 items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-6 w-6 rounded bg-[hsl(var(--primary))/0.1] flex items-center justify-center">
+                                            <User className="h-3 w-3 text-[hsl(var(--primary))]" />
+                                        </div>
+                                        <span className="text-xs font-bold text-slate-700">{entry.addedBy}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-white border px-2 py-1 rounded-md">
+                                        <Clock className="h-3.5 w-3.5" />
+                                        {formatDate(entry.date)} {new Date(entry.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                                <div className="p-4">
+                                    <p className="text-[13px] leading-relaxed text-slate-700 whitespace-pre-wrap">{entry.notes}</p>
+                                </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Appointments Tab */}
           <TabsContent value="appointments">
             <Card className="border shadow-none bg-white rounded-2xl overflow-hidden">
@@ -385,7 +538,7 @@ export default function PatientDetail() {
                     <TableRow className="hover:bg-transparent border-b">
                       <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4 pl-6">Service Type</TableHead>
                       <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Schedule Date</TableHead>
-                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Referring Hospital</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Attending Facility</TableHead>
                       <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Primary Clinician</TableHead>
                       <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Status</TableHead>
                     </TableRow>
@@ -544,9 +697,9 @@ export default function PatientDetail() {
               <CardHeader className="border-b bg-slate-50/50 flex flex-row items-center justify-between py-4 px-6 space-y-0">
                 <div>
                   <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-700">Medical Report Archive</CardTitle>
-                  <div className="text-xs font-medium text-slate-600">Validated diagnostic findings and radiologist interpretations</div>
+                  <div className="text-xs font-medium text-slate-600">Validated diagnostic findings and medical interpretations</div>
                 </div>
-                <Button size="sm" variant="outline" className="h-8 text-xs font-bold gap-2 bg-white">
+                <Button size="sm" variant="outline" className="h-8 text-xs font-bold gap-2 bg-white" onClick={() => setIsUploadReportModalOpen(true)}>
                   <Plus className="h-3.5 w-3.5" /> File New Report
                 </Button>
               </CardHeader>
@@ -556,15 +709,15 @@ export default function PatientDetail() {
                     <TableRow className="hover:bg-transparent border-slate-100">
                       <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4 pl-6">Report ID</TableHead>
                       <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Diagnostic Title</TableHead>
-                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Exam Type</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Report Type</TableHead>
                       <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Finalized Date</TableHead>
-                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Lead Radiologist</TableHead>
+                      <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Lead Clinician</TableHead>
                       <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-widest py-4">Status</TableHead>
                       <TableHead className="text-[11px] font-black uppercase tracking-widest py-4 pr-6 text-right"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {patientData.reports.map((report) => (
+                    {reports.map((report) => (
                       <TableRow key={report.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
                         <TableCell className="pl-6 py-4">
                           <code className="text-[11px] font-bold font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/50">
@@ -598,7 +751,7 @@ export default function PatientDetail() {
                         </TableCell>
                       </TableRow>
                     ))}
-                    {patientData.reports.length === 0 && (
+                    {reports.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center py-20 text-slate-400">
                           <div className="flex flex-col items-center gap-4">
@@ -620,6 +773,13 @@ export default function PatientDetail() {
           </TabsContent>
         </div>
       </Tabs>
+
+      <UploadReportModal 
+         open={isUploadReportModalOpen} 
+         onOpenChange={setIsUploadReportModalOpen} 
+         onUpload={handleUploadReport} 
+         patientName={patientData.name} 
+      />
     </div>
   );
 }

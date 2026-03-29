@@ -45,6 +45,9 @@ export function EditPatientModal({ open, onOpenChange, onSave, patient }: EditPa
         email: "",
         preferredCommunication: ["WhatsApp"] as string[],
         address: "",
+        isAdmitted: false,
+        ward: "",
+        bedNumber: "",
     });
 
     useEffect(() => {
@@ -62,6 +65,9 @@ export function EditPatientModal({ open, onOpenChange, onSave, patient }: EditPa
                 email: patient.email || "",
                 preferredCommunication: patient.preferredCommunication || ["WhatsApp"],
                 address: patient.address || "",
+                isAdmitted: patient.isAdmitted || false,
+                ward: patient.ward || "",
+                bedNumber: patient.bedNumber || "",
             });
         }
     }, [patient, open]);
@@ -283,6 +289,43 @@ export function EditPatientModal({ open, onOpenChange, onSave, patient }: EditPa
                                 rows={2}
                             />
                         </div>
+
+                        <div className="space-y-2 pt-4 border-t">
+                            <Label required>Admission Status</Label>
+                            <Select 
+                                value={formData.isAdmitted ? "Yes" : "No"} 
+                                onValueChange={(v) => handleChange("isAdmitted", v === "Yes")}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="No">Outpatient</SelectItem>
+                                    <SelectItem value="Yes">Admitted</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {formData.isAdmitted && (
+                            <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <div className="space-y-2">
+                                    <Label required>Ward</Label>
+                                    <Input
+                                        placeholder="e.g. Surgical Ward, ICU"
+                                        value={formData.ward}
+                                        onChange={(e) => handleChange("ward", e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label required>Bed Number</Label>
+                                    <Input
+                                        placeholder="e.g. B-12"
+                                        value={formData.bedNumber}
+                                        onChange={(e) => handleChange("bedNumber", e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex justify-end gap-3 p-6 border-t bg-muted/20">

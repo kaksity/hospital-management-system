@@ -52,26 +52,10 @@ import { toast } from "sonner";
 
 const STEPS = [
   { id: 1, title: "Contact Information", icon: User },
-  { id: 2, title: "Clinical Information", icon: Stethoscope },
-  { id: 3, title: "Billing & Invoice", icon: Receipt },
+  { id: 2, title: "Billing & Invoice", icon: Receipt },
 ];
 
-const MOCK_HOSPITALS = [
-  "City General Hospital",
-  "Metropolitan Medical Center",
-  "St. Jude Specialist Center",
-  "Redeemer Health Clinic"
-];
 
-const MOCK_DOCTORS = [
-  { id: "DOC-001", name: "Dr. Sarah Johnson", hospital: "City General Hospital", specialty: "Radiologist", marketer: "John Doe" },
-  { id: "DOC-002", name: "Dr. Michael Chen", hospital: "Metropolitan Medical Center", specialty: "Neurologist", marketer: "Jane Smith" },
-  { id: "DOC-003", name: "Dr. Emily Okafor", hospital: "St. Jude Specialist Center", specialty: "General Surgeon", marketer: "Bob Wilson" },
-  { id: "DOC-004", name: "Dr. David Smith", hospital: "City General Hospital", specialty: "Cardiologist", marketer: "John Doe" },
-  { id: "DOC-005", name: "Dr. Alice Wong", hospital: "Metropolitan Medical Center", specialty: "Pediatrician", marketer: "Jane Smith" },
-];
-
-const MOCK_MARKETERS = ["John Doe", "Jane Smith", "Bob Wilson"];
 
 const MOCK_SERVICES = [
   { id: "S-001", name: "MRI Brain (With Contrast)", price: 185000, category: "MRI" },
@@ -81,15 +65,7 @@ const MOCK_SERVICES = [
   { id: "S-005", name: "Abdominal Ultrasound", price: 25000, category: "Ultrasound" },
 ];
 
-const MOCK_INDICATIONS = [
-  "MRI Brain",
-  "MRI Spine",
-  "CT Scan Head",
-  "Chest X-Ray",
-  "Abdominal Ultrasound",
-  "Mammography",
-  "Echocardiogram"
-];
+
 
 const COMMUNICATION_METHODS = ["WhatsApp", "Email", "SMS", "Phone Call"];
 
@@ -115,24 +91,18 @@ export default function CreatePatientPage() {
     preferredCommunication: ["WhatsApp"] as string[],
     address: "",
 
-    // Step 2: Clinical
-    indication: "",
-    investigationReason: "",
-    referringPhysician: "",
-    hospital: "",
-    physicianId: "",
-    marketer: "",
+    isAdmitted: false,
+    ward: "",
+    bedNumber: "",
 
-    // Step 3: Billing
+    // Step 2: Billing
     scans: [] as typeof MOCK_SERVICES
   });
 
   const isStepValid = () => {
     if (currentStep === 1) {
+      if (formData.isAdmitted && (!formData.ward || !formData.bedNumber)) return false;
       return formData.patientType && formData.firstName && formData.lastName && formData.email && formData.phone && formData.preferredCommunication.length > 0;
-    }
-    if (currentStep === 2) {
-      return formData.referringPhysician && formData.indication && formData.investigationReason;
     }
     return true;
   };
@@ -156,7 +126,7 @@ export default function CreatePatientPage() {
 
   const handleNext = () => {
     if (isStepValid()) {
-      setCurrentStep(prev => Math.min(prev + 1, 3));
+      setCurrentStep(prev => Math.min(prev + 1, 2));
     }
   };
   const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -179,34 +149,6 @@ export default function CreatePatientPage() {
   const removeScan = (id: string) => {
     setFormData(prev => ({ ...prev, scans: prev.scans.filter(s => s.id !== id) }));
   };
-
-  const handleHospitalSelect = (hospitalName: string) => {
-    setFormData(prev => ({
-      ...prev,
-      hospital: hospitalName,
-      referringPhysician: "", // Reset doctor when hospital changes
-      physicianId: "",
-      marketer: ""
-    }));
-  };
-
-  const handleDoctorSelect = (docId: string) => {
-    const doctor = MOCK_DOCTORS.find(d => d.id === docId);
-    if (doctor) {
-      setFormData(prev => ({
-        ...prev,
-        referringPhysician: doctor.name,
-        hospital: doctor.hospital,
-        physicianId: doctor.id,
-        marketer: doctor.marketer
-      }));
-    }
-  };
-
-  const filteredDoctors = useMemo(() => {
-    if (!formData.hospital) return [];
-    return MOCK_DOCTORS.filter(d => d.hospital === formData.hospital);
-  }, [formData.hospital]);
 
   const filteredServices = MOCK_SERVICES.filter(s =>
     s.name.toLowerCase().includes(serviceSearch.toLowerCase()) ||
@@ -496,95 +438,48 @@ export default function CreatePatientPage() {
                         </Badge>
                       ))}
                     </div>
+                    
+                    <div className="space-y-2 pt-4 border-t">
+                      <Label required>Admission Status</Label>
+                      <Select 
+                        value={formData.isAdmitted ? "Yes" : "No"} 
+                        onValueChange={v => handleChange("isAdmitted", v === "Yes")}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="No">Outpatient</SelectItem>
+                          <SelectItem value="Yes">Admitted</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {formData.isAdmitted && (
+                      <div className="grid md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="space-y-1">
+                          <Label required>Ward</Label>
+                          <Input
+                            placeholder="e.g. Surgical Ward, ICU"
+                            value={formData.ward}
+                            onChange={e => handleChange("ward", e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label required>Bed Number</Label>
+                          <Input
+                            placeholder="e.g. B-12"
+                            value={formData.bedNumber}
+                            onChange={e => handleChange("bedNumber", e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
               {currentStep === 2 && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="space-y-1">
-                    <Label required>Preferred Scan (Indication)</Label>
-                    <Select value={formData.indication} onValueChange={v => handleChange("indication", v)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select required scan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MOCK_INDICATIONS.map(ind => (
-                          <SelectItem key={ind} value={ind}>{ind}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label>Reason for Scan / Investigation</Label>
-                    <Textarea
-                      placeholder="e.g. Chronic headaches, suspected fracture..."
-                      className="min-h-[80px]"
-                      value={formData.investigationReason}
-                      onChange={e => handleChange("investigationReason", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6 pt-4 border-t">
-                    <div className="space-y-1">
-                      <Label required>Hospital / Facility</Label>
-                      <Select value={formData.hospital} onValueChange={handleHospitalSelect}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select hospital" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {MOCK_HOSPITALS.map(h => (
-                            <SelectItem key={h} value={h}>{h}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-1">
-                      <Label required>Referring Physician</Label>
-                      <Select
-                        value={MOCK_DOCTORS.find(d => d.id === formData.physicianId)?.id || ""}
-                        onValueChange={handleDoctorSelect}
-                        disabled={!formData.hospital}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={formData.hospital ? "Select a doctor" : "Select hospital first"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredDoctors.map(doc => (
-                            <SelectItem key={doc.id} value={doc.id}>
-                              {doc.name} ({doc.specialty})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-1">
-                      <Label>Physician ID</Label>
-                      <Input
-                        placeholder="Auto-filled"
-                        readOnly
-                        value={formData.physicianId}
-                        className="bg-muted/50"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label>Attached Marketer</Label>
-                      <Input
-                        placeholder="Auto-filled"
-                        readOnly
-                        value={formData.marketer}
-                        className="bg-muted/50"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 3 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="flex items-center justify-between">
                     <div>
@@ -673,7 +568,7 @@ export default function CreatePatientPage() {
               <Button variant="outline" onClick={() => navigate("/patients")}>
                 Cancel
               </Button>
-              {currentStep < 3 ? (
+              {currentStep < 2 ? (
                 <Button
                   onClick={handleNext}
                   className="gap-2 min-w-[120px]"
