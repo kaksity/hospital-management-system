@@ -462,14 +462,14 @@ export default function EditDiagnosticReport() {
                                     </div>
 
                                     {livePreview && isListening && (
-                                        <div className="p-3 bg-[#e6f0ff] border border-[#006bff] rounded-lg">
+                                        <div className="p-3 bg-[#e6f0ff] border border-[hsl(var(--primary))] rounded-lg">
                                             <div className="flex items-center justify-between mb-2">
                                                 <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Live Preview</span>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={clearTranscript}
-                                                    className="h-5 text-[10px] font-bold hover:bg-[#d9e8ff] text-[#006bff] px-2"
+                                                    className="h-5 text-[10px] font-bold hover:bg-[#d9e8ff] text-[hsl(var(--primary))] px-2"
                                                 >
                                                     Clear
                                                 </Button>

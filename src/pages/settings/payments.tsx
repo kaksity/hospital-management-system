@@ -53,7 +53,7 @@ export function PaymentsSettings() {
                     className={cn(
                       "group relative flex items-center justify-between p-5 rounded-2xl border transition-all cursor-pointer",
                       activeGateway === gateway.id
-                        ? "border-[#006bff] bg-blue-50/20"
+                        ? "border-[hsl(var(--primary))] bg-blue-50/20"
                         : "bg-white hover:border-input/70"
                     )}
                     onClick={() => setActiveGateway(gateway.id)}
@@ -80,7 +80,7 @@ export function PaymentsSettings() {
                       <Button variant="ghost" size="sm" className="h-8 font-bold text-xs">Configure</Button>
                       <div className={cn(
                         "h-6 w-6 rounded-full flex items-center justify-center transition-all",
-                        activeGateway === gateway.id ? "bg-[#006bff] scale-100" : "bg-slate-100 scale-90"
+                        activeGateway === gateway.id ? "bg-[hsl(var(--primary))] scale-100" : "bg-slate-100 scale-90"
                       )}>
                         <ShieldCheck className={cn("h-3.5 w-3.5", activeGateway === gateway.id ? "text-white" : "text-slate-400")} />
                       </div>

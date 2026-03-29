@@ -106,7 +106,7 @@ export default function Settings() {
                   variant="line"
                   className={cn(
                     "relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-semibold antialiased text-muted-foreground shadow-none transition-all hover:text-foreground",
-                    "data-[state=active]:border-[#006bff] data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                    "data-[state=active]:border-[hsl(var(--primary))] data-[state=active]:text-foreground data-[state=active]:shadow-none"
                   )}
                   asChild
                 >

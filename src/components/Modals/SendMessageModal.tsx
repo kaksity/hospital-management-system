@@ -247,7 +247,7 @@ export function SendMessageModal({ open, onOpenChange, patient: initialPatient, 
                     <RadioGroupItem value="whatsapp" id="whatsapp" className="peer sr-only" />
                     <Label
                       htmlFor="whatsapp"
-                      className="flex flex-col items-center justify-between rounded-xl border border-input/50 bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-[#006bff] peer-data-[state=checked]:bg-[#006bff]/[0.02] cursor-pointer transition-all"
+                      className="flex flex-col items-center justify-between rounded-xl border border-input/50 bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-[hsl(var(--primary))] peer-data-[state=checked]:bg-[hsl(var(--primary))]/[0.02] cursor-pointer transition-all"
                     >
                       <MessageCircle className="mb-2 h-6 w-6 text-green-500" />
                       <span className="text-[13px] font-semibold uppercase tracking-wider">WhatsApp</span>
@@ -257,7 +257,7 @@ export function SendMessageModal({ open, onOpenChange, patient: initialPatient, 
                     <RadioGroupItem value="sms" id="sms" className="peer sr-only" />
                     <Label
                       htmlFor="sms"
-                      className="flex flex-col items-center justify-between rounded-xl border border-input/50 bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-[#006bff] peer-data-[state=checked]:bg-[#006bff]/[0.02] cursor-pointer transition-all"
+                      className="flex flex-col items-center justify-between rounded-xl border border-input/50 bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-[hsl(var(--primary))] peer-data-[state=checked]:bg-[hsl(var(--primary))]/[0.02] cursor-pointer transition-all"
                     >
                       <Smartphone className="mb-2 h-6 w-6 text-blue-500" />
                       <span className="text-[13px] font-semibold uppercase tracking-wider">SMS</span>
@@ -267,7 +267,7 @@ export function SendMessageModal({ open, onOpenChange, patient: initialPatient, 
                     <RadioGroupItem value="email" id="email" className="peer sr-only" />
                     <Label
                       htmlFor="email"
-                      className="flex flex-col items-center justify-between rounded-xl border border-input/50 bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-[#006bff] peer-data-[state=checked]:bg-[#006bff]/[0.02] cursor-pointer transition-all"
+                      className="flex flex-col items-center justify-between rounded-xl border border-input/50 bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-[hsl(var(--primary))] peer-data-[state=checked]:bg-[hsl(var(--primary))]/[0.02] cursor-pointer transition-all"
                     >
                       <Mail className="mb-2 h-6 w-6 text-orange-500" />
                       <span className="text-[13px] font-semibold uppercase tracking-wider">Email</span>

@@ -158,7 +158,7 @@ export function AppointmentsCalendar() {
             <div className="flex items-center justify-between p-1 px-1.5 mb-1">
               <span className={cn(
                 "text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full transition-colors",
-                isToday(day) ? "bg-[#006bff] text-primary-foreground" : "group-hover:bg-muted"
+                isToday(day) ? "bg-[hsl(var(--primary))] text-primary-foreground" : "group-hover:bg-muted"
               )}>
                 {formattedDate}
               </span>

@@ -267,16 +267,16 @@ export default function PatientDetail() {
             </div>
 
             <TabsList variant="line" className="h-auto p-0 bg-transparent gap-8 border-none overflow-x-auto justify-start no-scrollbar">
-              <TabsTrigger variant="line" value="info" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[#006bff] rounded-none transition-all flex items-center gap-2">
+              <TabsTrigger variant="line" value="info" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] rounded-none transition-all flex items-center gap-2">
                 <User className="h-4 w-4" /> Patient Bio
               </TabsTrigger>
-              <TabsTrigger variant="line" value="appointments" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[#006bff] rounded-none transition-all flex items-center gap-2">
+              <TabsTrigger variant="line" value="appointments" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] rounded-none transition-all flex items-center gap-2">
                 <Calendar className="h-4 w-4" /> Clinical Visits
               </TabsTrigger>
-              <TabsTrigger variant="line" value="payments" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[#006bff] rounded-none transition-all flex items-center gap-2">
+              <TabsTrigger variant="line" value="payments" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] rounded-none transition-all flex items-center gap-2">
                 <Receipt className="h-4 w-4" /> Financials
               </TabsTrigger>
-              <TabsTrigger variant="line" value="reports" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[#006bff] rounded-none transition-all flex items-center gap-2">
+              <TabsTrigger variant="line" value="reports" className="text-sm font-medium px-0 pb-3 h-auto data-[state=active]:text-slate-700 data-[state=active]:font-semibold border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] rounded-none transition-all flex items-center gap-2">
                 <FileSearch className="h-4 w-4" /> Diagnostic Reports
               </TabsTrigger>
             </TabsList>
@@ -592,7 +592,7 @@ export default function PatientDetail() {
                           </div>
                         </TableCell>
                         <TableCell className="pr-6 text-right">
-                          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-black uppercase text-[#006bff] hover:bg-slate-50 transition-colors gap-1">
+                          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-black uppercase text-[hsl(var(--primary))] hover:bg-slate-50 transition-colors gap-1">
                             Review PDF <ChevronRight className="h-3.5 w-3.5" />
                           </Button>
                         </TableCell>

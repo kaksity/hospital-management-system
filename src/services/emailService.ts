@@ -173,16 +173,16 @@ class EmailService {
         <style>
           body { line-height: 1.6; color: #333; margin: 0; padding: 0; font-family: inherit, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
           .container { max-width: 600px; margin: 0 auto; background: #f9fafb; }
-          .header { background: #006bff; color: white; padding: 40px 20px; text-align: center; }
+          .header { background: hsl(var(--primary)); color: white; padding: 40px 20px; text-align: center; }
           .logo { font-size: 24px; font-weight: 600; letter-spacing: 1px; color: white; text-decoration: none; }
           .content { padding: 30px; background: white; border-radius: 8px; margin: -20px 20px 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-          .report-info { background: #f3f4f6; border-radius: 6px; padding: 20px; margin: 20px 0; border-left: 4px solid #006bff; }
+          .report-info { background: #f3f4f6; border-radius: 6px; padding: 20px; margin: 20px 0; border-left: 4px solid hsl(var(--primary)); }
           .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
           .label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; letter-spacing: 1px; }
           .value { font-size: 14px; font-weight: 500; color: #111827; }
           .summary { color: #4b5563; font-size: 14px; background: #fdfdfd; border: 1px solid #e5e7eb; padding: 15px; border-radius: 4px; margin: 20px 0; }
           .cta { text-align: center; margin: 30px 0; }
-          .button { background: #006bff; color: white !important; padding: 10px 20px; font-size: 14px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block; }
+          .button { background: hsl(var(--primary)); color: white !important; padding: 10px 20px; font-size: 14px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block; }
           .footer { text-align: center; padding: 30px; color: #9ca3af; font-size: 12px; }
         </style>
       </head>
@@ -273,15 +273,15 @@ class EmailService {
         <style>
           body { line-height: 1.6; color: #333; margin: 0; padding: 0; font-family: inherit, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
           .container { max-width: 600px; margin: 0 auto; background: #f9fafb; }
-          .header { background: #006bff; color: white; padding: 40px 20px; text-align: center; }
+          .header { background: hsl(var(--primary)); color: white; padding: 40px 20px; text-align: center; }
           .logo { font-size: 24px; font-weight: 600; letter-spacing: 1px; color: white; text-decoration: none; }
           .content { padding: 30px; background: white; border-radius: 8px; margin: -20px 20px 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
           .invoice-info { background: #f3f4f6; border-radius: 6px; padding: 20px; margin: 20px 0; }
           .label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; letter-spacing: 1px; }
           .value { font-size: 14px; font-weight: 500; color: #111827; }
-          .total-section { margin-top: 10px; padding-top: 10px; border-top: 2px solid #006bff; }
+          .total-section { margin-top: 10px; padding-top: 10px; border-top: 2px solid hsl(var(--primary)); }
           .cta { text-align: center; margin: 30px 0; }
-          .button { background: #006bff; color: white !important; padding: 10px 20px; font-size: 14px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block; }
+          .button { background: hsl(var(--primary)); color: white !important; padding: 10px 20px; font-size: 14px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block; }
           .footer { text-align: center; padding: 30px; color: #9ca3af; font-size: 12px; }
         </style>
       </head>
@@ -333,7 +333,7 @@ class EmailService {
                     <div style="font-size: 16px; font-weight: 600; color: #111827;">Total Amount</div>
                   </td>
                   <td style="text-align: right;">
-                    <div style="font-size: 18px; font-weight: 700; color: #006bff;">₦${emailData.totalAmount.toLocaleString()}</div>
+                    <div style="font-size: 18px; font-weight: 700; color: hsl(var(--primary));">₦${emailData.totalAmount.toLocaleString()}</div>
                   </td>
                 </tr>
               </table>

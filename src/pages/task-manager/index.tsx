@@ -576,7 +576,7 @@ export default function TaskManager() {
                               )} />
                               {s}
                             </div>
-                            {statusFilter === s && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-[#006bff]" />}
+                            {statusFilter === s && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-[hsl(var(--primary))]" />}
                           </Button>
                         ))}
                       </div>
@@ -615,7 +615,7 @@ export default function TaskManager() {
                               <Scan className="h-3.5 w-3.5 text-muted-foreground" />
                               {s}
                             </div>
-                            {selectedService === s && <CheckCircle2 className="h-3.5 w-3.5 text-[#006bff] ml-auto" />}
+                            {selectedService === s && <CheckCircle2 className="h-3.5 w-3.5 text-[hsl(var(--primary))] ml-auto" />}
                           </Button>
                         ))}
                       </div>
@@ -652,7 +652,7 @@ export default function TaskManager() {
                               )}
                               {a}
                             </div>
-                            {assignmentFilter === a && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-[#006bff]" />}
+                            {assignmentFilter === a && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-[hsl(var(--primary))]" />}
                           </Button>
                         ))}
                       </div>
@@ -823,8 +823,8 @@ export default function TaskManager() {
                 className={cn(
                   "h-8 gap-2 px-3 transition-all duration-200 font-medium",
                   viewMode === "board"
-                    ? "bg-white text-[#004eba] !font-semibold"
-                    : "text-slate-600 hover:bg-white/80 hover:text-[#004eba]"
+                    ? "bg-white text-[hsl(var(--primary))] !font-semibold"
+                    : "text-slate-600 hover:bg-white/80 hover:text-[hsl(var(--primary))]"
                 )}
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
@@ -837,8 +837,8 @@ export default function TaskManager() {
                 className={cn(
                   "h-8 gap-2 px-3 transition-all duration-200 font-medium",
                   viewMode === "list"
-                    ? "bg-white text-[#004eba] !font-semibold"
-                    : "text-slate-600 hover:bg-white/80 hover:text-[#004eba]"
+                    ? "bg-white text-[hsl(var(--primary))] !font-semibold"
+                    : "text-slate-600 hover:bg-white/80 hover:text-[hsl(var(--primary))]"
                 )}
               >
                 <List className="h-3.5 w-3.5" />
@@ -1222,7 +1222,7 @@ export default function TaskManager() {
                               {!isCollapsed && (
                                 <TableRow className="bg-slate-50/30 hover:bg-slate-50/40 transition-colors border">
                                   <TableCell colSpan={8} className="p-0">
-                                    <div className="px-16 py-4 flex flex-col gap-4 border-l-[3px] border-[#006bff] bg-slate-50/20">
+                                    <div className="px-16 py-4 flex flex-col gap-4 border-l-[3px] border-[hsl(var(--primary))] bg-slate-50/20">
                                       <div className="grid grid-cols-4 gap-8">
                                         <div className="space-y-1">
                                           <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest leading-none">Priority</p>

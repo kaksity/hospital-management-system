@@ -477,7 +477,7 @@ export default function Dashboard() {
                     )}
                     {data && 'upcomingAppointments' in data && (data as any).upcomingAppointments.length > 0 && (
                       <Link to="/appointments" className="block p-3 text-center border-t bg-slate-50/50 hover:bg-slate-50 transition-colors">
-                        <span className="text-[10px] font-black uppercase text-[#006bff] tracking-widest">View Full Schedule</span>
+                        <span className="text-[10px] font-black uppercase text-[hsl(var(--primary))] tracking-widest">View Full Schedule</span>
                       </Link>
                     )}
                   </div>

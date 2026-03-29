@@ -62,7 +62,7 @@ export function AccountSettings() {
               <div className="relative group">
                 <Avatar className="h-16 w-16 border-4 border-slate-50 shadow-sm transition-transform group-hover:scale-105 duration-300">
                   <AvatarImage src={avatarUrl} />
-                  <AvatarFallback className={cn("text-xl font-semibold bg-[#006bff] text-white")}>
+                  <AvatarFallback className={cn("text-xl font-semibold bg-[hsl(var(--primary))] text-white")}>
                     {user ? getAvatarInitials(user.name) : "U"}
                   </AvatarFallback>
                 </Avatar>

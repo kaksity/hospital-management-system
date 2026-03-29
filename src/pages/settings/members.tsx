@@ -241,19 +241,19 @@ export function MembersSettings() {
               <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 h-auto">
                 <TabsTrigger
                   value="active"
-                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[#006bff] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
+                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
                 >
                   Active Members ({activeMembers.length})
                 </TabsTrigger>
                 <TabsTrigger
                   value="pending"
-                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[#006bff] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
+                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
                 >
                   Pending Invites ({pendingMembers.length})
                 </TabsTrigger>
                 <TabsTrigger
                   value="inactive"
-                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[#006bff] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
+                  className="rounded-none font-semibold antialiased border-b-2 border-transparent data-[state=active]:border-[hsl(var(--primary))] data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6"
                 >
                   Inactive ({inactiveMembers.length})
                 </TabsTrigger>

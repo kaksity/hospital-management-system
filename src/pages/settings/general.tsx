@@ -39,12 +39,12 @@ export function GeneralSettings() {
         <Card className="lg:col-span-2 border shadow-none bg-white rounded-2xl overflow-hidden">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row items-center gap-8">
-              <div className="h-24 w-24 rounded-2xl bg-slate-50 border-2 border-dashed border-input/50 flex flex-col items-center justify-center gap-2 group hover:border-[#006bff]/50 hover:bg-blue-50/30 transition-all cursor-pointer overflow-hidden relative" onClick={handleLogoUpload}>
+              <div className="h-24 w-24 rounded-2xl bg-slate-50 border-2 border-dashed border-input/50 flex flex-col items-center justify-center gap-2 group hover:border-[hsl(var(--primary))]/50 hover:bg-blue-50/30 transition-all cursor-pointer overflow-hidden relative" onClick={handleLogoUpload}>
                 {logo ? (
                   <img src={logo} alt="Org Logo" className="w-full h-full object-contain" />
                 ) : (
                   <>
-                    <ImageIcon className="h-6 w-6 text-slate-400 group-hover:text-[#006bff] group-hover:scale-110 transition-all" />
+                    <ImageIcon className="h-6 w-6 text-slate-400 group-hover:text-[hsl(var(--primary))] group-hover:scale-110 transition-all" />
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Add Logo</span>
                   </>
                 )}

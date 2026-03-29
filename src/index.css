@@ -98,9 +98,9 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 211.6 100% 29.41%;
+    --primary: 305 89% 11%;
     --primary-foreground: 210 40% 98%;
-    --primary-glow: 217.2 91.2% 59.8%;
+    --primary-glow: 305 89% 40%;
 
     --secondary: 9.21 93.51% 58.51%;
     --secondary-foreground: 222.2 84% 4.9%;
@@ -137,8 +137,8 @@ All colors MUST be HSL.
     */
     --sidebar-background: 210 3.41% 97.8%;
     --sidebar-foreground: 210 7.01% 16.79%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
-    --sidebar-primary-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 305 89% 11%;
+    --sidebar-primary-foreground: 210 40% 98%;
     --sidebar-accent: 213.8 73.2% 23%;
     /* Slightly lighter for hover states */
     --sidebar-accent-foreground: 210 7.01% 16.79%;
@@ -146,7 +146,7 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Custom tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(221.2 83.2% 53.3%) 0%, hsl(217.2 91.2% 59.8%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(305 89% 25%) 0%, hsl(305 89% 11%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(210 40% 96%) 0%, hsl(214.3 31.8% 91.4%) 100%);
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
@@ -164,9 +164,9 @@ All colors MUST be HSL.
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 305 89% 60%;
     --primary-foreground: 222.2 84% 4.9%;
-    --primary-glow: 219.3 87.1% 65.9%;
+    --primary-glow: 305 89% 70%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -196,14 +196,14 @@ All colors MUST be HSL.
     /* Dark mode sidebar - using the same blue but slightly adjusted */
     --sidebar-background: 213.8 73.2% 15%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary: 305 89% 60%;
     --sidebar-primary-foreground: 222.2 84% 4.9%;
     --sidebar-accent: 213.8 73.2% 20%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 213.8 73.2% 22%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(217.2 91.2% 59.8%) 0%, hsl(219.3 87.1% 65.9%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(305 89% 60%) 0%, hsl(305 89% 70%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(217.2 32.6% 17.5%) 0%, hsl(220 26.8% 22.9%) 100%);
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.1);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -1px rgb(0 0 0 / 0.1);

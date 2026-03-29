@@ -483,7 +483,7 @@ export default function CreateInvoicePage() {
                         )}>₦{service.price.toLocaleString()}</span>
                         <div className={cn(
                           "h-6 w-6 rounded-lg flex items-center justify-center transition-all",
-                          isSelected ? "bg-primary/20 text-primary" : "bg-[#e6f0ff] text-[#006bff] opacity-0 group-hover:opacity-100"
+                          isSelected ? "bg-primary/20 text-primary" : "bg-[#e6f0ff] text-[hsl(var(--primary))] opacity-0 group-hover:opacity-100"
                         )}>
                           <Plus className="h-3.5 w-3.5" />
                         </div>
