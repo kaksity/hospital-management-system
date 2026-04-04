@@ -18,7 +18,7 @@ import { countryCodes } from "@/utils/countryData";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Check, X, Plus } from "lucide-react";
+import { CalendarIcon, Check, X, Plus, Skull } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -45,13 +45,21 @@ export function EditPatientModal({ open, onOpenChange, onSave, patient }: EditPa
         email: "",
         preferredCommunication: ["WhatsApp"] as string[],
         address: "",
-        isAdmitted: false,
+        admissionStatus: "outpatient" as "outpatient" | "admitted" | "deceased",
         ward: "",
         bedNumber: "",
+        dateOfDeath: "",
+        timeOfDeath: "",
+        causeOfDeath: "",
+        certifyingDoctor: "",
+        mortuaryBay: "",
+        mortuaryNotes: "",
     });
 
     useEffect(() => {
         if (patient) {
+            const admissionStatus = patient.admissionStatus ||
+                (patient.isAdmitted ? "admitted" : "outpatient");
             setFormData({
                 patientType: patient.patientType || "Private",
                 firstName: patient.name?.split(" ")[0] || "",
@@ -61,13 +69,19 @@ export function EditPatientModal({ open, onOpenChange, onSave, patient }: EditPa
                 maritalStatus: patient.maritalStatus || "",
                 nationality: patient.nationality || "NG",
                 phone: patient.phone?.split(" ").slice(1).join("") || "",
-                countryCode: "NG", // Assuming NG for now or parsing from phone if needed
+                countryCode: "NG",
                 email: patient.email || "",
                 preferredCommunication: patient.preferredCommunication || ["WhatsApp"],
                 address: patient.address || "",
-                isAdmitted: patient.isAdmitted || false,
+                admissionStatus,
                 ward: patient.ward || "",
                 bedNumber: patient.bedNumber || "",
+                dateOfDeath: patient.mortuaryInfo?.dateOfDeath || "",
+                timeOfDeath: patient.mortuaryInfo?.timeOfDeath || "",
+                causeOfDeath: patient.mortuaryInfo?.causeOfDeath || "",
+                certifyingDoctor: patient.mortuaryInfo?.certifyingDoctor || "",
+                mortuaryBay: patient.mortuaryInfo?.mortuaryBay || "",
+                mortuaryNotes: patient.mortuaryInfo?.notes || "",
             });
         }
     }, [patient, open]);
@@ -84,7 +98,16 @@ export function EditPatientModal({ open, onOpenChange, onSave, patient }: EditPa
             id: patient.id,
             name: `${formData.firstName} ${formData.lastName}`,
             status: patient.status,
+            isAdmitted: formData.admissionStatus === "admitted",
             lastActivity: new Date().toISOString().split('T')[0],
+            mortuaryInfo: formData.admissionStatus === "deceased" ? {
+                dateOfDeath: formData.dateOfDeath,
+                timeOfDeath: formData.timeOfDeath,
+                causeOfDeath: formData.causeOfDeath,
+                certifyingDoctor: formData.certifyingDoctor,
+                mortuaryBay: formData.mortuaryBay,
+                notes: formData.mortuaryNotes,
+            } : undefined,
         };
         onSave(patientData);
         onOpenChange(false);
@@ -292,21 +315,22 @@ export function EditPatientModal({ open, onOpenChange, onSave, patient }: EditPa
 
                         <div className="space-y-2 pt-4 border-t">
                             <Label required>Admission Status</Label>
-                            <Select 
-                                value={formData.isAdmitted ? "Yes" : "No"} 
-                                onValueChange={(v) => handleChange("isAdmitted", v === "Yes")}
+                            <Select
+                                value={formData.admissionStatus}
+                                onValueChange={(v) => handleChange("admissionStatus", v)}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="No">Outpatient</SelectItem>
-                                    <SelectItem value="Yes">Admitted</SelectItem>
+                                    <SelectItem value="outpatient">Outpatient</SelectItem>
+                                    <SelectItem value="admitted">Admitted</SelectItem>
+                                    <SelectItem value="deceased">Deceased</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
 
-                        {formData.isAdmitted && (
+                        {formData.admissionStatus === "admitted" && (
                             <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
                                 <div className="space-y-2">
                                     <Label required>Ward</Label>
@@ -322,6 +346,71 @@ export function EditPatientModal({ open, onOpenChange, onSave, patient }: EditPa
                                         placeholder="e.g. B-12"
                                         value={formData.bedNumber}
                                         onChange={(e) => handleChange("bedNumber", e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {formData.admissionStatus === "deceased" && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 p-4 rounded-xl border border-slate-200 bg-slate-50">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="h-7 w-7 rounded-lg bg-slate-200 flex items-center justify-center">
+                                        <Skull className="h-4 w-4 text-slate-600" />
+                                    </div>
+                                    <p className="text-sm font-semibold text-slate-700">Mortuary Information</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label required>Date of Death</Label>
+                                        <Input
+                                            type="date"
+                                            value={formData.dateOfDeath}
+                                            max={new Date().toISOString().split("T")[0]}
+                                            onChange={(e) => handleChange("dateOfDeath", e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Time of Death</Label>
+                                        <Input
+                                            type="time"
+                                            value={formData.timeOfDeath}
+                                            onChange={(e) => handleChange("timeOfDeath", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label required>Cause of Death</Label>
+                                    <Input
+                                        placeholder="e.g. Cardiac arrest, Respiratory failure"
+                                        value={formData.causeOfDeath}
+                                        onChange={(e) => handleChange("causeOfDeath", e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Certifying Doctor</Label>
+                                        <Input
+                                            placeholder="e.g. Dr. Sarah Johnson"
+                                            value={formData.certifyingDoctor}
+                                            onChange={(e) => handleChange("certifyingDoctor", e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Mortuary Bay</Label>
+                                        <Input
+                                            placeholder="e.g. Bay 3, Refrigeration Unit A"
+                                            value={formData.mortuaryBay}
+                                            onChange={(e) => handleChange("mortuaryBay", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Additional Notes</Label>
+                                    <Textarea
+                                        placeholder="Any additional notes regarding the deceased..."
+                                        value={formData.mortuaryNotes}
+                                        onChange={(e) => handleChange("mortuaryNotes", e.target.value)}
+                                        rows={2}
                                     />
                                 </div>
                             </div>

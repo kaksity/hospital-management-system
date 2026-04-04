@@ -1,10 +1,21 @@
 export type PatientStatus = "active" | "inactive" | "archived";
 export type PatientType = "private" | "hmo" | "regular";
 
+export type AdmissionStatus = "outpatient" | "admitted" | "deceased";
+
 export interface MedicalHistoryEntry {
     id: string;
     date: string;
     addedBy: string;
+    notes: string;
+}
+
+export interface MortuaryInfo {
+    dateOfDeath: string;
+    timeOfDeath: string;
+    causeOfDeath: string;
+    certifyingDoctor: string;
+    mortuaryBay: string;
     notes: string;
 }
 
@@ -31,6 +42,8 @@ export interface Patient {
     isAdmitted?: boolean;
     ward?: string;
     bedNumber?: string;
+    admissionStatus?: AdmissionStatus;
+    mortuaryInfo?: MortuaryInfo;
     medicalHistory?: MedicalHistoryEntry[];
 }
 

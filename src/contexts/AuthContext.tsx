@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type UserRole = 'admin' | 'lab' | 'customer_service' | 'doctor' | 'accounts';
+export type UserRole = 'admin' | 'lab' | 'customer_service' | 'doctor' | 'accounts' | 'mortuary';
 
 interface User {
   id: string;
@@ -53,6 +53,12 @@ const mockUsers: Record<UserRole, User> = {
     email: 'accounts@agora.com',
     role: 'accounts',
     name: 'Accounts Department'
+  },
+  mortuary: {
+    id: '6',
+    email: 'mortuary@agora.com',
+    role: 'mortuary',
+    name: 'Mortuary Services'
   }
 };
 

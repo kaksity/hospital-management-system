@@ -16,14 +16,11 @@ import {
   MoreHorizontal,
   Eye,
   Edit,
-  Mail,
-  Phone,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   Search,
-  Filter,
   Download,
   FileDown,
   Upload,
@@ -33,11 +30,8 @@ import {
   Archive,
   RotateCcw,
   Users,
-  UserPlus,
-  Activity,
-  CalendarCheck,
-  ArrowUpRight,
-  ListFilter
+  ListFilter,
+  Skull,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -46,8 +40,10 @@ import { SendInvoiceModal } from "@/components/Modals/SendInvoiceModal";
 import { ScheduleAppointmentModal } from "@/components/Modals/ScheduleAppointmentModal";
 import { SendMessageModal } from "@/components/Modals/SendMessageModal";
 import { ConfirmationModal } from "@/components/Modals/ConfirmationModal";
+import { MarkDeceasedModal } from "@/components/Modals/MarkDeceasedModal";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
-import { patients as initialPatients } from "@/data/patients";
+import { patients as initialPatients, MortuaryInfo } from "@/data/patients";
+import { useAuth } from "@/contexts/AuthContext";
 import { emailService } from "@/services/emailService";
 import { format } from "date-fns";
 
@@ -62,9 +58,11 @@ const formatDate = (dateString: string) => {
 
 export default function Patients() {
   const navigate = useNavigate();
-  const [patients] = useState(initialPatients);
+  const { user } = useAuth();
+  const isMortuary = user?.role === 'mortuary';
+  const [patients, setPatients] = useState(initialPatients);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState(isMortuary ? "deceased" : "all");
   const [timeFilter, setTimeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(16);
@@ -75,6 +73,7 @@ export default function Patients() {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isDeceasedModalOpen, setIsDeceasedModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
 
@@ -86,8 +85,17 @@ export default function Patients() {
       patient.email.toLowerCase().includes(globalFilter.toLowerCase()) ||
       patient.id.toLowerCase().includes(globalFilter.toLowerCase());
 
+    const isDeceased = patient.admissionStatus === "deceased";
+
+    // Mortuary role always sees only deceased patients
+    if (isMortuary && !isDeceased) return false;
+
     const matchesStatus =
-      statusFilter === "all" || patient.status === statusFilter;
+      statusFilter === "all"
+        ? true
+        : statusFilter === "deceased"
+          ? isDeceased
+          : !isDeceased && patient.status === statusFilter;
 
     const matchesTime = () => {
       if (timeFilter === "all") return true;
@@ -121,7 +129,8 @@ export default function Patients() {
     }).format(amount);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, isDeceased = false) => {
+    if (isDeceased) return "bg-slate-200 text-slate-700";
     const variants = {
       active: "bg-green-100 text-green-800",
       archived: "bg-red-100 text-red-800",
@@ -169,6 +178,21 @@ export default function Patients() {
   const handleArchivePatient = (patient: any) => {
     setSelectedPatient(patient);
     setIsArchiveModalOpen(true);
+  };
+
+  const handleMarkDeceased = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsDeceasedModalOpen(true);
+  };
+
+  const confirmDeceased = (patientId: string, mortuaryInfo: MortuaryInfo) => {
+    setPatients(prev =>
+      prev.map(p =>
+        p.id === patientId
+          ? { ...p, admissionStatus: "deceased" as const, mortuaryInfo }
+          : p
+      )
+    );
   };
 
   const confirmArchive = async () => {
@@ -221,35 +245,37 @@ export default function Patients() {
 
               <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
 
-              <div className="flex items-center gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2 h-9 text-slate-600 bg-white">
-                      <Download className="h-3.5 w-3.5" />
-                      Import/Export
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-[180px]">
-                    <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting CSV...")}>
-                      <FileDown className="h-4 w-4 text-muted-foreground" />
-                      Export to CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting PDF...")}>
-                      <FileDown className="h-4 w-4 text-muted-foreground" />
-                      Export to PDF
-                    </DropdownMenuItem>
-                    <div className="h-px bg-muted my-1" />
-                    <DropdownMenuItem className="gap-2" onClick={() => navigate("/patients/import")}>
-                      <Upload className="h-4 w-4 text-muted-foreground" />
-                      Import from CSV
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button onClick={handleAddPatient} size="sm" className="h-9 px-4">
-                  <Plus className="h-4 w-4" />
-                  Add New Patient
-                </Button>
-              </div>
+              {!isMortuary && (
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-2 h-9 text-slate-600 bg-white">
+                        <Download className="h-3.5 w-3.5" />
+                        Import/Export
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[180px]">
+                      <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting CSV...")}>
+                        <FileDown className="h-4 w-4 text-muted-foreground" />
+                        Export to CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2" onClick={() => console.log("Exporting PDF...")}>
+                        <FileDown className="h-4 w-4 text-muted-foreground" />
+                        Export to PDF
+                      </DropdownMenuItem>
+                      <div className="h-px bg-muted my-1" />
+                      <DropdownMenuItem className="gap-2" onClick={() => navigate("/patients/import")}>
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                        Import from CSV
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button onClick={handleAddPatient} size="sm" className="h-9 px-4">
+                    <Plus className="h-4 w-4" />
+                    Add New Patient
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -266,21 +292,24 @@ export default function Patients() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-auto h-10 px-3 text-sm font-medium bg-white border gap-2 shadow-none rounded-lg">
-                  <div className="flex items-center gap-2 text-slate-700 border-r border-border pr-2 mr-1">
-                    <ListFilter className="h-4 w-4" />
-                    <span className="text-sm font-semibold">Filter by</span>
-                  </div>
-                  <SelectValue placeholder="All" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
-                </SelectContent>
-              </Select>
+              {!isMortuary && (
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-auto h-10 px-3 text-sm font-medium bg-white border gap-2 shadow-none rounded-lg">
+                    <div className="flex items-center gap-2 text-slate-700 border-r border-border pr-2 mr-1">
+                      <ListFilter className="h-4 w-4" />
+                      <span className="text-sm font-semibold">Filter by</span>
+                    </div>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                    <SelectItem value="deceased">Deceased</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
 
               <Select value={timeFilter} onValueChange={setTimeFilter}>
                 <SelectTrigger className="w-auto h-10 px-3 text-sm font-medium bg-white border gap-2 shadow-none rounded-lg">
@@ -349,9 +378,15 @@ export default function Patients() {
                           {patient.gender}
                         </TableCell>
                         <TableCell>
-                           <Badge className={cn("capitalize px-2 py-0.5 text-[11px] font-semibold tracking-wide shadow-none border-none", getStatusBadge(patient.status))}>
-                             {patient.status}
-                           </Badge>
+                           {patient.admissionStatus === "deceased" ? (
+                             <Badge className="capitalize px-2 py-0.5 text-[11px] font-semibold tracking-wide shadow-none border-none bg-slate-200 text-slate-700 gap-1">
+                               <Skull className="h-3 w-3" /> Deceased
+                             </Badge>
+                           ) : (
+                             <Badge className={cn("capitalize px-2 py-0.5 text-[11px] font-semibold tracking-wide shadow-none border-none", getStatusBadge(patient.status))}>
+                               {patient.status}
+                             </Badge>
+                           )}
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <DropdownMenu>
@@ -367,34 +402,46 @@ export default function Patients() {
                                   View Details
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditPatient(patient)} className="flex items-center gap-2">
-                                <Edit className="h-4 w-4 text-muted-foreground" />
-                                Edit Patient
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleSendInvoice(patient)} className="flex items-center gap-2">
-                                <ReceiptText className="h-4 w-4 text-muted-foreground" />
-                                Send Invoice
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleScheduleAppointment(patient)} className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                Schedule Appointment
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleSendMessage(patient)} className="flex items-center gap-2">
-                                <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                                Send Message
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              {patient.status === 'archived' ? (
-                                <DropdownMenuItem onClick={() => console.log("Unarchiving...")} className="flex items-center gap-2 text-primary">
-                                  <RotateCcw className="h-4 w-4" />
-                                  Unarchive Patient
+                              {!isMortuary && (
+                                <DropdownMenuItem onClick={() => handleEditPatient(patient)} className="flex items-center gap-2">
+                                  <Edit className="h-4 w-4 text-muted-foreground" />
+                                  Edit Patient
                                 </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem onClick={() => handleArchivePatient(patient)} className="flex items-center gap-2 text-destructive font-medium">
-                                  <Archive className="h-4 w-4" />
-                                  Archive Patient
-                                </DropdownMenuItem>
+                              )}
+                              {!isMortuary && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem onClick={() => handleSendInvoice(patient)} className="flex items-center gap-2">
+                                    <ReceiptText className="h-4 w-4 text-muted-foreground" />
+                                    Send Invoice
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleScheduleAppointment(patient)} className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                    Schedule Appointment
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleSendMessage(patient)} className="flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                                    Send Message
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  {patient.admissionStatus !== "deceased" && (
+                                    <DropdownMenuItem onClick={() => handleMarkDeceased(patient)} className="flex items-center gap-2 text-slate-700 font-medium">
+                                      <Skull className="h-4 w-4" />
+                                      Mark as Deceased
+                                    </DropdownMenuItem>
+                                  )}
+                                  {patient.status === 'archived' ? (
+                                    <DropdownMenuItem onClick={() => console.log("Unarchiving...")} className="flex items-center gap-2 text-primary">
+                                      <RotateCcw className="h-4 w-4" />
+                                      Unarchive Patient
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem onClick={() => handleArchivePatient(patient)} className="flex items-center gap-2 text-destructive font-medium">
+                                      <Archive className="h-4 w-4" />
+                                      Archive Patient
+                                    </DropdownMenuItem>
+                                  )}
+                                </>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -539,6 +586,13 @@ export default function Patients() {
         actionLabel="Archive Patient"
         type="archive"
         onConfirm={confirmArchive}
+      />
+
+      <MarkDeceasedModal
+        open={isDeceasedModalOpen}
+        onOpenChange={setIsDeceasedModalOpen}
+        patient={selectedPatient}
+        onConfirm={confirmDeceased}
       />
     </div>
   );

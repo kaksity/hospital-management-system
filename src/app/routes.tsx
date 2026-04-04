@@ -77,7 +77,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <TaskManager />
             </DashboardLayout>
@@ -87,7 +87,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager/create"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <CreateTask />
             </DashboardLayout>
@@ -97,7 +97,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager/edit/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <EditTask />
             </DashboardLayout>
@@ -108,7 +108,7 @@ export function AppRoutes() {
       <Route
         path="/patients"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <Patients />
             </DashboardLayout>
@@ -141,7 +141,7 @@ export function AppRoutes() {
       <Route
         path="/patients/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts']}>
+          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <PatientDetail />
             </DashboardLayout>

@@ -71,6 +71,12 @@ const getNavigationItems = (role: string) => {
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
+  const mortuaryItems = [
+    { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
+    { title: "Patients", url: "/patients", icon: IdCard },
+    { title: "Settings", url: "/settings", icon: Settings },
+  ];
+
   switch (role) {
     case 'admin':
       return [...baseItems, ...adminItems];
@@ -81,6 +87,8 @@ const getNavigationItems = (role: string) => {
       return [...baseItems, ...customerServiceItems];
     case 'accounts':
       return [...baseItems, ...accountsItems];
+    case 'mortuary':
+      return [...baseItems, ...mortuaryItems];
     default:
       return baseItems;
   }
@@ -228,6 +236,14 @@ export function AppSidebar() {
                 className="h-8 text-[10px]"
               >
                 Accounts
+              </Button>
+              <Button
+                variant={user?.role === 'mortuary' ? "default" : "outline"}
+                size="sm"
+                onClick={() => switchUser('mortuary')}
+                className="h-8 text-[10px] col-span-2"
+              >
+                Mortuary
               </Button>
             </div>
 

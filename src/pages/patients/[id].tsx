@@ -25,7 +25,8 @@ import {
   Stethoscope,
   ChevronRight,
   Hospital,
-  Ambulance
+  Ambulance,
+  Skull,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
@@ -273,44 +274,53 @@ export default function PatientDetail() {
               </div>
 
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 px-4 gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                  onClick={() => setIsAmbulanceModalOpen(true)}
-                >
-                  <Ambulance className="h-4 w-4" />
-                  Request Ambulance
-                </Button>
-                <Button variant="outline" size="sm" className="h-9 px-4 gap-2">
-                  <Mail className="h-4 w-4" />
-                  Send Email
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 rounded-lg border border-transparent hover:border-slate-200 hover:bg-slate-50">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-[200px]">
-                    <DropdownMenuItem className="gap-2 text-sm py-2">
-                      <Edit className="h-4 w-4 text-muted-foreground" /> Edit Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="gap-2 text-sm py-2">
-                      <CalendarCheck className="h-4 w-4 text-muted-foreground" /> Schedule Visit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="gap-2 text-sm py-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" /> Export Records
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="gap-2 text-sm py-2"
-                      onClick={() => navigate(`/invoices/create?patientId=${patientData.id}`)}
+                {patient.admissionStatus === "deceased" ? (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200">
+                    <Skull className="h-4 w-4 text-slate-500" />
+                    <span className="text-sm font-semibold text-slate-600">Deceased</span>
+                  </div>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 px-4 gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                      onClick={() => setIsAmbulanceModalOpen(true)}
                     >
-                      <ReceiptIcon className="h-4 w-4 text-muted-foreground" /> Create Invoice
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <Ambulance className="h-4 w-4" />
+                      Request Ambulance
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-9 px-4 gap-2">
+                      <Mail className="h-4 w-4" />
+                      Send Email
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 rounded-lg border border-transparent hover:border-slate-200 hover:bg-slate-50">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[200px]">
+                        <DropdownMenuItem className="gap-2 text-sm py-2">
+                          <Edit className="h-4 w-4 text-muted-foreground" /> Edit Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 text-sm py-2">
+                          <CalendarCheck className="h-4 w-4 text-muted-foreground" /> Schedule Visit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="gap-2 text-sm py-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" /> Export Records
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="gap-2 text-sm py-2"
+                          onClick={() => navigate(`/invoices/create?patientId=${patientData.id}`)}
+                        >
+                          <ReceiptIcon className="h-4 w-4 text-muted-foreground" /> Create Invoice
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                )}
               </div>
             </div>
 
