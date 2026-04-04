@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,18 +15,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
 import { AmbulanceUrgency } from "@/data/ambulanceRequests";
-import { patients as allPatients } from "@/data/patients";
-import { AlertTriangle, MapPin, Ambulance, ChevronRight, Search, X, User } from "lucide-react";
+import { AlertTriangle, MapPin, Ambulance, ChevronRight } from "lucide-react";
 
 interface RequestAmbulanceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Pre-selected patient (from patient detail page). When omitted, a searchable picker is shown. */
-  patient?: any;
+  patient: any;
   onSubmit: (data: {
     patientId: string;
     patientName: string;
@@ -41,78 +38,20 @@ interface RequestAmbulanceModalProps {
 }
 
 const URGENCY_OPTIONS: { value: AmbulanceUrgency; label: string; description: string; color: string }[] = [
-  {
-    value: "critical",
-    label: "Critical",
-    description: "Life-threatening, immediate response required",
-    color: "border-red-500 bg-red-50 text-red-700",
-  },
-  {
-    value: "high",
-    label: "High",
-    description: "Serious condition, urgent transport needed",
-    color: "border-orange-500 bg-orange-50 text-orange-700",
-  },
-  {
-    value: "medium",
-    label: "Medium",
-    description: "Stable but requires prompt medical attention",
-    color: "border-yellow-500 bg-yellow-50 text-yellow-700",
-  },
-  {
-    value: "low",
-    label: "Low",
-    description: "Non-urgent, routine transport",
-    color: "border-green-500 bg-green-50 text-green-700",
-  },
+  { value: "critical", label: "Critical", description: "Life-threatening, immediate response required", color: "border-red-500 bg-red-50 text-red-700" },
+  { value: "high",     label: "High",     description: "Serious condition, urgent transport needed",  color: "border-orange-500 bg-orange-50 text-orange-700" },
+  { value: "medium",   label: "Medium",   description: "Stable but requires prompt medical attention", color: "border-yellow-500 bg-yellow-50 text-yellow-700" },
+  { value: "low",      label: "Low",      description: "Non-urgent, routine transport",                color: "border-green-500 bg-green-50 text-green-700" },
 ];
 
-export function RequestAmbulanceModal({
-  open,
-  onOpenChange,
-  patient: preselectedPatient,
-  onSubmit,
-}: RequestAmbulanceModalProps) {
-  const [pickedPatient, setPickedPatient] = useState<any>(null);
-  const [patientSearch, setPatientSearch] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+export function RequestAmbulanceModal({ open, onOpenChange, patient, onSubmit }: RequestAmbulanceModalProps) {
   const [condition, setCondition] = useState("");
   const [urgency, setUrgency] = useState<AmbulanceUrgency | null>(null);
   const [pickupLocation, setPickupLocation] = useState("");
   const [notes, setNotes] = useState("");
-  const searchRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // The active patient is either the pre-selected one or the one picked inside the modal
-  const activePatient = preselectedPatient ?? pickedPatient;
-
-  // Filter patients for the picker
-  const filteredPatients = allPatients.filter((p) => {
-    const q = patientSearch.toLowerCase();
-    return (
-      p.name.toLowerCase().includes(q) ||
-      p.id.toLowerCase().includes(q) ||
-      p.phone.toLowerCase().includes(q)
-    );
-  });
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  // Reset form when modal closes
   useEffect(() => {
     if (!open) {
-      setPickedPatient(null);
-      setPatientSearch("");
-      setDropdownOpen(false);
       setCondition("");
       setUrgency(null);
       setPickupLocation("");
@@ -120,14 +59,14 @@ export function RequestAmbulanceModal({
     }
   }, [open]);
 
-  const isValid = activePatient && condition.trim() && urgency && pickupLocation.trim();
+  const isValid = condition.trim() && urgency && pickupLocation.trim();
 
   const handleSubmit = () => {
-    if (!isValid) return;
+    if (!isValid || !patient) return;
     onSubmit({
-      patientId: activePatient.id,
-      patientName: activePatient.name,
-      patientGender: activePatient.gender,
+      patientId: patient.id,
+      patientName: patient.name,
+      patientGender: patient.gender,
       condition: condition.trim(),
       urgency: urgency!,
       pickupLocation: pickupLocation.trim(),
@@ -138,17 +77,7 @@ export function RequestAmbulanceModal({
     onOpenChange(false);
   };
 
-  const handleSelectPatient = (p: any) => {
-    setPickedPatient(p);
-    setPatientSearch("");
-    setDropdownOpen(false);
-  };
-
-  const handleClearPatient = () => {
-    setPickedPatient(null);
-    setPatientSearch("");
-    setTimeout(() => searchRef.current?.focus(), 50);
-  };
+  if (!patient) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -166,115 +95,20 @@ export function RequestAmbulanceModal({
         </DialogHeader>
 
         <div className="space-y-6 pt-2">
-          {/* Patient Section */}
-          {preselectedPatient ? (
-            /* Pre-selected from patient detail page — just show summary */
-            <div className="flex items-center gap-3 p-4 rounded-xl border bg-muted/30">
-              <Avatar className="h-10 w-10 border border-muted shadow-sm">
-                <AvatarImage src={getPatientAvatarPath(preselectedPatient.id, preselectedPatient.gender)} alt={preselectedPatient.name} />
-                <AvatarFallback className={cn("text-xs font-semibold", getAvatarBg(preselectedPatient.name))}>
-                  {getAvatarInitials(preselectedPatient.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-slate-900">{preselectedPatient.name}</p>
-                <p className="text-xs text-muted-foreground font-mono">{preselectedPatient.id}</p>
-              </div>
-              <Badge variant="outline" className="capitalize shrink-0">
-                {preselectedPatient.status}
-              </Badge>
+          {/* Patient summary */}
+          <div className="flex items-center gap-3 p-4 rounded-xl border bg-muted/30">
+            <Avatar className="h-10 w-10 border border-muted shadow-sm">
+              <AvatarImage src={getPatientAvatarPath(patient.id, patient.gender)} alt={patient.name} />
+              <AvatarFallback className={cn("text-xs font-semibold", getAvatarBg(patient.name))}>
+                {getAvatarInitials(patient.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm text-slate-900">{patient.name}</p>
+              <p className="text-xs text-muted-foreground font-mono">{patient.id}</p>
             </div>
-          ) : (
-            /* Searchable patient picker */
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1.5 text-sm font-semibold">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
-                Patient <span className="text-red-500">*</span>
-              </Label>
-
-              {pickedPatient ? (
-                /* Picked — show selected patient card */
-                <div className="flex items-center gap-3 p-3 rounded-xl border bg-muted/30">
-                  <Avatar className="h-9 w-9 border border-muted shadow-sm">
-                    <AvatarImage src={getPatientAvatarPath(pickedPatient.id, pickedPatient.gender)} alt={pickedPatient.name} />
-                    <AvatarFallback className={cn("text-xs font-semibold", getAvatarBg(pickedPatient.name))}>
-                      {getAvatarInitials(pickedPatient.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-slate-900">{pickedPatient.name}</p>
-                    <p className="text-xs text-muted-foreground font-mono">{pickedPatient.id} · {pickedPatient.gender}</p>
-                  </div>
-                  <Badge variant="outline" className="capitalize shrink-0 text-xs">
-                    {pickedPatient.status}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-slate-700 shrink-0"
-                    onClick={handleClearPatient}
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ) : (
-                /* Search input + dropdown */
-                <div className="relative" ref={dropdownRef}>
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    ref={searchRef}
-                    placeholder="Search by name, ID, or phone..."
-                    value={patientSearch}
-                    onChange={(e) => {
-                      setPatientSearch(e.target.value);
-                      setDropdownOpen(true);
-                    }}
-                    onFocus={() => setDropdownOpen(true)}
-                    className="pl-9"
-                  />
-                  {dropdownOpen && (
-                    <div className="absolute z-50 mt-1 w-full rounded-xl border bg-white shadow-xl overflow-hidden">
-                      <ScrollArea className="max-h-[220px]">
-                        {filteredPatients.length === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-6">No patients found</p>
-                        ) : (
-                          filteredPatients.map((p) => (
-                            <button
-                              key={p.id}
-                              type="button"
-                              className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left border-b last:border-none"
-                              onMouseDown={(e) => {
-                                // Use mousedown so it fires before onBlur
-                                e.preventDefault();
-                                handleSelectPatient(p);
-                              }}
-                            >
-                              <Avatar className="h-8 w-8 shrink-0">
-                                <AvatarImage src={getPatientAvatarPath(p.id, p.gender)} alt={p.name} />
-                                <AvatarFallback className={cn("text-xs font-semibold", getAvatarBg(p.name))}>
-                                  {getAvatarInitials(p.name)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-slate-900 truncate">{p.name}</p>
-                                <p className="text-xs text-muted-foreground font-mono">{p.id} · {p.gender}</p>
-                              </div>
-                              <Badge
-                                variant="outline"
-                                className={cn("text-xs capitalize shrink-0", p.status === "active" ? "border-green-200 text-green-700" : "")}
-                              >
-                                {p.status}
-                              </Badge>
-                            </button>
-                          ))
-                        )}
-                      </ScrollArea>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+            <Badge variant="outline" className="capitalize shrink-0">{patient.status}</Badge>
+          </div>
 
           {/* Condition */}
           <div className="space-y-2">
@@ -286,17 +120,17 @@ export function RequestAmbulanceModal({
               id="condition"
               placeholder="e.g. Severe chest pain, loss of consciousness..."
               value={condition}
-              onChange={(e) => setCondition(e.target.value)}
+              onChange={e => setCondition(e.target.value)}
             />
           </div>
 
-          {/* Urgency Level */}
+          {/* Urgency */}
           <div className="space-y-3">
             <Label className="text-sm font-semibold">
               Urgency Level <span className="text-red-500">*</span>
             </Label>
             <div className="grid grid-cols-2 gap-2">
-              {URGENCY_OPTIONS.map((opt) => (
+              {URGENCY_OPTIONS.map(opt => (
                 <button
                   key={opt.value}
                   type="button"
@@ -325,20 +159,18 @@ export function RequestAmbulanceModal({
               id="pickup"
               placeholder="e.g. 12 Awolowo Road, Ikoyi, Lagos"
               value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
+              onChange={e => setPickupLocation(e.target.value)}
             />
           </div>
 
-          {/* Additional Notes */}
+          {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes" className="text-sm font-semibold">
-              Additional Notes
-            </Label>
+            <Label htmlFor="notes" className="text-sm font-semibold">Additional Notes</Label>
             <Textarea
               id="notes"
               placeholder="Any additional information for the paramedic team..."
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={e => setNotes(e.target.value)}
               rows={3}
               className="resize-none"
             />
@@ -346,9 +178,7 @@ export function RequestAmbulanceModal({
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t mt-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button
             onClick={handleSubmit}
             disabled={!isValid}

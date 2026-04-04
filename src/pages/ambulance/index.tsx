@@ -44,7 +44,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAmbulanceRequests } from "@/hooks/use-ambulance-requests";
-import { RequestAmbulanceModal } from "@/components/Modals/RequestAmbulanceModal";
+import { NewAmbulanceRequestModal } from "@/components/Modals/NewAmbulanceRequestModal";
 import { AmbulanceRequest, AmbulanceStatus, AmbulanceUrgency } from "@/data/ambulanceRequests";
 import { format } from "date-fns";
 
@@ -72,7 +72,6 @@ export default function AmbulanceRequests() {
   const [urgencyFilter, setUrgencyFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   // Filter requests
   const filtered = requests.filter((r) => {
@@ -97,10 +96,7 @@ export default function AmbulanceRequests() {
     critical: requests.filter((r) => r.urgency === "critical").length,
   };
 
-  const handleNewRequest = () => {
-    setSelectedPatient(null);
-    setIsModalOpen(true);
-  };
+  const handleNewRequest = () => setIsModalOpen(true);
 
   const handleSubmitRequest = (data: any) => {
     addRequest(data);
@@ -346,11 +342,9 @@ export default function AmbulanceRequests() {
         </div>
       </div>
 
-      {/* Modal */}
-      <RequestAmbulanceModal
+      <NewAmbulanceRequestModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        patient={selectedPatient}
         onSubmit={handleSubmitRequest}
       />
     </div>
