@@ -108,6 +108,7 @@ const getBreadcrumbs = (pathname: string) => {
     "/admin/products": { label: "Visa Products", href: "/admin/products" },
     "/admin/users": { label: "User Management", href: "/admin/users" },
     "/invoices": { label: "Invoices", href: "/invoices" },
+    "/ambulance": { label: "Ambulance Requests", href: "/ambulance" },
     "/invoices/create": { label: "Create Invoice", href: "/invoices/create" },
     "/templates": { label: "Report Templates", href: "/templates" },
     "/templates/create": { label: "Create Template", href: "/templates/create" },

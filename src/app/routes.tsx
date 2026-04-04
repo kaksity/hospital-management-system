@@ -40,6 +40,7 @@ import ReportTemplates from "@/pages/templates";
 import CreateTemplate from "@/pages/templates/create";
 import EditTemplate from "@/pages/templates/edit";
 import EditDiagnosticReport from "@/pages/diagnostic-reports/edit";
+import AmbulanceRequests from "@/pages/ambulance";
 
 export function AppRoutes() {
   return (
@@ -345,6 +346,17 @@ export function AppRoutes() {
         />
         <Route index element={<Navigate to="/settings/general" replace />} />
       </Route>
+
+      <Route
+        path="/ambulance"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'doctor', 'customer_service']}>
+            <DashboardLayout>
+              <AmbulanceRequests />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

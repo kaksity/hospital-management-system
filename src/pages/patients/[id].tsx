@@ -24,7 +24,8 @@ import {
   FileSearch,
   Stethoscope,
   ChevronRight,
-  Hospital
+  Hospital,
+  Ambulance
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarInitials, getPatientAvatarPath, getAvatarBg } from "@/utils/avatarUtils";
@@ -47,6 +48,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { UploadReportModal } from "@/components/Modals/UploadReportModal";
+import { RequestAmbulanceModal } from "@/components/Modals/RequestAmbulanceModal";
+import { useAmbulanceRequests } from "@/hooks/use-ambulance-requests";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/dateFormatter";
 import { formatCurrency } from "@/utils/formatCurrency";
@@ -63,6 +66,8 @@ export default function PatientDetail() {
   const [newHistoryNote, setNewHistoryNote] = React.useState("");
   const [reports, setReports] = React.useState<any[]>([]);
   const [isUploadReportModalOpen, setIsUploadReportModalOpen] = React.useState(false);
+  const [isAmbulanceModalOpen, setIsAmbulanceModalOpen] = React.useState(false);
+  const { addRequest } = useAmbulanceRequests();
 
   // Find the patient in our central data store
   const patient = React.useMemo(() => {
@@ -268,6 +273,15 @@ export default function PatientDetail() {
               </div>
 
               <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-4 gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                  onClick={() => setIsAmbulanceModalOpen(true)}
+                >
+                  <Ambulance className="h-4 w-4" />
+                  Request Ambulance
+                </Button>
                 <Button variant="outline" size="sm" className="h-9 px-4 gap-2">
                   <Mail className="h-4 w-4" />
                   Send Email
@@ -774,11 +788,18 @@ export default function PatientDetail() {
         </div>
       </Tabs>
 
-      <UploadReportModal 
-         open={isUploadReportModalOpen} 
-         onOpenChange={setIsUploadReportModalOpen} 
-         onUpload={handleUploadReport} 
-         patientName={patientData.name} 
+      <UploadReportModal
+         open={isUploadReportModalOpen}
+         onOpenChange={setIsUploadReportModalOpen}
+         onUpload={handleUploadReport}
+         patientName={patientData.name}
+      />
+
+      <RequestAmbulanceModal
+        open={isAmbulanceModalOpen}
+        onOpenChange={setIsAmbulanceModalOpen}
+        patient={patient}
+        onSubmit={(data) => addRequest(data)}
       />
     </div>
   );

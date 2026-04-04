@@ -1,4 +1,4 @@
-import { Home, FileText, Settings, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, Receipt, BarChart3, LayoutGrid, ClipboardCheck, CalendarCheck, IdCard, Hospital, Stethoscope, LayoutPanelTop, CircleDollarSign } from "lucide-react";
+import { Home, FileText, Settings, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, Receipt, BarChart3, LayoutGrid, ClipboardCheck, CalendarCheck, IdCard, Hospital, Stethoscope, LayoutPanelTop, CircleDollarSign, Ambulance } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -39,6 +39,7 @@ const getNavigationItems = (role: string) => {
     { title: "Doctors", url: "/doctors", icon: Stethoscope },
     { title: "Services", url: "/services", icon: LayoutGrid },
     { title: "Templates", url: "/templates", icon: LayoutPanelTop },
+    { title: "Ambulance", url: "/ambulance", icon: Ambulance },
     { title: "Communication", url: "/communication", icon: MessageSquareMore },
     { title: "Insights", url: "/insights", icon: BarChart3 },
     { title: "Payments", url: "/payments", icon: CircleDollarSign },
@@ -48,6 +49,7 @@ const getNavigationItems = (role: string) => {
   const labDoctorItems = [
     { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
     { title: "Patients", url: "/patients", icon: IdCard },
+    { title: "Ambulance", url: "/ambulance", icon: Ambulance },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
     { title: "Templates", url: "/templates", icon: LayoutPanelTop },
     { title: "Settings", url: "/settings", icon: Settings },
@@ -56,6 +58,7 @@ const getNavigationItems = (role: string) => {
   const customerServiceItems = [
     { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
     { title: "Patients", url: "/patients", icon: IdCard },
+    { title: "Ambulance", url: "/ambulance", icon: Ambulance },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
     { title: "Communication", url: "/communication", icon: MessageSquareMore },
     { title: "Settings", url: "/settings", icon: Settings },
