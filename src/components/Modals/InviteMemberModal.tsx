@@ -85,7 +85,8 @@ export function InviteMemberModal({ open, onOpenChange, onInvite }: InviteMember
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lab">Radiology Lab</SelectItem>
+                <SelectItem value="radiology">Radiology</SelectItem>
+                <SelectItem value="laboratory">Laboratory</SelectItem>
                 <SelectItem value="customer_service">Customer Service</SelectItem>
                 <SelectItem value="doctor">Doctor</SelectItem>
                 <SelectItem value="accounts">Accounts</SelectItem>

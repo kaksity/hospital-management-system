@@ -1,4 +1,4 @@
-import { Home, FileText, Settings, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, Receipt, BarChart3, LayoutGrid, ClipboardCheck, CalendarCheck, IdCard, Hospital, Stethoscope, LayoutPanelTop, CircleDollarSign, Ambulance } from "lucide-react";
+import { Home, FileText, Settings, Briefcase, ChevronDown, UserIcon, LogOut, MessageSquareMore, Receipt, BarChart3, LayoutGrid, ClipboardCheck, CalendarCheck, IdCard, Hospital, Stethoscope, LayoutPanelTop, CircleDollarSign, Ambulance, BookOpen } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -46,12 +46,20 @@ const getNavigationItems = (role: string) => {
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
-  const labDoctorItems = [
+  const radiologyItems = [
     { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
     { title: "Patients", url: "/patients", icon: IdCard },
     { title: "Ambulance", url: "/ambulance", icon: Ambulance },
     { title: "Diagnostic Reports", url: "/diagnostic-reports", icon: FileText },
     { title: "Templates", url: "/templates", icon: LayoutPanelTop },
+    { title: "Settings", url: "/settings", icon: Settings },
+  ];
+
+  const laboratoryItems = [
+    { title: "Tasks", url: "/task-manager", icon: ClipboardCheck },
+    { title: "Patients", url: "/patients", icon: IdCard },
+    { title: "Lab Reports", url: "/lab-reports", icon: FileText },
+    { title: "Test Catalog", url: "/lab-reports/catalog", icon: BookOpen },
     { title: "Settings", url: "/settings", icon: Settings },
   ];
 
@@ -80,9 +88,11 @@ const getNavigationItems = (role: string) => {
   switch (role) {
     case 'admin':
       return [...baseItems, ...adminItems];
-    case 'lab':
+    case 'radiology':
     case 'doctor':
-      return [...baseItems, ...labDoctorItems];
+      return [...baseItems, ...radiologyItems];
+    case 'laboratory':
+      return [...baseItems, ...laboratoryItems];
     case 'customer_service':
       return [...baseItems, ...customerServiceItems];
     case 'accounts':
@@ -206,12 +216,20 @@ export function AppSidebar() {
                 Admin (Ope)
               </Button>
               <Button
-                variant={user?.role === 'lab' ? "default" : "outline"}
+                variant={user?.role === 'radiology' ? "default" : "outline"}
                 size="sm"
-                onClick={() => switchUser('lab')}
+                onClick={() => switchUser('radiology')}
                 className="h-8 text-[10px]"
               >
-                Lab
+                Radiology
+              </Button>
+              <Button
+                variant={user?.role === 'laboratory' ? "default" : "outline"}
+                size="sm"
+                onClick={() => switchUser('laboratory')}
+                className="h-8 text-[10px]"
+              >
+                Laboratory
               </Button>
               <Button
                 variant={user?.role === 'customer_service' ? "default" : "outline"}

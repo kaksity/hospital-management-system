@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type UserRole = 'admin' | 'lab' | 'customer_service' | 'doctor' | 'accounts' | 'mortuary';
+export type UserRole = 'admin' | 'radiology' | 'laboratory' | 'customer_service' | 'doctor' | 'accounts' | 'mortuary';
 
 interface User {
   id: string;
@@ -30,11 +30,17 @@ const mockUsers: Record<UserRole, User> = {
     role: 'admin',
     name: 'Ope Adeyomoye'
   },
-  lab: {
+  radiology: {
     id: '2',
-    email: 'lab@agora.com',
-    role: 'lab',
-    name: 'Radiology Lab'
+    email: 'radiology@agora.com',
+    role: 'radiology',
+    name: 'Radiology Department'
+  },
+  laboratory: {
+    id: '7',
+    email: 'laboratory@agora.com',
+    role: 'laboratory',
+    name: 'Laboratory Services'
   },
   customer_service: {
     id: '3',
@@ -102,7 +108,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let userRole: UserRole = 'customer_service';
 
       if (email.includes('admin') || email.includes('ope')) userRole = 'admin';
-      else if (email.includes('lab')) userRole = 'lab';
+      else if (email.includes('radiology')) userRole = 'radiology';
+      else if (email.includes('laboratory')) userRole = 'laboratory';
       else if (email.includes('doctor')) userRole = 'doctor';
       else if (email.includes('accounts')) userRole = 'accounts';
 

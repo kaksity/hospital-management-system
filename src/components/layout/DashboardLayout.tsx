@@ -109,10 +109,22 @@ const getBreadcrumbs = (pathname: string) => {
     "/admin/users": { label: "User Management", href: "/admin/users" },
     "/invoices": { label: "Invoices", href: "/invoices" },
     "/ambulance": { label: "Ambulance Requests", href: "/ambulance" },
+    "/lab-reports": { label: "Lab Reports", href: "/lab-reports" },
+    "/lab-reports/catalog": { label: "Test Catalog", href: "/lab-reports/catalog" },
     "/invoices/create": { label: "Create Invoice", href: "/invoices/create" },
     "/templates": { label: "Report Templates", href: "/templates" },
     "/templates/create": { label: "Create Template", href: "/templates/create" },
   };
+
+  // Handle dynamic lab-report detail pages
+  if (pathname.startsWith('/lab-reports/') && !['/lab-reports/catalog'].includes(pathname)) {
+    const reportId = pathname.split('/')[2];
+    return [
+      { label: "Dashboard", href: "/" },
+      { label: "Lab Reports", href: "/lab-reports" },
+      { label: `Report ${reportId}`, href: pathname },
+    ];
+  }
 
   // Handle dynamic patient detail pages
   if (pathname.startsWith('/patients/') && !['/patients/create', '/patients/import'].includes(pathname)) {

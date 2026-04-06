@@ -25,7 +25,7 @@ export default function Settings() {
       description: "Personal profile and identification",
       icon: User,
       path: "/settings/account",
-      roles: ['admin', 'lab', 'customer_service', 'doctor', 'accounts']
+      roles: ['admin', 'radiology', 'laboratory', 'customer_service', 'doctor', 'accounts']
     },
     {
       id: "security",
@@ -33,7 +33,7 @@ export default function Settings() {
       description: "Access and permissions",
       icon: Shield,
       path: "/settings/security",
-      roles: ['admin', 'lab', 'customer_service', 'doctor', 'accounts']
+      roles: ['admin', 'radiology', 'laboratory', 'customer_service', 'doctor', 'accounts']
     },
     {
       id: "communications",
@@ -49,7 +49,7 @@ export default function Settings() {
       description: "Alert preferences",
       icon: Bell,
       path: "/settings/notifications",
-      roles: ['admin', 'lab', 'customer_service', 'doctor', 'accounts']
+      roles: ['admin', 'radiology', 'laboratory', 'customer_service', 'doctor', 'accounts']
     },
     {
       id: "members",

@@ -41,6 +41,9 @@ import CreateTemplate from "@/pages/templates/create";
 import EditTemplate from "@/pages/templates/edit";
 import EditDiagnosticReport from "@/pages/diagnostic-reports/edit";
 import AmbulanceRequests from "@/pages/ambulance";
+import LabReports from "@/pages/lab-reports";
+import LabReportDetail from "@/pages/lab-reports/[id]";
+import LabCatalog from "@/pages/lab-reports/catalog";
 
 export function AppRoutes() {
   return (
@@ -77,7 +80,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'laboratory', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <TaskManager />
             </DashboardLayout>
@@ -87,7 +90,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager/create"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'laboratory', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <CreateTask />
             </DashboardLayout>
@@ -97,7 +100,7 @@ export function AppRoutes() {
       <Route
         path="/task-manager/edit/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'laboratory', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <EditTask />
             </DashboardLayout>
@@ -108,7 +111,7 @@ export function AppRoutes() {
       <Route
         path="/patients"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'laboratory', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <Patients />
             </DashboardLayout>
@@ -119,7 +122,7 @@ export function AppRoutes() {
       <Route
         path="/patients/create"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'customer_service']}>
             <DashboardLayout>
               <CreatePatient />
             </DashboardLayout>
@@ -130,7 +133,7 @@ export function AppRoutes() {
       <Route
         path="/patients/import"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'customer_service']}>
             <DashboardLayout>
               <ImportPatients />
             </DashboardLayout>
@@ -141,7 +144,7 @@ export function AppRoutes() {
       <Route
         path="/patients/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'laboratory', 'customer_service', 'doctor', 'accounts', 'mortuary']}>
             <DashboardLayout>
               <PatientDetail />
             </DashboardLayout>
@@ -289,7 +292,7 @@ export function AppRoutes() {
       <Route
         path="/templates"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'doctor']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'doctor']}>
             <DashboardLayout>
               <ReportTemplates />
             </DashboardLayout>
@@ -299,7 +302,7 @@ export function AppRoutes() {
       <Route
         path="/templates/create"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'doctor']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'doctor']}>
             <DashboardLayout>
               <CreateTemplate />
             </DashboardLayout>
@@ -309,7 +312,7 @@ export function AppRoutes() {
       <Route
         path="/templates/edit/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'lab', 'doctor']}>
+          <ProtectedRoute allowedRoles={['admin', 'radiology', 'doctor']}>
             <DashboardLayout>
               <EditTemplate />
             </DashboardLayout>
@@ -353,6 +356,39 @@ export function AppRoutes() {
           <ProtectedRoute allowedRoles={['admin', 'doctor', 'customer_service']}>
             <DashboardLayout>
               <AmbulanceRequests />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lab-reports"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'laboratory', 'doctor']}>
+            <DashboardLayout>
+              <LabReports />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lab-reports/:id"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'laboratory', 'doctor']}>
+            <DashboardLayout>
+              <LabReportDetail />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lab-reports/catalog"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'laboratory']}>
+            <DashboardLayout>
+              <LabCatalog />
             </DashboardLayout>
           </ProtectedRoute>
         }
